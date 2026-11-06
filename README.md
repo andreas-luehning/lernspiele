@@ -27,6 +27,7 @@ node tests/logik.mjs
 node tests/parade-logik.mjs
 node tests/browser.js
 node tests/parade-browser.js
+node tests/ziffern-browser.js
 ```
 
 Veröffentlicht wird über GitHub Pages vom Branch `main`. Jedes Spiel hat eine eigene Adresse, z. B. `…/lernspiele/zehnerweg/`.
