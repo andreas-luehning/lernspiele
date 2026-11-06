@@ -28,7 +28,12 @@ node tests/parade-logik.mjs
 node tests/browser.js
 node tests/parade-browser.js
 node tests/ziffern-browser.js
+node tests/app-browser.js
 ```
+
+## Als App installieren
+
+Auf der Startseite unter **„Für Erwachsene“**: In Chrome (Android, Rechner) gibt es den Knopf „Installieren“. Auf iPad und iPhone in Safari: Teilen-Symbol → „Zum Home-Bildschirm“. Als App startet es im Vollbild und funktioniert auch ohne Internet. Bei Problemen hilft dort die „Diagnose“.
 
 Veröffentlicht wird über GitHub Pages vom Branch `main`. Jedes Spiel hat eine eigene Adresse, z. B. `…/lernspiele/zehnerweg/`.
 

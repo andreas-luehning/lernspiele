@@ -8,8 +8,8 @@ docs/arbeitsblaetter/
 *.HEIC
 *.png
 *.PNG
-# Ausnahme: selbst erstellte Spielgrafiken dürfen bewusst freigegeben werden, z. B.:
-# !gemeinsam/bilder/*.png
+# Ausnahme: selbst erstellte Grafiken, bewusst freigegeben
+!gemeinsam/icons/*.png
 
 # Persönliche Daten / lokale Notizen
 privat/

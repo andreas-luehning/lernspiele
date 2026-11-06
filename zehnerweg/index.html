@@ -3,14 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#f3f9ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lernspiele">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../gemeinsam/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../gemeinsam/icons/apple-touch-icon.png">
 <title>Zehnerweg</title>
 <link rel="stylesheet" href="../gemeinsam/theme.css">
 <link rel="stylesheet" href="../gemeinsam/parade.css">
 <link rel="stylesheet" href="zehnerweg.css">
 <script src="../gemeinsam/thema.js"></script>
+<script type="module" src="../gemeinsam/app.js"></script>
 <script type="module" src="zehnerweg.js"></script>
 </head>
 <body>
@@ -40,6 +49,7 @@
     <h2>Für Erwachsene</h2>
     <p>Der Weg folgt dem Arbeitsblatt: Am Anfang der Straße steht die Startzahl, im großen Kreis auf der Straße die zweite Zahl. Das Kind zerlegt sie in die beiden kleinen Kreise, rechnet erst bis zur 10 (mittleres Kästchen) und dann weiter bis zum Ergebnis am Ende der Straße. Bei Plus markiert das Herz die verliebte Zahl zur Startzahl. Bei Minus steht die Hand beim Wegnehmen bis zur 10, und das Herz zeigt, dass zweiter Kreis und Ergebnis zusammen 10 ergeben. Sind alle Felder ausgefüllt, prüft die App automatisch.</p>
     <p>Belohnung ist die Schneckenparade: Einmal am Tag gibt es eine Runde von 5 Minuten. Sie beginnt mit dem ersten Strich. Jede richtige Aufgabe bringt ein Salatblatt, für 3 Blätter kommt eine neue Schnecke in den Garten. Danach kann weiter geübt werden, aber ohne Blätter. Zum Ausprobieren: <code>?probe</code> an die Adresse hängen (Runde 1 Minute, im Garten „Nächster Tag“).</p>
+    <p><button type="button" class="btn" data-vollbild-knopf hidden>Vollbild</button></p>
     <p>Die Zahlenerkennung läuft vollständig auf dem Gerät, es wird nichts übertragen. Am besten klappt es, wenn die Ziffern einer Zahl nebeneinander stehen und sich nicht berühren. Unter jedem Feld steht klein, was erkannt wurde. Mit × lässt sich ein Feld neu beschreiben. Wird ein Stift benutzt, ignoriert die App kurz danach Berührungen mit der Hand.</p>
   </div>
 

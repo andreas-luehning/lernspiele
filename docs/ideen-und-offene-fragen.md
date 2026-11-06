@@ -24,7 +24,7 @@ Beide Spiele nutzen dieselbe Zahlenerkennung, dieselbe 5-Minuten-Runde und diese
 - **Elternansicht** hinter einer kleinen Rechenaufgabe für Erwachsene: Übungstage, Aufgaben pro Tag, schwierige Aufgaben.
 - **Vorlesen** von Aufgabe und Tipp.
 - **Korrektur per Antippen,** wenn die Zahlenerkennung falsch liegt.
-- **Offline und installierbar** als Web-App.
+- ~~**Offline und installierbar** als Web-App.~~ Umgesetzt (Startseite → „Für Erwachsene“).
 
 ## Offene Fragen
 

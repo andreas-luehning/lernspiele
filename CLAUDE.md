@@ -21,15 +21,19 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 - Reines HTML, CSS und JavaScript (ES-Module), **kein Build-Schritt**, damit GitHub Pages die Dateien direkt ausliefern kann.
 - Ziel-Geräte: iPad (Safari) und Android-Tablets (Chrome), Hoch- und Querformat.
 - Speicher: `localStorage` mit dem Präfix `lernspiele:` und einer Versionsnummer im gespeicherten Objekt, immer über `gemeinsam/speicher.js` (prüft und bereinigt beim Lesen). Alle Zugriffe in `try/catch`. Weil alle Spiele unter derselben Adresse laufen, teilen sie sich den Speicher; so gibt es einen gemeinsamen Schneckengarten.
-- Später: als Web-App installierbar und offline nutzbar (Manifest und Service Worker).
+- **Installierbar und offline** (`manifest.webmanifest`, `sw.js`, `gemeinsam/app.js`): Als App startet es im Vollbild und geht ohne Internet. Der Service Worker lädt immer zuerst frisch aus dem Netz und nimmt nur offline den gespeicherten Stand. **Bei jeder Änderung an ausgelieferten Dateien `VERSION` in `sw.js` erhöhen; neue Dateien in `DATEIEN` eintragen** (`tests/app-browser.js` prüft die Liste).
 
 ### Struktur
 
 ```
-index.html              Startseite mit allen Spielen (startseite.css)
+index.html              Startseite mit allen Spielen (startseite.css), Bereich „Für Erwachsene“: Installieren, Vollbild, Diagnose
+manifest.webmanifest    App-Beschreibung (Name, Symbole, Vollbild)
+sw.js                   Service Worker (offline, Updates)
 gemeinsam/
   theme.css             Farb-Tokens (hell/dunkel), Schriften, Knöpfe
   thema.js              Tag/Nacht (klassisches Skript im <head>, damit nichts flackert)
+  app.js                Service Worker anmelden, Installieren, Vollbild, Diagnose (auf jeder Seite)
+  icons/                App-Symbole (SVG-Vorlagen, PNGs per werkzeuge/icons.js)
   schriften/            Andika und Grandstander als woff2, mit OFL-Lizenz
   ziffern.js            Zahlenerkennung (Modell laden, Striche → Zahl)
   ziffern-modell.json   Gewichte, siehe werkzeuge/ziffern-modell/
@@ -47,8 +51,8 @@ burgen/                 Spiel 2 (Idee): Leuchttisch-Burgen, schnell zählen
 gegenstaende/           Spiel 3 (Idee): Leuchttisch-Gegenstände, zählen und zerlegen
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
 prototypen/             Die Prototypen aus der Ideenphase (nicht verändern, nur als Vorlage)
-werkzeuge/              Trainingsskript für das Ziffern-Modell
-tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-browser.js, ziffern-browser.js (Playwright, Server auf Port 8123)
+werkzeuge/              Trainingsskript für das Ziffern-Modell, icons.js (App-Symbole erzeugen)
+tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-browser.js, ziffern-browser.js, app-browser.js (Playwright, Server auf Port 8123)
 ```
 
 ## Stand

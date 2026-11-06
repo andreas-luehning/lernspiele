@@ -18,6 +18,8 @@ Die Spiele werden von Kindern benutzt. Darum gilt: **so wenig Daten wie möglich
 | Eingeschleuster Code (XSS) | Kein Inline-JavaScript, CSP ohne `'unsafe-inline'`. Texte werden mit `textContent` gesetzt. `innerHTML` nur für feste, eigene SVG-Formen und selbst berechnete Zahlen, nie für gespeicherte Daten oder Eingaben | alle Skripte |
 | Manipulierte oder kaputte Daten in `localStorage` | Beim Lesen wird nur übernommen, was im Standard-Objekt vorkommt und den richtigen Typ hat. Unbekannte Schlüssel (auch `__proto__`) werden verworfen, Zahlen begrenzt. Kaputtes JSON führt zu Standardwerten | `gemeinsam/speicher.js` |
 | Manipulierte Gartendaten (Schneckenparade) | Jede Schnecke wird beim Lesen geprüft: nur bekannte Farben, Muster, Hüte; Namen höchstens 20 Zeichen und nur per `textContent` angezeigt; doppelte IDs, unsinnige Zahlen und unbekannte Deko werden verworfen; höchstens 3000 Tiere | `gemeinsam/parade-logik.js` (`bereinigeZustand`) |
+| Alte und neue Dateien gemischt (Browser-Cache) | Service Worker lädt immer zuerst frisch (`cache: 'no-cache'`), nur offline aus dem eigenen Speicher; alte Speicherstände werden bei neuer Version gelöscht | `sw.js` |
+| Manifest und Service Worker durch CSP blockiert / zu weit erlaubt | `manifest-src 'self'` und `worker-src 'self'`: nur eigene Dateien | CSP in jeder Seite |
 | Verweis verrät, woher jemand kommt | `<meta name="referrer" content="no-referrer">`, `fetch` ohne Cookies und Referrer | HTML-Seiten, `gemeinsam/ziffern.js` |
 | Seite taucht in Suchmaschinen auf | `<meta name="robots" content="noindex">` (verhindert nur das Auflisten, nicht den Zugriff) | HTML-Seiten |
 | Fremder Code über Abhängigkeiten (Supply Chain) | Keine Bibliotheken, kein Build-Schritt, kein npm im ausgelieferten Code | gesamtes Projekt |
@@ -43,7 +45,7 @@ Nur Spielstand: Schnecken (Farbe, Muster, Hut, Ausflüge, Datum, in welchem Spie
 ## Bei neuen Funktionen beachten
 
 - **Vorlesen (Web Speech API):** Nur Stimmen mit `voice.localService === true` verwenden. Online-Stimmen (z. B. in Chrome „Google Deutsch“) schicken den Text an einen Server.
-- **Offline und installierbar (Service Worker):** Nur eigene Dateien zwischenspeichern. Keine fremden Adressen in den Cache, Gültigkeitsbereich (`scope`) auf das Projekt begrenzen.
+- **Service Worker (`sw.js`, umgesetzt):** Speichert nur eigene Dateien (gleiche Herkunft), keine fremden Adressen; Gültigkeitsbereich ist der Projektordner. Er speichert keine Spieldaten, die liegen weiter nur in `localStorage`. Bei Änderungen `VERSION` erhöhen, damit alte Stände gelöscht werden.
 - **Schnecken umbenennen, Profile für mehrere Kinder:** Namen nur lokal speichern, Länge begrenzen (z. B. 20 Zeichen), immer mit `textContent` anzeigen. Im Hinweis für Eltern empfehlen: Spitzname statt echtem Namen.
 - **Elternansicht:** Die Rechenaufgabe davor ist eine Kindersperre, kein Schutz vor Erwachsenen. Dort keine Daten zeigen, die über das Üben hinausgehen.
 - **Kinderschrift zum Nachtrainieren:** Nur mit ausdrücklichem Einverständnis der Eltern, nur lokal, nie ins Repository und nie in eine Cloud.
