@@ -18,6 +18,7 @@ Beide Spiele nutzen dieselbe Zahlenerkennung, dieselbe 5-Minuten-Runde und diese
 
 ## Ideen für alle Spiele
 
+- **Malblatt für die Schnecken:** Ein eigener Platz zum Malen (z. B. im Garten nach der Runde), damit die Lust zu malen nicht in den Rechenfeldern landet. Bilder nur auf dem Gerät, nicht speichern oder nur bis zum Schließen.
 - **Startseite** mit großen Kacheln für jedes Spiel und dem Garten.
 - **Stufen:** erst mit Hilfe, dann ohne.
 - **Fehler-Aufgaben kommen wieder,** bis sie zweimal sicher sitzen.

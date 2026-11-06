@@ -91,8 +91,11 @@ function nachErkennung(f) {
   if (task && f.id === herzFeld(task) && f.value === task.ans[f.id]) {
     stage.classList.remove('love'); void stage.offsetWidth; stage.classList.add('love');
   }
-  // Automatisch prüfen, sobald alle Felder erkannt sind und keins mehr in Arbeit ist
-  if (!pruefeLaeuft && ORDER.every(id => FIELDS[id].value != null && !FIELDS[id].wartet)) check();
+  if (f.kritzel) { setHint('Hier ist Platz für eine Zahl. Tippe auf ×, dann kannst du neu schreiben.', 'bad'); return; }
+  // Automatisch prüfen, sobald alle Felder sicher erkannt sind und keins mehr in Arbeit ist
+  if (pruefeLaeuft || !ORDER.every(id => FIELDS[id].value != null && !FIELDS[id].wartet)) return;
+  if (ORDER.some(id => FIELDS[id].unsicher)) setHint('Bei einem Feld bin ich nicht sicher, was da steht. Schreib deutlicher oder tippe auf Prüfen.', '');
+  else check();
 }
 let pruefeLaeuft = false;
 for (const id of Object.keys(SHAPES)) {

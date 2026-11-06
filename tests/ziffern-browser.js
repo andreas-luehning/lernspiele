@@ -89,6 +89,21 @@ function striche(form, ox, oy, sx, sy, wackel) {
   await pruefe('11 (krumm)', 11, [EINS['Anstrich fast waagerecht'], EINS['Stamm nach links']]);
   const hinweis = await page.evaluate(async s => { const m = await import('/gemeinsam/ziffern.js'); return m.leseZahl(s, 220, 170).hinweis; }, striche(SIEBEN_OHNE['Balken'], 40, 30, 60, 100, 0));
   gesamt++; if (hinweis === 'siebenOhneQuerstrich') richtig++; else falsch.push('Hinweis bei 7 ohne Querstrich fehlt: ' + hinweis);
+  // Gekritzel: keine Zahl 0–20 (auch dick nachgezogen) gilt als Bild, Ausmalen und viele Striche schon
+  const ALLE = { 0: ZIFFERN[0], 1: EINS['mittlerer Anstrich'], 2: ZIFFERN[2], 3: ZIFFERN[3], 4: ZIFFERN[4], 5: ZIFFERN[5], 6: ZIFFERN[6], 7: SIEBEN['Querstrich'], 8: ZIFFERN[8], 9: ZIFFERN[9] };
+  const kritzel = s => page.evaluate(async s => (await import('/gemeinsam/ziffern.js')).istGekritzel(s, 220, 170), s);
+  for (let z = 0; z <= 20; z++) {
+    const f = String(z).split('').map(d => ALLE[d]); const breit = f.length === 1 ? 150 : 85;
+    const s = []; let x = 10; for (const g of f) { s.push(...striche(g, x, 10, breit, 150, 2)); x += breit + 12; }
+    gesamt++; if (!(await kritzel([...s, ...s]))) richtig++; else falsch.push(`Zahl ${z} (nachgezogen) als Gekritzel`);
+  }
+  const zickzack = [Array.from({ length: 30 }, (_, i) => ({ x: 10 + (i % 2) * 200, y: 10 + i * 5 }))];
+  const vieleStriche = Array.from({ length: 10 }, (_, k) => [{ x: 15 + k * 20, y: 60 }, { x: 20 + k * 20, y: 110 }]);
+  const dreiZahlen = [...striche(ALLE[1], 10, 30, 50, 100, 0), ...striche(ALLE[2], 80, 30, 50, 100, 0), ...striche(ALLE[3], 150, 30, 50, 100, 0)];
+  for (const [n, s] of Object.entries({ Ausmalen: zickzack, 'viele Striche': vieleStriche, 'drei Zahlen': dreiZahlen })) {
+    gesamt++; if (await kritzel(s)) richtig++; else falsch.push(`${n} nicht als Gekritzel erkannt`);
+  }
+
   // B: Regel aus – dann zählt auch die 7 ohne Querstrich
   await regel(false);
   for (const [n, f] of Object.entries(SIEBEN_OHNE)) await pruefe('Regel aus: 7 ' + n, 7, [f]);

@@ -175,6 +175,27 @@ function formKorrektur(p, strokes, siebenMitQuerstrich) {
   return { p, hinweis: null };
 }
 
+/* ---------- Gekritzel ----------
+   Malt ein Kind ins Feld statt eine Zahl zu schreiben, soll die App nicht raten (sonst prüft sie automatisch
+   und es zählt als Fehler). Grenzwerte gemessen an Ziffern 0–20 in voller Feldgröße (tests/ziffern-browser.js):
+   Tinte bis etwa das 5-Fache der Felddiagonale (auch dick nachgezogen), bis 6 Striche, höchstens 2 Zifferngruppen. */
+export const KRITZEL = { tinte: 6, striche: 8, gruppen: 2 };
+
+/** Ist das eher ein Bild als eine Zahl? */
+export function istGekritzel(strokes, fieldW, fieldH) {
+  const real = strokes.filter(s => s.length > 0);
+  if (!real.length) return false;
+  let tinte = 0;
+  for (const s of real) for (let i = 1; i < s.length; i++) tinte += Math.hypot(s[i].x - s[i - 1].x, s[i].y - s[i - 1].y);
+  if (tinte > KRITZEL.tinte * Math.hypot(fieldW, fieldH)) return true;
+  if (real.length > KRITZEL.striche) return true;
+  const gruppen = groupStrokes(real, fieldW).filter(g => {
+    let y0 = 1e9, y1 = -1e9; for (const s of g.strokes) for (const p of s) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+    return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;
+  });
+  return gruppen.length > KRITZEL.gruppen;
+}
+
 /**
  * Liest eine Zahl aus den Strichen eines Feldes.
  * @param {{x:number,y:number}[][]} strokes  Striche in Feld-Koordinaten (Pixel)

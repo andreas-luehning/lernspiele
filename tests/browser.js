@@ -83,6 +83,21 @@ const { schreibe } = require('./hilfen.js');
   });
   chk(r.gesperrt, 'Finger kurz nach Stift ignoriert (Handflächen-Schutz)');
   chk(r.frei, 'Finger nach 1,5 s wieder frei');
+  // Malen statt schreiben: kein Raten, kein automatisches Prüfen, freundlicher Hinweis
+  await page.click('#b-next'); await page.waitForTimeout(200);
+  const kb = await page.locator('#f-part1').boundingBox();
+  // im Inneren des Ovals hin und her (die Ecken des Rechtecks gehören nicht zum Feld)
+  await page.mouse.move(kb.x + kb.width * .28, kb.y + kb.height * .3); await page.mouse.down();
+  for (let i = 0; i < 24; i++) await page.mouse.move(kb.x + kb.width * (i % 2 ? .72 : .28), kb.y + kb.height * (.3 + .4 * i / 24), { steps: 3 });
+  await page.mouse.up(); await page.waitForTimeout(900);
+  chk(/Bitte nur eine Zahl/.test(await page.locator('#f-part1 + .tag').textContent()) && /Platz für eine Zahl/.test(await page.textContent('#hint')), 'Gekritzel: „Bitte nur eine Zahl“ und freundlicher Tipp');
+  chk(!(await page.evaluate(() => document.querySelector('#f-part1').classList.contains('no'))), 'Gekritzel zählt nicht als Fehler');
+  if (await page.locator('#f-part1 + .tag .clr').isVisible()) await page.click('#f-part1 + .tag .clr');
+  // Zurück-Knopf
+  await page.click('#b-zurueck'); await page.waitForTimeout(300);
+  chk(new URL(page.url()).pathname === '/' && await page.locator('.kachel').count() >= 1, 'Zurück-Knopf führt zur Startseite');
+  await page.goto(BASE + 'zehnerweg/'); await page.waitForTimeout(500);
+
   // Speicher: manipulierte Daten werden bereinigt
   await page.evaluate(() => localStorage.setItem('lernspiele:zehnerweg', JSON.stringify({ version: 1, modus: '<img src=x onerror=alert(1)>', gespiegelt: 'ja', __proto__: { x: 1 } })));
   await page.reload(); await page.waitForTimeout(500);

@@ -31,7 +31,9 @@ Eine Straße verbindet zwei Kästchen: Start und Ergebnis. Auf der Straße liegt
 ## Prüfen und Tipps
 
 - Unter jedem Feld steht klein, was erkannt wurde („erkannt: 7“, bei Unsicherheit „7 ?“), daneben × zum Löschen.
-- Sobald alle vier Felder erkannt sind, prüft die App automatisch. Richtig: Feld grün. Falsch: Feld rot mit kurzem Wackeln.
+- Sobald alle vier Felder **sicher** erkannt sind, prüft die App automatisch. Richtig: Feld grün. Falsch: Feld rot mit kurzem Wackeln.
+- Ist die Erkennung bei einem Feld unsicher („7 ?“), prüft die App nicht von selbst, sondern sagt: „Bei einem Feld bin ich nicht sicher, was da steht. Schreib deutlicher oder tippe auf Prüfen.“
+- **Malen statt schreiben:** Sieht ein Feld nach einem Bild aus (sehr viel Tinte wie beim Ausmalen, mehr als 8 Striche oder mehr als zwei Zahlen nebeneinander), liest die App keine Zahl. Unter dem Feld steht „Bitte nur eine Zahl“, der Tipp sagt: „Hier ist Platz für eine Zahl. Tippe auf ×, dann kannst du neu schreiben.“ Das zählt nicht als Fehler. Grenze: Ein einzelner Kreis oder ein Gesicht sieht für die Erkennung aus wie eine 0 und wird nicht als Bild erkannt.
 - Der Tipp gilt immer dem ersten falschen Feld:
   - Erster Kreis, Plus: „Welche Zahl ist in die 8 verliebt? Zusammen ergeben sie 10.“
   - Erster Kreis, Minus: „Wie viel musst du von 13 wegnehmen, um bei 10 zu landen?“
@@ -47,6 +49,7 @@ Eine Straße verbindet zwei Kästchen: Start und Ergebnis. Auf der Straße liegt
 
 - **Hochformat:** Straße senkrecht wie auf dem Blatt, Start unten, Ergebnis oben.
 - **Querformat:** Straße waagerecht. Auf breiten Bildschirmen stehen Aufgabe, Rechenart, Uhr, Tipp und Knöpfe in einer Seitenleiste links, damit der Weg die volle Höhe hat. Die App wählt das Layout, das die größeren Felder ergibt.
+- **Zurück:** Runder Pfeil-Knopf oben links führt zur Startseite. Eine laufende Runde läuft nach der Uhr weiter; angefangene Felder gehen verloren.
 - **Spiegeln:** Ein Knopf klappt Kreise und Zehner-Kästchen auf die andere Seite der Straße.
 - **Tag/Nacht:** Hell ist Standard, Wahl wird gemerkt.
 - Für Erwachsene: Knopf „?“ mit kurzer Erklärung.
