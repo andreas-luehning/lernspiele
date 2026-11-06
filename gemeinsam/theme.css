@@ -1,0 +1,82 @@
+/* Gemeinsames Aussehen aller Lernspiele: Schriften, Farb-Tokens (hell/dunkel), Grundlayout, Knöpfe.
+   Schriften liegen im Repository (SIL Open Font License), damit kein fremder Server angefragt wird. */
+
+@font-face { font-family: "Andika"; font-weight: 400; font-style: normal; font-display: swap; src: url("schriften/andika-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Andika"; font-weight: 700; font-style: normal; font-display: swap; src: url("schriften/andika-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Grandstander"; font-weight: 600; font-style: normal; font-display: swap; src: url("schriften/grandstander-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Grandstander"; font-weight: 800; font-style: normal; font-display: swap; src: url("schriften/grandstander-latin-800-normal.woff2") format("woff2"); }
+
+/* Hell ist Standard. Dunkel nur, wenn es eingeschaltet wurde (data-theme="dark", gesetzt von thema.js). */
+:root {
+  --paper: #f3f9ff; --sheet: #ffffff; --fg: #26315a; --muted: #5f6c94; --rule: #d6e6f7;
+  --ink: #4b3ae0; --road: #7f8db3; --dash: #ffffff; --line: #3a4675;
+  --oval: #f0eaff; --f-start: #fff6d1; --f-ten: #e2f6ff; --f-goal: #ffeaf2;
+  --arrow: #ffa25e; --heart: #ff6f9b; --good: #19a866; --good-bg: #dcf8ea; --bad: #e5484d; --bad-bg: #ffe6e7;
+  --star: #ffbe0b; --btn: #7a5cff; --btn-fg: #ffffff; --btn-edge: #5a3fe0; --chip: #ffffff;
+  --blob1: #dff1ff; --blob2: #fff1c9; --blob3: #ffe3ef;
+  --display: "Grandstander", "Comic Sans MS", "Chalkboard SE", system-ui, sans-serif;
+  --body: "Andika", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --paper: #121833; --sheet: #1c2348; --fg: #f1f3ff; --muted: #aab3dc; --rule: #343e6e;
+  --ink: #8fd3ff; --road: #46527f; --dash: #ffd23f; --line: #c8cff2;
+  --oval: #352e6b; --f-start: #3d3519; --f-ten: #173b54; --f-goal: #4a2036;
+  --arrow: #ff9d5c; --heart: #ff77a3; --good: #45d98d; --good-bg: #173a2b; --bad: #ff7b7f; --bad-bg: #452025;
+  --star: #ffd23f; --btn: #9a83ff; --btn-fg: #14193a; --btn-edge: #6a52d6; --chip: #1c2348;
+  --blob1: #1a2550; --blob2: #2a2540; --blob3: #2b1d3d;
+  color-scheme: dark;
+}
+
+html, body { height: 100%; margin: 0; }
+body {
+  background:
+    radial-gradient(circle at 8% 12%, var(--blob1) 0 14%, transparent 14.2%),
+    radial-gradient(circle at 92% 88%, var(--blob3) 0 16%, transparent 16.2%),
+    radial-gradient(circle at 96% 6%, var(--blob2) 0 9%, transparent 9.2%),
+    var(--paper);
+  color: var(--fg); font-family: var(--body); font-size: 16px;
+  -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; touch-action: manipulation; overscroll-behavior: none;
+}
+[hidden] { display: none !important; }
+
+/* Runde Symbol-Knöpfe (Tag/Nacht, Spiegeln, ?) */
+.info-btn {
+  width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--rule); background: var(--sheet);
+  color: var(--fg); font: 800 1.1rem var(--display); cursor: pointer; padding: 0;
+  display: inline-grid; place-items: center; text-decoration: none;
+}
+.info-btn svg { width: 22px; height: 22px; display: block; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.info-btn .sun { stroke: var(--star); }
+.info-btn[aria-pressed="true"] { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); }
+
+/* Umschalter mit mehreren Möglichkeiten (z. B. Plus / Minus / Gemischt) */
+.seg { display: inline-flex; border: 1.5px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--sheet); }
+.seg button {
+  font: 700 .95rem var(--body); color: var(--muted); background: none; border: 0; border-radius: 999px;
+  padding: 8px 14px; min-height: 44px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--btn); color: var(--btn-fg); }
+
+/* Große Knöpfe */
+.btn {
+  font: 600 1.05rem var(--display); border-radius: 999px; padding: 12px 22px; min-height: 50px; cursor: pointer;
+  border: 2px solid var(--rule); background: var(--sheet); color: var(--fg); box-shadow: 0 4px 0 var(--rule);
+}
+.btn:active { translate: 0 3px; box-shadow: 0 1px 0 var(--rule); }
+.btn.primary { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); min-width: 140px; box-shadow: 0 4px 0 var(--btn-edge); }
+.btn.primary:active { box-shadow: 0 1px 0 var(--btn-edge); }
+.btn:focus-visible, .seg button:focus-visible, .info-btn:focus-visible, a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Hinweis-Kasten für Erwachsene */
+.grown {
+  color: var(--fg); font-size: .95rem; background: var(--sheet);
+  border: 1.5px solid var(--rule); border-radius: 14px; padding: 4px 18px; box-shadow: 0 10px 30px rgb(0 0 0 / .18);
+}
+.grown h2 { font: 800 1.1rem var(--display); margin: 12px 0 0; }
+.grown p { margin: .5em 0; line-height: 1.5; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

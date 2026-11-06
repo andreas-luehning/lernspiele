@@ -6,8 +6,8 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 
 | Spiel | Inhalt | Stand |
 |---|---|---|
-| **Zehnerweg** | Zehnerübergang, Plus und Minus bis 20, Rechenweg über die 10 | Prototyp: `prototypen/zehnerweg.html` |
-| **Schneckenparade** | Gemeinsame Belohnung für alle Spiele: Salatblätter sammeln, Schnecken bekommen | Probe: `prototypen/schneckenparade.html` |
+| **Zehnerweg** | Zehnerübergang, Plus und Minus bis 20, Rechenweg über die 10 | spielbar: `zehnerweg/` (noch mit Sternen statt Schnecken) |
+| **Schneckenparade** | Gemeinsame Belohnung für alle Spiele: Salatblätter sammeln, Schnecken bekommen | als Nächstes; Probe: `prototypen/schneckenparade.html` |
 | Burgen, Gegenstände | Leuchttisch-Spiele: schnell zählen und zerlegen | Idee, siehe `docs/ideen-und-offene-fragen.md` |
 
 ## Ausprobieren
@@ -20,13 +20,24 @@ python3 -m http.server 8000
 
 Dann `http://localhost:8000/` im Browser öffnen. Die Prototypen funktionieren auch per Doppelklick.
 
+Prüfen (Playwright, bei laufendem Server auf Port 8123):
+
+```
+node tests/logik.mjs
+node tests/browser.js
+```
+
 Veröffentlicht wird über GitHub Pages vom Branch `main`. Jedes Spiel hat eine eigene Adresse, z. B. `…/lernspiele/zehnerweg/`.
 
 ## Aufbau
 
 | Ordner | Inhalt |
 |---|---|
-| `docs/` | Regeln der Spiele, Ideen und offene Fragen |
+| `index.html` | Startseite mit allen Spielen |
+| `zehnerweg/` | Spiel 1 |
+| `gemeinsam/` | Gemeinsame Teile: Aussehen, Schriften, Zahlenerkennung, Schreibfeld, Speicher |
+| `docs/` | Regeln der Spiele, Datenschutz und Sicherheit, Ideen und offene Fragen |
+| `tests/` | Automatische Prüfungen (Logik und Browser) |
 | `prototypen/` | Prototypen aus der Ideenphase (werden nicht verändert) |
 | `werkzeuge/ziffern-modell/` | Zahlenerkennung: Modell und Trainingsskript |
 
@@ -34,4 +45,4 @@ Hinweise für die Entwicklung mit Claude Code stehen in `CLAUDE.md`.
 
 ## Datenschutz
 
-Die Spiele speichern alles nur auf dem Gerät (`localStorage`). Es gibt keine Konten, kein Tracking, keinen Server und keine Werbung. Die Zahlenerkennung läuft im Browser.
+Die Spiele speichern alles nur auf dem Gerät (`localStorage`). Es gibt keine Konten, kein Tracking, keinen Server und keine Werbung, und die Seiten laden nichts von fremden Servern. Die Zahlenerkennung läuft im Browser, Handschrift wird nicht gespeichert. Details: `docs/datenschutz-und-sicherheit.md`.

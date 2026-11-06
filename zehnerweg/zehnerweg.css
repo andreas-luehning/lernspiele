@@ -1,0 +1,112 @@
+/* Zehnerweg: ein Arbeitsblatt. Kopfzeile, Bühne mit Straße und Feldern, Tipp und Knöpfe.
+   Im Hochformat steht die Straße senkrecht wie auf dem Blatt. Auf breiten Bildschirmen wandert alles außer dem Weg in eine Seitenleiste. */
+
+.stage { touch-action: none; }
+.app {
+  max-width: 1280px; margin: 0 auto; height: 100%; overflow: hidden; position: relative;
+  display: flex; flex-direction: column; gap: 8px;
+  padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+}
+header { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
+.brand { display: flex; flex-direction: column; color: inherit; text-decoration: none; border-radius: 8px; }
+.brand h1 { font-family: var(--display); font-weight: 800; font-size: 1.6rem; line-height: 1; margin: 0; letter-spacing: .01em; }
+.brand small { color: var(--muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+.eq { margin-right: auto; font: 800 clamp(1.7rem, 4vw, 2.5rem) var(--display); font-variant-numeric: tabular-nums; letter-spacing: .02em; line-height: 1; }
+.eq .q { color: var(--ink); }
+.meta { display: flex; align-items: center; gap: 10px; }
+.stars { display: flex; align-items: center; gap: 6px; font: 800 1.15rem var(--display); color: var(--fg); font-variant-numeric: tabular-nums; }
+.stars svg { width: 26px; height: 26px; fill: var(--star); }
+.stars.pop svg { animation: pop .6s ease; }
+@keyframes pop { 40% { transform: scale(1.5) rotate(-12deg); } }
+
+.bottom { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
+.hint { color: var(--muted); font-size: 1.05rem; min-height: 1.4em; flex: 1 1 300px; min-width: 0; }
+.hint.good { color: var(--good); font-weight: 700; }
+.hint.bad { color: var(--bad); font-weight: 700; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+.grown {
+  position: absolute; z-index: 5; top: 62px;
+  right: max(16px, env(safe-area-inset-right, 0px)); left: max(16px, env(safe-area-inset-left, 0px));
+  margin-left: auto; max-width: 62ch;
+}
+
+/* Bühne */
+.stage-wrap { flex: 1 1 0; display: flex; justify-content: center; align-items: center; min-height: 0; }
+.stage {
+  position: relative; width: 100%; aspect-ratio: var(--ar, 1000 / 600);
+  max-width: 100%; background: var(--sheet); border: 2px solid var(--rule); border-radius: 26px; box-shadow: 0 8px 0 var(--rule);
+}
+.stage svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.road { fill: var(--road); }
+.dash { fill: var(--dash); }
+.conn { stroke: var(--line); stroke-width: 2; fill: none; }
+.arr { stroke: var(--arrow); stroke-width: 9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.icon-line { stroke: var(--line); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.heart { fill: var(--heart); stroke: var(--line); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; }
+.stage:not(.minus) .for-minus, .stage.minus .for-plus { display: none; }
+.stage.love .heart { animation: beat 1.2s ease 2; }
+@keyframes beat { 15% { scale: 1.35; } 30% { scale: 1; } 45% { scale: 1.25; } 60% { scale: 1; } }
+.route { stroke: var(--good); stroke-width: 9; fill: none; stroke-linecap: round; opacity: 0; }
+.stage.done .route { opacity: .9; animation: drawroute 1.1s ease forwards; }
+.head { transition: stroke .25s; }
+.stage.done .head { stroke: var(--good); transition-delay: .9s; }
+@keyframes drawroute { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+
+/* Schreibfelder */
+.field {
+  position: absolute; box-sizing: border-box; background: var(--sheet);
+  border: 3px solid var(--line); border-radius: 18px; touch-action: none; overflow: hidden;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
+}
+.field.oval { border-radius: 50%; background: var(--oval); }
+#f-start { background: var(--f-start); } #f-ten { background: var(--f-ten); } #f-goal { background: var(--f-goal); }
+.field canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.field .given {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font: 700 clamp(1.8rem, 6vw, 3.6rem) var(--body); color: var(--fg); font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.field .op {
+  position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+  font: 800 1.5rem var(--display); color: var(--fg); pointer-events: none; line-height: 1;
+}
+.tag {
+  position: absolute; transform: translate(-50%, 6px); z-index: 2;
+  display: flex; align-items: center; gap: 2px; white-space: nowrap;
+  font: 700 .85rem var(--body); color: var(--muted); background: var(--sheet);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 0 0 0 10px; font-variant-numeric: tabular-nums;
+}
+.tag.unsure { border-style: dashed; color: var(--bad); }
+.tag .clr {
+  width: 36px; height: 32px; border: 0; background: none; color: var(--muted);
+  font: 700 1.1rem/1 var(--body); cursor: pointer; display: grid; place-items: center; padding: 0; border-radius: 999px;
+}
+.tag .clr:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.field.ok { border-color: var(--good); box-shadow: 0 0 0 4px var(--good-bg); }
+.field.no { border-color: var(--bad); box-shadow: 0 0 0 4px var(--bad-bg); animation: shake .35s; }
+@keyframes shake { 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
+.field.target:not(.has) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink) 18%, transparent); }
+
+/* Seitenleiste: auf breiten Bildschirmen wandern Aufgabe, Sterne und Knöpfe nach links, der Weg bekommt die volle Höhe. */
+.app.side {
+  display: grid; max-width: none; grid-template-columns: minmax(230px, 270px) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr); column-gap: 0; row-gap: 20px; padding-block: 16px;
+}
+.app.side header { grid-column: 1; grid-row: 1; flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 20px; padding-right: 24px; }
+.app.side .eq { margin-right: 0; font-size: clamp(1.8rem, 3.4vw, 2.6rem); }
+.app.side .seg { display: flex; flex-direction: column; border-radius: 16px; gap: 2px; }
+.app.side .seg button { border-radius: 12px; min-height: 46px; font-size: 1rem; text-align: left; padding: 8px 16px; }
+.app.side .meta { justify-content: space-between; }
+.app.side .stage-wrap { grid-column: 2; grid-row: 1 / span 2; border-left: 1.5px solid var(--rule); padding-left: 24px; }
+.app.side .bottom { grid-column: 1; grid-row: 2; flex-direction: column; align-items: stretch; justify-content: flex-end; flex-wrap: nowrap; gap: 16px; padding-right: 24px; }
+.app.side .hint { flex: 0 0 auto; line-height: 1.4; }
+.app.side .actions { flex-direction: column; gap: 12px; }
+.app.side .btn { width: 100%; }
+.app.side .grown { top: 16px; left: 300px; margin-left: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stage.done .route { opacity: .9; }
+}
