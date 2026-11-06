@@ -14,37 +14,44 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 3. **Fehler kosten nichts:** Es gibt Tipps statt Strafen. Nichts Gesammeltes geht verloren.
 4. **Hell und freundlich:** Pastellfarben, große Schreibfelder, Knöpfe mindestens 48 px, wenig Text. Hell ist Standard, Nachtmodus ist umschaltbar. Schriften: Grandstander (Überschriften, Zahlen) und Andika (Fließtext, für Leseanfänger gemacht).
 5. **Für alle Kinder:** Motive neutral halten (Schnecken, Tiere), keine Klischees wie „Autos für Jungen“.
-6. **Datenschutz:** Alles bleibt auf dem Gerät. Keine Konten, kein Tracking, kein Server, keine Werbung. Die Zahlenerkennung läuft im Browser.
+6. **Datenschutz und Sicherheit:** Alles bleibt auf dem Gerät. Keine Konten, kein Tracking, kein Server, keine Werbung, keine Anfragen an fremde Server (auch keine Schriften oder Bibliotheken von CDNs). Die Zahlenerkennung läuft im Browser. Details und Checkliste: `docs/datenschutz-und-sicherheit.md`.
 
 ## Technik
 
 - Reines HTML, CSS und JavaScript (ES-Module), **kein Build-Schritt**, damit GitHub Pages die Dateien direkt ausliefern kann.
 - Ziel-Geräte: iPad (Safari) und Android-Tablets (Chrome), Hoch- und Querformat.
-- Speicher: `localStorage` mit dem Präfix `lernspiele:` und einer Versionsnummer im gespeicherten Objekt. Alle Zugriffe in `try/catch`. Weil alle Spiele unter derselben Adresse laufen, teilen sie sich den Speicher; so gibt es einen gemeinsamen Schneckengarten.
+- Speicher: `localStorage` mit dem Präfix `lernspiele:` und einer Versionsnummer im gespeicherten Objekt, immer über `gemeinsam/speicher.js` (prüft und bereinigt beim Lesen). Alle Zugriffe in `try/catch`. Weil alle Spiele unter derselben Adresse laufen, teilen sie sich den Speicher; so gibt es einen gemeinsamen Schneckengarten.
 - Später: als Web-App installierbar und offline nutzbar (Manifest und Service Worker).
 
-### Geplante Struktur
+### Struktur
 
 ```
-index.html              Startseite mit allen Spielen
+index.html              Startseite mit allen Spielen (startseite.css)
 gemeinsam/
   theme.css             Farb-Tokens (hell/dunkel), Schriften, Knöpfe
+  thema.js              Tag/Nacht (klassisches Skript im <head>, damit nichts flackert)
+  schriften/            Andika und Grandstander als woff2, mit OFL-Lizenz
   ziffern.js            Zahlenerkennung (Modell laden, Striche → Zahl)
   ziffern-modell.json   Gewichte, siehe werkzeuge/ziffern-modell/
   schreibfeld.js        Schreibfeld mit robuster Stift-/Finger-Eingabe
-  runde.js              5-Minuten-Runde, eine pro Tag
-  parade.js             Schneckenparade: Logik, Zeichnen, Garten
-  speicher.js           localStorage mit Präfix, Version, try/catch
-zehnerweg/index.html    Spiel 1: Zehnerübergang nach Arbeitsblatt
+  speicher.js           localStorage mit Präfix, Version, try/catch, Bereinigen
+  runde.js              (geplant) 5-Minuten-Runde, eine pro Tag
+  parade.js             (geplant) Schneckenparade: Logik, Zeichnen, Garten
+zehnerweg/              Spiel 1: Zehnerübergang nach Arbeitsblatt
+  index.html, zehnerweg.css, zehnerweg.js (Seite)
+  aufgaben.js           Aufgaben, Tipps, Bewertung (ohne DOM, direkt testbar)
 burgen/                 Spiel 2 (Idee): Leuchttisch-Burgen, schnell zählen
 gegenstaende/           Spiel 3 (Idee): Leuchttisch-Gegenstände, zählen und zerlegen
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
 prototypen/             Die Prototypen aus der Ideenphase (nicht verändern, nur als Vorlage)
 werkzeuge/              Trainingsskript für das Ziffern-Modell
+tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Port 8123)
 ```
 
 ## Stand
 
+- **Schritt 1 erledigt:** Der Zehnerweg ist aus dem Prototyp in `zehnerweg/` und `gemeinsam/` aufgeteilt, mit Startseite. Verhalten wie im Prototyp (noch mit Sternen). Speicher: `lernspiele:zehnerweg` (Sterne, Spiegeln, Rechenart) und `lernspiele:einstellungen` (Tag/Nacht); alte Prototyp-Werte werden einmalig übernommen.
+- **Nächster Schritt:** Schneckenparade (`docs/schneckenparade.md`) mit `runde.js` und `parade.js`.
 - `prototypen/zehnerweg.html` ist ein funktionierender Prototyp in einer Datei (Modell eingebettet). `prototypen/zehnerweg.quelle.html` ist dieselbe Datei mit dem Platzhalter `__MODEL__` statt der Gewichte; die Gewichte liegen in `werkzeuge/ziffern-modell/model.json`.
 - `prototypen/schneckenparade.html` ist eine Probe der Belohnung. Die Aufgaben werden dort per Knopf simuliert.
 - Genaue Regeln: `docs/zehnerweg.md`, `docs/schneckenparade.md`. Ideen und offene Fragen: `docs/ideen-und-offene-fragen.md`.
@@ -62,6 +69,18 @@ werkzeuge/              Trainingsskript für das Ziffern-Modell
 - **Fotos der Arbeitsblätter** (`docs/arbeitsblaetter/`) und andere Fotos/Scans aus dem Unterricht. Sie sind per `.gitignore` ausgeschlossen und liegen nur lokal. Für die Umsetzung reicht die Beschreibung in `docs/`.
 - **Keine persönlichen Daten:** keine Namen von Kindern, Lehrkräften oder Schule, keine E-Mail-Adressen, keine Fotos von Personen, keine Kinderschrift-Proben. Testdaten und Beispiele immer erfunden.
 - Vor jedem Commit kurz `git status` prüfen; Bilddateien nur, wenn sie selbst erstellt sind (z. B. SVG-Grafiken der Spiele).
+
+## Sicherheit und Datenschutz (bei jeder Änderung mitdenken)
+
+Die Nutzer sind Kinder. Bei jeder neuen Funktion kurz prüfen und in der Antwort erwähnen, was sie für Datenschutz und Sicherheit bedeutet. Feste Regeln:
+
+- Jede HTML-Seite bekommt die Meta-Tags für CSP, Referrer und Robots (Vorlage: `zehnerweg/index.html`). Kein Inline-JavaScript, keine Inline-Styles im HTML.
+- Gespeicherte Daten und Eingaben nie per `innerHTML` einfügen, sondern mit `textContent`.
+- Gespeicherte Daten nur über `gemeinsam/speicher.js` lesen (Typprüfung gegen ein Standard-Objekt).
+- Keine fremden Server: keine CDNs, keine Analyse, keine Online-Stimmen beim Vorlesen.
+- Handschrift nie speichern oder übertragen.
+- Playwright-Tests prüfen bei jeder Seite: keine Anfragen an fremde Server, keine CSP-Verstöße.
+- Vor jedem Commit die Checkliste in `docs/datenschutz-und-sicherheit.md`.
 
 ## Arbeitsweise
 

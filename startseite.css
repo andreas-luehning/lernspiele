@@ -1,0 +1,27 @@
+.start {
+  box-sizing: border-box; max-width: 960px; margin: 0 auto; min-height: 100%;
+  padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; gap: 28px;
+}
+.start header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.start h1 { font: 800 clamp(2rem, 6vw, 3rem) var(--display); margin: 0; line-height: 1; }
+.start .sub { margin: 6px 0 0; color: var(--muted); font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; }
+
+.kacheln { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+.kachel {
+  display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 20px; text-decoration: none; color: var(--fg);
+  background: var(--sheet); border: 2px solid var(--rule); border-radius: 26px; box-shadow: 0 8px 0 var(--rule);
+}
+.kachel:active { translate: 0 4px; box-shadow: 0 4px 0 var(--rule); }
+.kachel .bild { width: 100%; height: auto; margin-bottom: 6px; }
+.kachel .name { font: 800 1.6rem var(--display); }
+.kachel .was { color: var(--muted); font-size: 1.05rem; }
+
+.k-road { fill: var(--road); }
+.k-arr { fill: none; stroke: var(--arrow); stroke-width: 4; stroke-linecap: round; }
+.k-oval { fill: var(--oval); stroke: var(--line); stroke-width: 1.6; }
+.k-start, .k-ten, .k-goal { stroke: var(--line); stroke-width: 1.6; }
+.k-start { fill: var(--f-start); } .k-ten { fill: var(--f-ten); } .k-goal { fill: var(--f-goal); }
+.kachel text { font: 800 17px var(--display); fill: var(--fg); }
+
+.fuss { margin-top: auto; color: var(--muted); font-size: .95rem; }
