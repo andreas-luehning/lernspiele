@@ -110,7 +110,7 @@ export class Schreibfeld {
     clearTimeout(this.timer); this.timer = 0;
     if (this.fixed) return;
     const r = leseZahl(this.strokes, this.w, this.h);
-    this.value = r ? r.value : null; this.conf = r ? r.conf : 0;
+    this.value = r ? r.value : null; this.conf = r ? r.conf : 0; this.hinweis = r ? r.hinweis : null;
     const has = this.strokes.length > 0;
     this.el.classList.toggle('has', has); this.tag.hidden = !has;
     this.read.textContent = r ? (r.conf < UNSICHER ? r.value + ' ?' : 'erkannt: ' + r.value) : 'nicht erkannt';
@@ -122,7 +122,7 @@ export class Schreibfeld {
 
   loeschen() {
     clearTimeout(this.timer); this.timer = 0;
-    this.strokes = []; this.cur = null; this.pid = null; this.value = null; this.conf = 0; this.punkte = 0;
+    this.strokes = []; this.cur = null; this.pid = null; this.value = null; this.conf = 0; this.punkte = 0; this.hinweis = null;
     this.tag.hidden = true;
     this.el.classList.remove('has', 'ok', 'no');
     this.zeichnen();

@@ -63,6 +63,14 @@ const ROOT = path.join(__dirname, '..');
   await vb.click(); await page.waitForTimeout(300);
   chk(await page.evaluate(() => !document.fullscreenElement), 'Vollbild wieder aus');
 
+  // 5b. Schalter „7 nur mit Querstrich“
+  const schalter = page.locator('input[data-einstellung=siebenMitQuerstrich]');
+  chk(await schalter.isChecked(), 'Regel „7 nur mit Querstrich“ ist standardmäßig an');
+  await schalter.click();
+  chk(await page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:erkennung')).siebenMitQuerstrich === false), 'Schalter aus wird gespeichert');
+  await schalter.click();
+  chk(await page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:erkennung')).siebenMitQuerstrich === true), 'Schalter wieder an');
+
   // 6. Diagnose
   await page.click('[data-diagnose-knopf]'); await page.waitForTimeout(1500);
   const d = await page.textContent('[data-diagnose-ausgabe]');

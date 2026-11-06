@@ -165,7 +165,8 @@ function check() {
   if (b.falsch.length) {
     paradeFalsch();
     const f = FIELDS[b.falsch[0]];
-    setHint((f.unsicher ? `Ich habe ${f.value} gelesen. Schreib es deutlicher, falls du etwas anderes meinst. ` : '') + tipp(task, f.id), 'bad');
+    if (f.hinweis === 'siebenOhneQuerstrich' && String(task.ans[f.id]).includes('7')) setHint('Ich habe eine 1 gelesen. Eine 7 bekommt einen Querstrich in der Mitte.', 'bad');
+    else setHint((f.unsicher ? `Ich habe ${f.value} gelesen. Schreib es deutlicher, falls du etwas anderes meinst. ` : '') + tipp(task, f.id), 'bad');
   } else if (b.leer.length) {
     setHint(`Bis hier stimmt alles! ${tipp(task, b.leer[0])}`, '');
   } else {

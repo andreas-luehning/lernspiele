@@ -13,13 +13,25 @@ const EINS = {
   'schräg': [[[.15, .4], [.65, 0], [.5, 1]]],
   'zwei Striche': [[[.15, .4], [.6, 0]], [[.6, 0], [.6, 1]]],
   'mit Fuß': [[[.2, .35], [.6, 0], [.6, 1]], [[.3, 1], [.9, 1]]],
+  // krummer, wie Kinder schreiben
+  'Anstrich fast waagerecht': [[[0, .12], [.6, 0], [.6, 1]]],
+  'Anstrich mit Haken': [[[.1, .45], [.05, .38], [.55, 0], [.58, 1]]],
+  'gebogener Stamm': [[[.15, .35], [.6, 0], [.68, .5], [.6, 1]]],
+  'Stamm nach links': [[[.2, .3], [.7, 0], [.4, 1]]],
 };
+// 7 mit Querstrich (so wird es in Deutschland gelernt)
 const SIEBEN = {
-  'Balken': [[[.05, 0], [.95, 0], [.4, 1]]],
   'Querstrich': [[[.05, 0], [.95, 0], [.4, 1]], [[.35, .5], [.85, .5]]],
+  'Querstrich, kurzer Balken': [[[.35, 0], [.85, 0], [.45, 1]], [[.4, .5], [.8, .5]]],
+  'Querstrich schief': [[[.05, 0], [.95, 0], [.4, 1]], [[.3, .58], [.85, .45]]],
+  'Querstrich kurz': [[[.1, 0], [.9, 0], [.45, 1]], [[.5, .5], [.75, .5]]],
+  'Querstrich gerade runter': [[[.1, 0], [.8, 0], [.7, 1]], [[.5, .5], [.95, .5]]],
+};
+// 7 ohne Querstrich: mit der Regel eine 1, ohne die Regel eine 7
+const SIEBEN_OHNE = {
+  'Balken': [[[.05, 0], [.95, 0], [.4, 1]]],
   'kurzer Balken': [[[.35, 0], [.85, 0], [.45, 1]]],
   'gerade runter': [[[.1, 0], [.8, 0], [.7, 1]]],
-  'Querstrich, kurzer Balken': [[[.35, 0], [.85, 0], [.45, 1]], [[.4, .5], [.8, .5]]],
 };
 const ZIFFERN = {
   0: [[[.5, 0], [.15, .2], [.1, .5], [.15, .8], [.5, 1], [.85, .8], [.9, .5], [.85, .2], [.5, 0]]],
@@ -54,6 +66,7 @@ function striche(form, ox, oy, sx, sy, wackel) {
     const m = await import('/gemeinsam/ziffern.js'); await m.ladeModell();
     const r = m.leseZahl(s, 220, 170); return r ? r.value : null;
   }, strokes);
+  const regel = an => page.evaluate(an => localStorage.setItem('lernspiele:erkennung', JSON.stringify({ version: 1, siebenMitQuerstrich: an })), an);
   let gesamt = 0, richtig = 0; const falsch = [];
   const pruefe = async (name, soll, formen) => {
     for (const [sx, sy] of GROESSEN) for (const w of [0, 3]) {
@@ -63,18 +76,30 @@ function striche(form, ox, oy, sx, sy, wackel) {
       if (ist === soll) richtig++; else falsch.push(`${name} ${sx}×${sy}${w ? ' verwackelt' : ''}: ${ist}`);
     }
   };
+  // A: Regel „7 nur mit Querstrich“ (Standard)
+  await regel(true);
   for (const [n, f] of Object.entries(EINS)) await pruefe('1 ' + n, 1, [f]);
   for (const [n, f] of Object.entries(SIEBEN)) await pruefe('7 ' + n, 7, [f]);
+  for (const [n, f] of Object.entries(SIEBEN_OHNE)) await pruefe('7 ohne Querstrich ' + n + ' → 1', 1, [f]);
   for (const [z, f] of Object.entries(ZIFFERN)) await pruefe(String(z), +z, [f]);
   await pruefe('11 (lange Anstriche)', 11, [EINS['langer Anstrich'], EINS['mittlerer Anstrich']]);
-  await pruefe('17', 17, [EINS['mittlerer Anstrich'], SIEBEN['Balken']]);
+  await pruefe('17', 17, [EINS['mittlerer Anstrich'], SIEBEN['Querstrich']]);
   await pruefe('14', 14, [EINS['schräg'], ZIFFERN[4]]);
   await pruefe('19', 19, [EINS['flacher Anstrich'], ZIFFERN[9]]);
+  await pruefe('11 (krumm)', 11, [EINS['Anstrich fast waagerecht'], EINS['Stamm nach links']]);
+  const hinweis = await page.evaluate(async s => { const m = await import('/gemeinsam/ziffern.js'); return m.leseZahl(s, 220, 170).hinweis; }, striche(SIEBEN_OHNE['Balken'], 40, 30, 60, 100, 0));
+  gesamt++; if (hinweis === 'siebenOhneQuerstrich') richtig++; else falsch.push('Hinweis bei 7 ohne Querstrich fehlt: ' + hinweis);
+  // B: Regel aus – dann zählt auch die 7 ohne Querstrich
+  await regel(false);
+  for (const [n, f] of Object.entries(SIEBEN_OHNE)) await pruefe('Regel aus: 7 ' + n, 7, [f]);
+  for (const n of ['senkrecht', 'kurzer Anstrich', 'mittlerer Anstrich', 'langer Anstrich']) await pruefe('Regel aus: 1 ' + n, 1, [EINS[n]]);
+  await regel(true);
   await b.close();
   for (const f of falsch) console.log('FALSCH ' + f);
   const quote = richtig / gesamt;
   console.log(`${richtig} von ${gesamt} richtig erkannt (${Math.round(quote * 100)} %)`);
   // Grenze: Die gezeichneten Formen sind absichtlich schwierig; Ziel ist, dass fast alles klappt.
+  // Mit der Regel darf keine 1 als 7 gelesen werden
   const ok = quote >= 0.95 && !falsch.some(f => /^1 /.test(f) && / 7$/.test(f));
   console.log(ok ? 'ALLES OK' : 'FEHLER: zu viele Fehler oder eine 1 als 7 gelesen');
   process.exit(ok ? 0 : 1);

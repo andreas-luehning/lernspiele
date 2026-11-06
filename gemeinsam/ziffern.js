@@ -2,6 +2,8 @@
 // Netz 784 → 256 (ReLU) → 10 (Softmax), Gewichte int8 + Skalierungsfaktor, siehe werkzeuge/ziffern-modell/.
 // Die Vorverarbeitung entspricht genau dem Prototyp (rasterize, groupStrokes, readNumber).
 
+import { erkennung } from './einstellungen.js';
+
 let W1, B1, W2, B2, HID = 0;
 let laden = null;
 
@@ -126,38 +128,57 @@ export function istDeutscheEins(strokes) {
   return anfang.y - spitze.y >= 0.12 * h;                                   // Anstrich fällt deutlich ab
 }
 
-/** 7: Querstrich in der Mitte, oder flacher Balken oben, der rechts von der Spitze des Abstrichs liegt. */
+/** Querstrich der 7: ein eigener, flacher Strich in der mittleren Höhe (nicht der Fuß einer 1 ganz unten). */
+export function hatQuerstrich(strokes) {
+  if (strokes.length < 2) return false;
+  const pts = punkteVon(strokes);
+  let y0 = Infinity, y1 = -Infinity; for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return false;
+  return strokes.some(s => {
+    if (s.length < 2) return false;
+    let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity; for (const p of s) { a = Math.min(a, p.x); b = Math.max(b, p.x); c = Math.min(c, p.y); d = Math.max(d, p.y); }
+    const my = (c + d) / 2, breit = b - a, hoch = d - c;
+    return breit > 0.08 * h && hoch < 0.2 * h && breit > 1.5 * hoch && my > y0 + 0.25 * h && my < y0 + 0.78 * h;
+  });
+}
+
+/** 7 (ohne die Querstrich-Regel): Querstrich in der Mitte, oder flacher Balken oben. */
 export function istSieben(strokes) {
   const pts = punkteVon(strokes); if (pts.length < 3) return false;
-  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-  for (const p of pts) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  let y0 = Infinity, y1 = -Infinity;
+  for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
   const h = y1 - y0; if (h < 8) return false;
-  // Querstrich: ein eigener, flacher Strich in der mittleren Höhe
-  const quer = strokes.some(s => {
-    if (s.length < 2 || strokes.length < 2) return false;
-    let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity; for (const p of s) { a = Math.min(a, p.x); b = Math.max(b, p.x); c = Math.min(c, p.y); d = Math.max(d, p.y); }
-    const my = (c + d) / 2;
-    return b - a > 0.15 * h && d - c < 0.15 * h && my > y0 + 0.3 * h && my < y0 + 0.75 * h;
-  });
-  if (quer) return true;
+  if (hatQuerstrich(strokes)) return true;
   // Flacher Balken oben: Punkte im obersten Zehntel reichen weit nach links und rechts
   const oben = pts.filter(p => p.y <= y0 + 0.1 * h);
   const ox = oben.map(p => p.x);
   return oben.length > 1 && Math.max(...ox) - Math.min(...ox) >= 0.18 * h && !istDeutscheEins(strokes);
 }
 
-function formKorrektur(p, strokes) {
+/**
+ * Wahrscheinlichkeiten des Modells nach der Form korrigieren.
+ * Mit der Regel „7 nur mit Querstrich“ (Standard): 7 ohne Querstrich → 1, 1 mit Querstrich → 7.
+ * @returns {{p: Float32Array|number[], hinweis: string|null}}
+ */
+function formKorrektur(p, strokes, siebenMitQuerstrich) {
   const top = p.indexOf(Math.max(...p));
   const zu = z => { const q = p.map(v => v * 0.1); q[z] += 0.9; return q; };
-  if (top !== 1 && istDeutscheEins(strokes)) return zu(1);
-  if (top === 1 && istSieben(strokes)) return zu(7);
-  return p;
+  if (siebenMitQuerstrich) {
+    const quer = hatQuerstrich(strokes);
+    if (top === 7 && !quer) return { p: zu(1), hinweis: 'siebenOhneQuerstrich' };
+    if (top === 1 && quer) return { p: zu(7), hinweis: null };
+    if (top !== 1 && top !== 7 && istDeutscheEins(strokes)) return { p: zu(1), hinweis: null };
+    return { p, hinweis: null };
+  }
+  if (top !== 1 && istDeutscheEins(strokes)) return { p: zu(1), hinweis: null };
+  if (top === 1 && istSieben(strokes)) return { p: zu(7), hinweis: null };
+  return { p, hinweis: null };
 }
 
 /**
  * Liest eine Zahl aus den Strichen eines Feldes.
  * @param {{x:number,y:number}[][]} strokes  Striche in Feld-Koordinaten (Pixel)
- * @returns {{value:number, conf:number} | null}
+ * @returns {{value:number, conf:number, hinweis:string|null} | null}  hinweis: 'siebenOhneQuerstrich', wenn eine 7 ohne Querstrich als 1 gelesen wurde
  */
 export function leseZahl(strokes, fieldW, fieldH) {
   if (!modellBereit()) return null;
@@ -170,7 +191,10 @@ export function leseZahl(strokes, fieldW, fieldH) {
     return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;
   });
   if (!groups.length) return null;
-  const probs = groups.map(g => formKorrektur(predict(rasterize(g.strokes)), g.strokes));
+  const regel = erkennung().siebenMitQuerstrich;
+  const korr = groups.map(g => formKorrektur(predict(rasterize(g.strokes)), g.strokes, regel));
+  const probs = korr.map(k => k.p);
+  const hinweis = korr.find(k => k.hinweis)?.hinweis || null;
   const pick = (p, allowed) => { let bi = allowed[0]; for (const k of allowed) if (p[k] > p[bi]) bi = k; return bi; };
   const all = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   let digits, conf = 1;
@@ -184,7 +208,7 @@ export function leseZahl(strokes, fieldW, fieldH) {
   } else {
     digits = probs.map(p => pick(p, all)); conf = Math.min(...probs.map((p, i) => p[digits[i]]));
   }
-  return { value: parseInt(digits.join(''), 10), conf };
+  return { value: parseInt(digits.join(''), 10), conf, hinweis };
 }
 
 /** Unter dieser Sicherheit zeigt die App die Zahl mit Fragezeichen. */

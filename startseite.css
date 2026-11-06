@@ -37,4 +37,6 @@
 .erwachsene .zeile > div { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
 .erwachsene small { color: var(--muted); font-size: .92rem; line-height: 1.4; }
 .erwachsene pre { flex: 1 1 100%; margin: 0; white-space: pre-wrap; word-break: break-word; font: .85rem/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--paper); border: 1.5px solid var(--rule); border-radius: 12px; padding: 10px 12px; user-select: text; -webkit-user-select: text; }
+.schalter { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; min-height: 48px; cursor: pointer; }
+.schalter input { width: 28px; height: 28px; accent-color: var(--btn); margin: 0; }
 .fuss { color: var(--muted); font-size: .95rem; }

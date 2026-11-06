@@ -6,6 +6,8 @@
 //   data-diagnose-knopf / data-diagnose-ausgabe   Prüfung zum Abfotografieren bei Problemen
 // Datenschutz: Nichts davon sendet Daten weg; die Diagnose zeigt nur Angaben dieses Geräts an.
 
+import { erkennung, setzeErkennung } from './einstellungen.js';
+
 const SW_URL = new URL('../sw.js', import.meta.url);
 const SCOPE = new URL('../', import.meta.url);
 const alle = sel => document.querySelectorAll(sel);
@@ -113,6 +115,20 @@ async function diagnose() {
   } catch (err) { add('Manifest', 'FEHLER ' + err.message); }
 }
 
+/* ---------- Einstellungen (Schalter mit data-einstellung="name") ---------- */
+function einstellungenAnzeigen() {
+  const e = erkennung();
+  alle('input[data-einstellung]').forEach(i => {
+    const k = i.dataset.einstellung; if (!(k in e)) return;
+    i.checked = !!e[k]; const t = i.nextElementSibling; if (t) t.textContent = i.checked ? 'an' : 'aus';
+  });
+}
+document.addEventListener('change', e => {
+  const i = e.target.closest && e.target.closest('input[data-einstellung]');
+  if (!i || !(i.dataset.einstellung in erkennung())) return;
+  setzeErkennung({ [i.dataset.einstellung]: i.checked }); einstellungenAnzeigen();
+});
+
 /* ---------- Start ---------- */
-const start = () => { installAnzeige(); vollbildAnzeige(); };
+const start = () => { installAnzeige(); vollbildAnzeige(); einstellungenAnzeigen(); };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

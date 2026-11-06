@@ -30,6 +30,10 @@ Automatisch geprüft (`tests/browser.js`, Playwright): keine Anfragen an fremde 
 
 **Bekannte Ausnahme:** Die Dateien in `prototypen/` laden noch Schriften von Google Fonts und haben keine CSP. Sie bleiben laut Absprache unverändert. Auf dem Tablet deshalb die Spiele über die Startseite öffnen, nicht die Prototypen.
 
+### Einstellungen
+
+`lernspiele:erkennung` speichert nur, ob die Regel „7 nur mit Querstrich“ an ist (wahr/falsch), geprüft über `speicher.js`.
+
 ### Welche Daten die Schneckenparade speichert
 
 Nur Spielstand: Schnecken (Farbe, Muster, Hut, Ausflüge, Datum, in welchem Spiel verdient), gewählte Begleiter, Blätter, Übungstage und die laufende Runde. Die Schneckennamen kommen aus einer festen Liste, nicht vom Kind. Es gibt keine Uhrzeiten einzelner Aufgaben, keine Fehlerlisten und nichts über das Kind selbst. Der Probe-Modus (`?probe`) ändert nur die Rundendauer und zeigt den Knopf „Nächster Tag“; er gibt keinen Zugriff auf weitere Daten.
