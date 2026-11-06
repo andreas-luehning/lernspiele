@@ -45,7 +45,7 @@ export function describe(s) {
 /* ---------- Speichern und Prüfen ---------- */
 
 const STANDARD = {
-  garden: [], walkers: [], leaves: 0, cleanLeaves: true, lastRoundDay: '', practiceDays: 0,
+  garden: [], walkers: [], leaves: 0, cleanLeaves: true, lastRoundDay: '', rundenHeute: 0, practiceDays: 0,
   deco: [], newCount: 0, nextId: 1, runde: null,
 };
 const istId = v => Number.isInteger(v) && v > 0 && v < 1e9;
@@ -79,6 +79,7 @@ export function bereinigeZustand(roh) {
   z.cleanLeaves = z.cleanLeaves !== false;
   z.lastRoundDay = istTag(z.lastRoundDay) ? z.lastRoundDay : '';
   z.practiceDays = istZahl(z.practiceDays, 100000) ? z.practiceDays : 0;
+  z.rundenHeute = istZahl(z.rundenHeute, 10000) ? z.rundenHeute : (z.lastRoundDay ? 1 : 0);
   z.deco = Object.keys(DECO).filter(k => Array.isArray(z.deco) && z.deco.includes(k));
   z.newCount = istZahl(z.newCount, 1e6) ? z.newCount : 0;
   const maxId = z.garden.reduce((m, s) => Math.max(m, s.id), 0);
@@ -86,6 +87,7 @@ export function bereinigeZustand(roh) {
   const r = z.runde;
   z.runde = r && typeof r === 'object' && Number.isFinite(r.ende) ? {
     ende: r.ende, tag: istTag(r.tag) ? r.tag : '',
+    pause: Number.isFinite(r.pause) && r.pause >= 0 && r.pause <= 24 * 3600 * 1000 ? r.pause : null,
     begleiter: (Array.isArray(r.begleiter) ? r.begleiter : []).filter(id => ids.has(id)).slice(0, MAX_BEGLEITER),
     neu: (Array.isArray(r.neu) ? r.neu : []).filter(id => ids.has(id)).slice(0, 200),
     zeitUm: r.zeitUm === true,
@@ -129,18 +131,35 @@ export function neueSchnecke(z, mitHut, rnd = Math.random, tag = heute(), spiel 
   return { id: z.nextId++, name, color, pattern, hat: hut, special, runs: 0, stage: 0, born: tag, spiel };
 }
 
-export const kannHeuteSpielen = (z, tag = heute()) => z.lastRoundDay !== tag || !!z.runde;
+/** Wie viele Runden gehen heute noch? max = Runden pro Tag, 0 = unbegrenzt. */
+export function nochRunden(z, tag = heute(), max = 1) {
+  if (max === 0) return Infinity;
+  return Math.max(0, max - (z.lastRoundDay === tag ? z.rundenHeute : 0));
+}
+export const kannHeuteSpielen = (z, tag = heute(), max = 1) => !!z.runde || nochRunden(z, tag, max) > 0;
 export const laeuft = z => !!z.runde;
 
-/** Runde beginnen (nur einmal am Tag). Gibt true zurück, wenn eine Runde läuft. */
-export function rundeStarten(z, jetzt = Date.now(), dauer = RUNDE_MS, tag = heute()) {
+/** Runde beginnen, wenn heute noch eine geht. Gibt true zurück, wenn eine Runde läuft. */
+export function rundeStarten(z, jetzt = Date.now(), dauer = RUNDE_MS, tag = heute(), max = 1) {
   if (z.runde) return true;
-  if (z.lastRoundDay === tag) return false;
-  z.runde = { ende: jetzt + dauer, tag, begleiter: [...z.walkers], neu: [], zeitUm: false };
+  if (nochRunden(z, tag, max) <= 0) return false;
+  z.runde = { ende: jetzt + dauer, pause: null, tag, begleiter: [...z.walkers], neu: [], zeitUm: false };
   return true;
 }
 
-export const restzeit = (z, jetzt = Date.now()) => (z.runde ? Math.max(0, z.runde.ende - jetzt) : 0);
+export const restzeit = (z, jetzt = Date.now()) => (!z.runde ? 0 : z.runde.pause != null ? z.runde.pause : Math.max(0, z.runde.ende - jetzt));
+export const pausiert = z => !!z.runde && z.runde.pause != null;
+
+/** Uhr anhalten (nicht mehr, wenn die Zeit schon um ist). */
+export function pausieren(z, jetzt = Date.now()) {
+  const r = z.runde; if (!r || r.pause != null || r.zeitUm) return false;
+  r.pause = Math.max(0, r.ende - jetzt); return true;
+}
+/** Uhr weiterlaufen lassen. */
+export function fortsetzen(z, jetzt = Date.now()) {
+  const r = z.runde; if (!r || r.pause == null) return false;
+  r.ende = jetzt + r.pause; r.pause = null; return true;
+}
 
 /**
  * Richtige Aufgabe: ein Salatblatt. Bei 3 Blättern kommt eine neue Schnecke (mit Hut, wenn ohne Fehler dazwischen),
@@ -177,7 +196,10 @@ export function falsch(z) {
 export function rundeBeenden(z, tag = heute()) {
   const r = z.runde; if (!r) return { neu: [], gewachsen: [], deko: null };
   // Als Übungstag zählt der Tag, an dem die Runde begann (auch wenn sie erst später abgeschlossen wird)
-  z.runde = null; z.lastRoundDay = r.tag || tag; z.practiceDays++;
+  // Übungstage zählen jeden Tag nur einmal, auch bei mehreren Runden
+  const rundenTag = r.tag || tag, neuerTag = z.lastRoundDay !== rundenTag;
+  z.runde = null;
+  if (neuerTag) { z.lastRoundDay = rundenTag; z.rundenHeute = 1; z.practiceDays++; } else z.rundenHeute++;
   const byId = new Map(z.garden.map(s => [s.id, s]));
   const gewachsen = [];
   for (const id of r.begleiter) {
@@ -186,7 +208,7 @@ export function rundeBeenden(z, tag = heute()) {
     if (st > s.stage) { s.stage = st; gewachsen.push(s); }
   }
   let deko = null;
-  if (z.practiceDays % 5 === 0) { const fehlt = Object.keys(DECO).filter(k => !z.deco.includes(k)); if (fehlt.length) { deko = fehlt[0]; z.deco.push(deko); } }
+  if (neuerTag && z.practiceDays % 5 === 0) { const fehlt = Object.keys(DECO).filter(k => !z.deco.includes(k)); if (fehlt.length) { deko = fehlt[0]; z.deco.push(deko); } }
   return { neu: r.neu.map(id => byId.get(id)).filter(Boolean), gewachsen, deko };
 }
 

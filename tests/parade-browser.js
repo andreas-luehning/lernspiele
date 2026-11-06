@@ -19,6 +19,8 @@ const SHOTS = path.join(__dirname, '..', 'screenshots'); fs.mkdirSync(SHOTS, { r
   const parade = () => page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:parade') || 'null'));
   const bubble = () => page.textContent('#track .bubble');
 
+  // Erst wie früher: eine Runde pro Tag
+  await page.goto(BASE); await page.evaluate(() => localStorage.setItem('lernspiele:spiel', JSON.stringify({ version: 1, siebenMitQuerstrich: true, rundenProTag: 1 })));
   await page.goto(BASE + 'zehnerweg/?probe'); await page.waitForTimeout(800);
   chk(/Schreib los/.test(await bubble()), 'Vor der Runde: „Schreib los, dann startet die Parade!“');
   chk(await page.textContent('#uhrzeit') === '1:00', 'Probe-Modus: Runde dauert 1 Minute');
@@ -50,10 +52,10 @@ const SHOTS = path.join(__dirname, '..', 'screenshots'); fs.mkdirSync(SHOTS, { r
   // Neu laden: Runde läuft weiter
   const restVor = await page.textContent('#uhrzeit');
   await page.reload(); await page.waitForTimeout(800);
-  chk((await parade()).runde && /Weiter geht/.test(await bubble()), `Nach Neuladen läuft die Runde weiter (${restVor} → ${await page.textContent('#uhrzeit')})`);
+  chk((await parade()).runde && /Pause/.test(await bubble()), `Nach Neuladen ist die Runde noch da, mit Pause (${restVor} → ${await page.textContent('#uhrzeit')})`);
 
   // Zeit um (vorspulen): angefangene Aufgabe darf fertig werden
-  await page.evaluate(() => { const z = JSON.parse(localStorage.getItem('lernspiele:parade')); z.runde.ende = Date.now() - 100; localStorage.setItem('lernspiele:parade', JSON.stringify(z)); });
+  await page.evaluate(() => { const z = JSON.parse(localStorage.getItem('lernspiele:parade')); z.runde.ende = Date.now() - 100; z.runde.pause = null; localStorage.setItem('lernspiele:parade', JSON.stringify(z)); });
   await page.reload(); await page.waitForTimeout(1000);
   chk(/Zeit ist um/.test(await bubble()) && (await parade()).runde.zeitUm, 'Zeit um: Hinweis, Aufgabe darf fertig werden');
   const ok = await loese(page);
@@ -88,6 +90,26 @@ const SHOTS = path.join(__dirname, '..', 'screenshots'); fs.mkdirSync(SHOTS, { r
   await page.click('#b-tag'); await page.click('#b-spiel'); await page.waitForURL(/zehnerweg/); await page.waitForTimeout(800);
   chk(/Schreib los/.test(await bubble()) && await page.textContent('#uhrzeit') === '1:00', 'Nächster Tag: neue Runde möglich');
   chk((await page.locator('#track .walker').count()) === 3, 'Gewählte Begleiter stehen bereit');
+
+  // Pause, wenn die App verlassen wird; der nächste Strich setzt fort
+  await page.goto(BASE + 'zehnerweg/?probe'); await page.waitForTimeout(800);
+  await schreibe(page, '#f-ten', 10); await page.waitForTimeout(400);
+  chk(!!(await parade()).runde, 'Erster Strich startet die Runde');
+  await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+  const angehalten = await page.textContent('#uhrzeit'); await page.waitForTimeout(2200);
+  chk((await parade()).runde.pause != null && await page.textContent('#uhrzeit') === angehalten && await page.locator('#uhr.pause').count() === 1, `App verlassen: Uhr steht (${angehalten})`);
+  await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+  await schreibe(page, '#f-part1', 1); await page.waitForTimeout(1600);
+  chk((await parade()).runde.pause === null && await page.textContent('#uhrzeit') !== angehalten, 'Nächster Strich: Uhr läuft weiter');
+
+  // Mehrere Runden am Tag: „Noch eine Runde“
+  await page.goto(BASE); await page.waitForTimeout(300); // Spielseite verlassen, damit sie den Stand nicht mehr überschreibt
+  await page.evaluate(() => { localStorage.setItem('lernspiele:spiel', JSON.stringify({ version: 1, siebenMitQuerstrich: true, rundenProTag: 3 })); const z = JSON.parse(localStorage.getItem('lernspiele:parade')); z.runde.ende = Date.now() - 100; z.runde.zeitUm = true; z.runde.pause = null; localStorage.setItem('lernspiele:parade', JSON.stringify(z)); });
+  await page.goto(BASE + 'zehnerweg/?probe'); await page.waitForTimeout(800); await page.click('#b-next'); await page.waitForTimeout(3200);
+  const rb = await page.textContent('dialog.rueckblick');
+  chk(/Runde geschafft/.test(rb) && /noch 2 Runden/.test(rb) && /Noch eine Runde/.test(rb), 'Rückblick: „Runde geschafft!“, noch 2 Runden, Knopf „Noch eine Runde“');
+  await page.click('dialog.rueckblick button'); await schreibe(page, '#f-ten', 10); await page.waitForTimeout(500);
+  chk(!!(await parade()).runde && await page.textContent('#uhrzeit') !== '0:00', 'Nächster Strich startet die zweite Runde');
 
   // Ohne ?probe gibt es keinen Probe-Knopf
   await page.goto(BASE + 'garten/'); await page.waitForTimeout(300);

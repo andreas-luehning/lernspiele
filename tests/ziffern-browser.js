@@ -43,6 +43,19 @@ const ZIFFERN = {
   8: [[[.5, .5], [.15, .3], [.25, .05], [.75, .05], [.85, .3], [.5, .5], [.12, .72], [.25, .97], [.75, .97], [.88, .72], [.5, .5]]],
   9: [[[.85, .3], [.65, .05], [.3, .05], [.15, .3], [.35, .5], [.8, .4], [.85, .3], [.75, 1]]],
 };
+// Deutsche 9: Schlaufe oben, Bogen nach links unten; und Dreien, die keine 9 werden dürfen
+const NEUN = {
+  'gerade (USA)': [[[.85, .3], [.65, .05], [.3, .05], [.15, .3], [.35, .5], [.8, .4], [.85, .3], [.8, 1]]],
+  'Bogen unten': [[[.85, .3], [.65, .05], [.3, .05], [.15, .3], [.35, .5], [.8, .4], [.85, .3], [.85, .65], [.75, .9], [.5, 1], [.2, .9]]],
+  'Bogen weit': [[[.85, .3], [.65, .05], [.3, .05], [.15, .3], [.35, .5], [.8, .4], [.85, .3], [.9, .6], [.8, .9], [.45, 1], [.05, .85]]],
+  'Schlaufe offen, Bogen weit': [[[.8, .38], [.65, .05], [.3, .05], [.15, .3], [.35, .5], [.75, .42], [.85, .3], [.9, .6], [.8, .9], [.45, 1], [.05, .85]]],
+  'zwei Striche': [[[.8, .3], [.6, .03], [.3, .05], [.15, .3], [.35, .52], [.8, .38]], [[.82, .3], [.82, .7], [.7, .95], [.4, 1], [.18, .88]]],
+};
+const DREI = {
+  'rund': [[[.1, .1], [.5, 0], [.85, .15], [.85, .35], [.45, .5], [.9, .65], [.9, .88], [.5, 1], [.1, .9]]],
+  'flach oben': [[[.1, 0], [.85, 0], [.45, .42], [.9, .6], [.9, .88], [.5, 1], [.1, .9]]],
+  'spitz': [[[.1, .05], [.8, .1], [.4, .45], [.85, .6], [.8, .9], [.4, 1], [.1, .85]]],
+};
 const GROESSEN = [[60, 100], [45, 110], [80, 90], [70, 70]];
 
 // Wiederholbares Wackeln
@@ -66,7 +79,7 @@ function striche(form, ox, oy, sx, sy, wackel) {
     const m = await import('/gemeinsam/ziffern.js'); await m.ladeModell();
     const r = m.leseZahl(s, 220, 170); return r ? r.value : null;
   }, strokes);
-  const regel = an => page.evaluate(an => localStorage.setItem('lernspiele:erkennung', JSON.stringify({ version: 1, siebenMitQuerstrich: an })), an);
+  const regel = an => page.evaluate(an => localStorage.setItem('lernspiele:spiel', JSON.stringify({ version: 1, siebenMitQuerstrich: an, rundenProTag: 3 })), an);
   let gesamt = 0, richtig = 0; const falsch = [];
   const pruefe = async (name, soll, formen) => {
     for (const [sx, sy] of GROESSEN) for (const w of [0, 3]) {
@@ -82,6 +95,9 @@ function striche(form, ox, oy, sx, sy, wackel) {
   for (const [n, f] of Object.entries(SIEBEN)) await pruefe('7 ' + n, 7, [f]);
   for (const [n, f] of Object.entries(SIEBEN_OHNE)) await pruefe('7 ohne Querstrich ' + n + ' → 1', 1, [f]);
   for (const [z, f] of Object.entries(ZIFFERN)) await pruefe(String(z), +z, [f]);
+  for (const [n, f] of Object.entries(NEUN)) await pruefe('9 ' + n, 9, [f]);
+  for (const [n, f] of Object.entries(DREI)) await pruefe('3 ' + n, 3, [f]);
+  await pruefe('19 (Bogen weit)', 19, [EINS['mittlerer Anstrich'], NEUN['Bogen weit']]);
   await pruefe('11 (lange Anstriche)', 11, [EINS['langer Anstrich'], EINS['mittlerer Anstrich']]);
   await pruefe('17', 17, [EINS['mittlerer Anstrich'], SIEBEN['Querstrich']]);
   await pruefe('14', 14, [EINS['schräg'], ZIFFERN[4]]);

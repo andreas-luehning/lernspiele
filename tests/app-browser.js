@@ -67,9 +67,9 @@ const ROOT = path.join(__dirname, '..');
   const schalter = page.locator('input[data-einstellung=siebenMitQuerstrich]');
   chk(await schalter.isChecked(), 'Regel „7 nur mit Querstrich“ ist standardmäßig an');
   await schalter.click();
-  chk(await page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:erkennung')).siebenMitQuerstrich === false), 'Schalter aus wird gespeichert');
+  chk(await page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:spiel')).siebenMitQuerstrich === false), 'Schalter aus wird gespeichert');
   await schalter.click();
-  chk(await page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:erkennung')).siebenMitQuerstrich === true), 'Schalter wieder an');
+  chk(await page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:spiel')).siebenMitQuerstrich === true), 'Schalter wieder an');
 
   // 6. Diagnose
   await page.click('[data-diagnose-knopf]'); await page.waitForTimeout(1500);

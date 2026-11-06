@@ -59,7 +59,7 @@ Eine Straße verbindet zwei Kästchen: Start und Ergebnis. Auf der Straße liegt
 
 Siehe `../werkzeuge/ziffern-modell/README.md`. Kurz: Striche werden pro Feld gesammelt, 650 ms nach dem letzten Strich wird erkannt, zweistellige Zahlen über zwei Zifferngruppen nebeneinander.
 
-**7 nur mit Querstrich** (wie in der Grundschule in Deutschland gelernt): Eine 7 zählt nur, wenn sie einen Querstrich in der Mitte hat. Was wie eine 7 ohne Querstrich aussieht, wird als 1 gelesen, denn die deutsche 1 mit Anstrich hat fast dieselbe Form. Ist die Antwort dadurch falsch und gehört in das Feld eine 7, sagt der Tipp: „Ich habe eine 1 gelesen. Eine 7 bekommt einen Querstrich in der Mitte.“ Erwachsene können die Regel auf der Startseite unter „Für Erwachsene“ ausschalten. Gespeichert unter `lernspiele:erkennung` `{ version: 1, siebenMitQuerstrich: true }`.
+**7 nur mit Querstrich** (wie in der Grundschule in Deutschland gelernt): Eine 7 zählt nur, wenn sie einen Querstrich in der Mitte hat. Was wie eine 7 ohne Querstrich aussieht, wird als 1 gelesen, denn die deutsche 1 mit Anstrich hat fast dieselbe Form. Ist die Antwort dadurch falsch und gehört in das Feld eine 7, sagt der Tipp: „Ich habe eine 1 gelesen. Eine 7 bekommt einen Querstrich in der Mitte.“ Erwachsene können die Regel auf der Startseite unter „Für Erwachsene“ ausschalten. Gespeichert unter `lernspiele:spiel` `{ version: 1, siebenMitQuerstrich: true, rundenProTag: 3 }`.
 
 ## Offene Punkte
 

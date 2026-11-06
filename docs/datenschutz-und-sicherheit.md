@@ -32,7 +32,7 @@ Automatisch geprüft (`tests/browser.js`, Playwright): keine Anfragen an fremde 
 
 ### Einstellungen
 
-`lernspiele:erkennung` speichert nur, ob die Regel „7 nur mit Querstrich“ an ist (wahr/falsch), geprüft über `speicher.js`.
+`lernspiele:spiel` speichert nur, ob die Regel „7 nur mit Querstrich“ an ist (wahr/falsch) und wie viele Runden es pro Tag gibt (Zahl aus einer festen Liste), geprüft über `speicher.js`.
 
 ### Welche Daten die Schneckenparade speichert
 

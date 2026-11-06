@@ -2,7 +2,7 @@
 // Netz 784 → 256 (ReLU) → 10 (Softmax), Gewichte int8 + Skalierungsfaktor, siehe werkzeuge/ziffern-modell/.
 // Die Vorverarbeitung entspricht genau dem Prototyp (rasterize, groupStrokes, readNumber).
 
-import { erkennung } from './einstellungen.js';
+import { einstellungen } from './einstellungen.js';
 
 let W1, B1, W2, B2, HID = 0;
 let laden = null;
@@ -156,6 +156,34 @@ export function istSieben(strokes) {
 }
 
 /**
+ * Deutsche 9: oben eine geschlossene Schlaufe, unten ein Bogen nach links (amerikanisch: gerader Strich).
+ * Mit weitem Bogen hält das Modell sie oft für eine 3. Unterschied: Die 9 läuft oben einmal ganz um die Mitte
+ * der oberen Hälfte herum (gemessen ≥ 0,82 Umläufe), der offene obere Bogen der 3 nur etwa halb (≤ 0,60).
+ */
+export function obenUmlauf(strokes) {
+  const pts = punkteVon(strokes); if (pts.length < 3) return 0;
+  let y0 = Infinity, y1 = -Infinity; for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return 0;
+  const oben = pts.filter(p => p.y < y0 + 0.5 * h);
+  let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
+  for (const p of oben) { a = Math.min(a, p.x); b = Math.max(b, p.x); c = Math.min(c, p.y); d = Math.max(d, p.y); }
+  const cx = (a + b) / 2, cy = (c + d) / 2;
+  let best = 0;
+  for (const s of strokes) {
+    let sum = 0;
+    for (let i = 1; i < s.length; i++) {
+      if (s[i].y > y0 + 0.62 * h && s[i - 1].y > y0 + 0.62 * h) continue; // der untere Bogen zählt nicht mit
+      let dd = Math.atan2(s[i].y - cy, s[i].x - cx) - Math.atan2(s[i - 1].y - cy, s[i - 1].x - cx);
+      while (dd > Math.PI) dd -= 2 * Math.PI; while (dd < -Math.PI) dd += 2 * Math.PI;
+      sum += dd;
+    }
+    best = Math.max(best, Math.abs(sum) / (2 * Math.PI));
+  }
+  return best;
+}
+const NEUN_UMLAUF = 0.75;
+
+/**
  * Wahrscheinlichkeiten des Modells nach der Form korrigieren.
  * Mit der Regel „7 nur mit Querstrich“ (Standard): 7 ohne Querstrich → 1, 1 mit Querstrich → 7.
  * @returns {{p: Float32Array|number[], hinweis: string|null}}
@@ -163,6 +191,7 @@ export function istSieben(strokes) {
 function formKorrektur(p, strokes, siebenMitQuerstrich) {
   const top = p.indexOf(Math.max(...p));
   const zu = z => { const q = p.map(v => v * 0.1); q[z] += 0.9; return q; };
+  if (top === 3 && obenUmlauf(strokes) >= NEUN_UMLAUF) return { p: zu(9), hinweis: null }; // deutsche 9 mit Bogen
   if (siebenMitQuerstrich) {
     const quer = hatQuerstrich(strokes);
     if (top === 7 && !quer) return { p: zu(1), hinweis: 'siebenOhneQuerstrich' };
@@ -228,7 +257,7 @@ export function leseZahl(strokes, fieldW, fieldH) {
     return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;
   });
   if (!groups.length) return null;
-  const regel = erkennung().siebenMitQuerstrich;
+  const regel = einstellungen().siebenMitQuerstrich;
   const korr = groups.map(g => formKorrektur(predict(rasterize(g.strokes)), g.strokes, regel));
   const probs = korr.map(k => k.p);
   const hinweis = korr.find(k => k.hinweis)?.hinweis || null;

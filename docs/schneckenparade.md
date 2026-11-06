@@ -12,7 +12,7 @@ Ziel ist, dass jede neue Schnecke ein kleines Ereignis bleibt. Deshalb nicht ein
 
 | Wann | Was passiert |
 |---|---|
-| Einmal am Tag | Eine Runde dauert 5 Minuten. Die gewählten Begleiter (bis zu 3) stehen am Anfang der Straße. Danach ist für heute Schluss; der Garten bleibt offen. |
+| Runden am Tag | Eine Runde dauert 5 Minuten. Die gewählten Begleiter (bis zu 3) stehen am Anfang der Straße. Wie viele Runden es am Tag gibt, stellen Erwachsene ein (1, 2, 3 oder unbegrenzt; Standard 3). Danach ist für heute Schluss; der Garten bleibt offen. |
 | Vor der Runde | Das Kind tippt im Garten bis zu 3 Begleiter an. Ohne Wahl laufen die vom letzten Mal mit. |
 | Richtige Aufgabe | Ein Salatblatt fliegt zur Parade. Anzeige: 3 Blatt-Plätze. |
 | 3 Salatblätter | Eine neue Babyschnecke kriecht in die Parade. Hausfarbe und Muster zufällig, bevorzugt eine Kombination, die noch fehlt. Blätter zählen neu. |
@@ -24,7 +24,7 @@ Ziel ist, dass jede neue Schnecke ein kleines Ereignis bleibt. Deshalb nicht ein
 | Selten | Etwa jede 15. neue Schnecke hat ein Regenbogenhaus. Jede 10. neue Schnecke bringt einen Marienkäfer als Gast mit (läuft mit, wächst nicht). |
 | Blätter vom Vortag | Bleiben stehen. Wer gestern 2 Blätter hatte, braucht heute nur noch eins. |
 
-Übungstage zählen nur, wenn eine Runde gespielt wurde. Verpasste Tage haben keine Folgen.
+Übungstage zählen nur, wenn eine Runde gespielt wurde, und jeder Tag nur einmal, auch bei mehreren Runden. Verpasste Tage haben keine Folgen. Jeder Begleiter zählt pro Runde einen Ausflug.
 
 ## Eine typische Woche
 
@@ -55,17 +55,18 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
   "leaves": 1,
   "cleanLeaves": true,
   "lastRoundDay": "2026-11-06",
+  "rundenHeute": 1,
   "practiceDays": 4,
   "deco": ["pilz"],
   "newCount": 2,
   "nextId": 9,
-  "runde": { "ende": 1762430400000, "tag": "2026-11-06", "begleiter": [1, 2, 3], "neu": [8], "zeitUm": false }
+  "runde": { "ende": 1762430400000, "pause": null, "tag": "2026-11-06", "begleiter": [1, 2, 3], "neu": [8], "zeitUm": false }
 }
 ```
 
 - `special`: `null`, `"regenbogen"`, `"kaefer"`. Glitzer ergibt sich aus `stage` 3.
 - `spiel`: in welchem Spiel die Schnecke verdient wurde (für die Elternansicht).
-- `runde`: die laufende Runde oder `null`. `ende` ist der Zeitpunkt (ms), an dem die 5 Minuten um sind; so läuft die Runde nach dem Neuladen weiter. `tag` ist der Tag, an dem sie begann; eine am Vortag nicht beendete Runde wird beim nächsten Öffnen für diesen Tag abgeschlossen und blockiert den neuen Tag nicht.
+- `runde`: die laufende Runde oder `null`. `ende` ist der Zeitpunkt (ms), an dem die 5 Minuten um sind; so läuft die Runde nach dem Neuladen weiter. `pause` ist die Restzeit in ms, solange die Uhr angehalten ist, sonst `null`. `tag` ist der Tag, an dem sie begann; eine am Vortag nicht beendete Runde wird beim nächsten Öffnen für diesen Tag abgeschlossen und blockiert den neuen Tag nicht.
 - Beim Lesen wird jede Schnecke geprüft (bekannte Farbe, Muster, Hut, Name höchstens 20 Zeichen). Ungültige Einträge werden verworfen, siehe `datenschutz-und-sicherheit.md`.
 - Tage als Datum (`YYYY-MM-DD`, lokale Zeit). Die Probe zählt Tage nur simuliert hoch.
 
@@ -82,15 +83,14 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
 - **Startgarten:** Ein neuer Garten beginnt mit 3 Babyschnecken ohne Hut. Sie sind die ersten Begleiter.
 - **Rundenbeginn:** Die Runde beginnt mit dem ersten Strich in einem Feld, nicht schon beim Öffnen des Spiels.
 - **Zeit um:** Die angefangene Aufgabe darf fertig werden. Die Runde endet, sobald diese Aufgabe gelöst ist oder „Neue Aufgabe“ gedrückt wird, spätestens 3 Minuten nach Ablauf.
-- **Nach der Runde:** Das Spiel bleibt zum freien Üben offen, bringt aber keine Blätter mehr (vorläufig, siehe offene Fragen).
-- **Uhr:** Läuft nach Datum und Uhrzeit, also auch weiter, wenn das Tablet kurz aus ist. Eine Pause gibt es noch nicht.
+- **Nach der Runde:** Rückblick „Runde geschafft!“. Sind heute noch Runden übrig, steht dort „Noch eine Runde“; die nächste beginnt mit dem nächsten Strich. Sonst „Für heute geschafft!“, und das Spiel bleibt zum freien Üben offen, ohne Blätter.
+- **Uhr und Pause:** Die Uhr hält von selbst an, wenn die App verlassen oder das Tablet gesperrt wird oder eine Minute lang niemand schreibt. Beim nächsten Strich läuft sie weiter. So geht keine Zeit verloren, wenn das Kind die App vergisst. Ist die Zeit schon um und die angefangene Aufgabe wird nicht fertig, endet die Runde nach 3 Minuten.
 - **Anzeige im Zehnerweg:** Ein schmaler Paradestreifen unter dem Rechenweg. Uhr, 3 Blatt-Plätze und Hut-Anzeige stehen oben bei der Aufgabe, ein Schnecken-Knopf führt zum Garten.
 - **Garten:** eigene Seite `garten/` mit Deko, allen Tieren, Begleiter-Wahl und Sammelalbum.
 - **Probe-Modus für Erwachsene:** Mit `?probe` an der Adresse dauert eine Runde 1 Minute, und im Garten gibt es den Knopf „Nächster Tag“. So lässt sich alles ausprobieren, ohne einen Tag zu warten.
 
 ## Offene Fragen
 
-- Darf man nach der Tagesrunde ohne Belohnung weiterüben, oder ist dann ganz Schluss?
-- Soll die Runde pausieren können (Toilette, Klingel)?
+- Darf man nach der letzten Runde des Tages ohne Belohnung weiterüben, oder ist dann ganz Schluss? (Bisher: weiterüben ohne Blätter.)
 - Mehrere Kinder an einem Tablet: Profile mit eigenem Garten?
 - Elternansicht: Übungstage, gelöste Aufgaben, schwierige Aufgaben.

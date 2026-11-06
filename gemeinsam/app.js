@@ -6,7 +6,7 @@
 //   data-diagnose-knopf / data-diagnose-ausgabe   Prüfung zum Abfotografieren bei Problemen
 // Datenschutz: Nichts davon sendet Daten weg; die Diagnose zeigt nur Angaben dieses Geräts an.
 
-import { erkennung, setzeErkennung } from './einstellungen.js';
+import { einstellungen, setzeEinstellung } from './einstellungen.js';
 
 const SW_URL = new URL('../sw.js', import.meta.url);
 const SCOPE = new URL('../', import.meta.url);
@@ -115,18 +115,23 @@ async function diagnose() {
   } catch (err) { add('Manifest', 'FEHLER ' + err.message); }
 }
 
-/* ---------- Einstellungen (Schalter mit data-einstellung="name") ---------- */
+/* ---------- Einstellungen (Schalter und Auswahl mit data-einstellung="name") ---------- */
 function einstellungenAnzeigen() {
-  const e = erkennung();
-  alle('input[data-einstellung]').forEach(i => {
+  const e = einstellungen();
+  alle('[data-einstellung]').forEach(i => {
     const k = i.dataset.einstellung; if (!(k in e)) return;
-    i.checked = !!e[k]; const t = i.nextElementSibling; if (t) t.textContent = i.checked ? 'an' : 'aus';
+    if (i.type === 'checkbox') { i.checked = !!e[k]; const t = i.nextElementSibling; if (t) t.textContent = i.checked ? 'an' : 'aus'; }
+    else i.value = String(e[k]);
   });
 }
 document.addEventListener('change', e => {
-  const i = e.target.closest && e.target.closest('input[data-einstellung]');
-  if (!i || !(i.dataset.einstellung in erkennung())) return;
-  setzeErkennung({ [i.dataset.einstellung]: i.checked }); einstellungenAnzeigen();
+  const i = e.target.closest && e.target.closest('[data-einstellung]');
+  if (!i) return;
+  const k = i.dataset.einstellung, alt = einstellungen();
+  if (!(k in alt)) return;
+  const wert = typeof alt[k] === 'boolean' ? i.checked : parseInt(i.value, 10);
+  if (typeof wert === 'number' && !Number.isInteger(wert)) return;
+  setzeEinstellung({ [k]: wert }); einstellungenAnzeigen();
 });
 
 /* ---------- Start ---------- */

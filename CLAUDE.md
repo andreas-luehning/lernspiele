@@ -9,7 +9,7 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 
 ## Grundsätze
 
-1. **Kurz üben:** Eine Runde dauert 5 Minuten, eine Runde pro Tag. Danach ist Schluss, ohne schlechtes Gewissen.
+1. **Kurz üben:** Eine Runde dauert 5 Minuten. Wie viele Runden es am Tag gibt, stellen Erwachsene ein (Standard 3). Die Uhr pausiert, wenn niemand schreibt. Danach ist Schluss, ohne schlechtes Gewissen.
 2. **Nah am Arbeitsblatt:** Anordnung, Symbole (Herz, Hand, Straße) und Rechenweg wie auf Papier. Die Fotos liegen lokal in `docs/arbeitsblaetter/` (nicht im Git).
 3. **Fehler kosten nichts:** Es gibt Tipps statt Strafen. Nichts Gesammeltes geht verloren.
 4. **Hell und freundlich:** Pastellfarben, große Schreibfelder, Knöpfe mindestens 48 px, wenig Text. Hell ist Standard, Nachtmodus ist umschaltbar. Schriften: Grandstander (Überschriften, Zahlen) und Andika (Fließtext, für Leseanfänger gemacht).
@@ -52,7 +52,7 @@ gegenstaende/           Spiel 3 (Idee): Leuchttisch-Gegenstände, zählen und ze
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
 prototypen/             Die Prototypen aus der Ideenphase (nicht verändern, nur als Vorlage)
 werkzeuge/              Trainingsskript für das Ziffern-Modell, icons.js (App-Symbole erzeugen)
-tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-browser.js, ziffern-browser.js, app-browser.js (Playwright, Server auf Port 8123)
+tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-browser.js, ziffern-browser.js, app-browser.js, layout-browser.js (Playwright, Server auf Port 8123)
 ```
 
 ## Stand
@@ -71,6 +71,8 @@ tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-b
 - **Eingabe robust machen.** Schreiben hing manchmal, bis die Seite neu geladen wurde. Ursachen: Nach einmaliger Stiftbenutzung wurden Finger dauerhaft ignoriert; Handballen oder ein zweiter Finger störten; Loslassen außerhalb des Feldes. Lösung im Prototyp: genau ein Zeiger pro Feld, Handflächen-Sperre nur 1,5 s nach einem Stift-Ereignis, `lostpointercapture` und `pointerup` am Fenster als Sicherheitsnetz, `touch-action: none` auf der Spielfläche, Kontextmenü und Zoom-Gesten aus. **Auf einem echten Tablet noch nicht bestätigt.**
 - **Automatisch prüfen**, sobald alle Felder erkannt sind. Der Knopf „Prüfen“ bleibt zusätzlich.
 - **Zweistellige Zahlen** gelingen am besten, wenn die Ziffern nebeneinander stehen und sich nicht berühren.
+- **Deutsche 9 (Bogen unten) wurde oft als 3 gelesen.** Formprüfung: geschlossene Schlaufe oben → 9 (`obenUmlauf` in `gemeinsam/ziffern.js`).
+- **Seitenleiste im Querformat** passt bei Tablet-Höhen unter etwa 800 px nicht immer; die App prüft das und nimmt dann das Layout oben/unten (`tests/layout-browser.js` prüft 50 Größen).
 - **Deutsche 1 wurde oft als 7 gelesen.** Das Modell kennt nur die amerikanische 1. Lösung: Regel „7 nur mit Querstrich“ wie in der Grundschule (abschaltbar), dazu eine Formprüfung (`gemeinsam/ziffern.js`, `gemeinsam/einstellungen.js`, Test `tests/ziffern-browser.js`).
 
 ## Was nicht ins Git darf

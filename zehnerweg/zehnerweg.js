@@ -114,6 +114,11 @@ function layout() {
   // Kopfzeile + Tipp/Knöpfe ≈ 150 px, Paradestreifen ≈ 104 px
   const topBottom = Math.min(iw, (ih - 254) * GH.W / GH.H), sideways = Math.min(iw - 300, (ih - 144) * GH.W / GH.H);
   app.classList.toggle('side', iw > ih && sideways > topBottom * 1.04);
+  // Passt die Seitenleiste nicht in die Höhe (z. B. Tablet quer mit Browserleiste), lieber oben/unten anordnen
+  if (app.classList.contains('side')) {
+    const oben = document.querySelector('header .meta').getBoundingClientRect(), tipp = $('hint').getBoundingClientRect(), letzter = $('b-next').getBoundingClientRect();
+    if (tipp.top < oben.bottom + 8 || letzter.bottom > window.innerHeight - 4) app.classList.remove('side');
+  }
   const availH = Math.max(240, wrap.clientHeight - 30);
   const availW = wrap.clientWidth - (app.classList.contains('side') ? 25 : 0);
   vertical = availW < availH * 1.05;
@@ -200,11 +205,12 @@ function check() {
 const streifen = new ParadeStreifen($('track'));
 const blaetter = $('leaves');
 let runde = null;
-const sagStart = () => streifen.sag(runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : 'Für heute geschafft. Du kannst weiter üben.');
+const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : 'Für heute geschafft. Du kannst weiter üben.');
 function zeigeParade(animiert) { streifen.zeige(parade(runde.z), animiert); zeigeBlaetter(blaetter, runde.z); }
 function paradeStarten() {
-  if (runde.laeuft || !runde.heuteMoeglich) return;
-  if (runde.starten()) { zeigeParade(true); streifen.sag('Los geht’s! Die Parade läuft.'); }
+  const was = runde.aktivitaet(); // startet eine Runde oder setzt nach einer Pause fort
+  if (was === 'neu') { zeigeParade(true); streifen.sag('Los geht’s! Die Parade läuft.'); }
+  else if (was === 'weiter') streifen.sag('Weiter geht’s!');
 }
 function paradeRichtig() {
   if (!runde.laeuft || task.belohnt) { if (!runde.laeuft && !runde.heuteMoeglich) streifen.sag('Super gerechnet!'); return; }
@@ -228,11 +234,13 @@ function paradeFalsch() {
 const gartenUrl = '../garten/' + (PROBE ? '?probe' : '');
 $('b-garten').href = gartenUrl;
 runde = new Runde({
-  onTick: (rest, dauer) => {
+  onTick: (rest, dauer, pause) => {
     $('uhrzeit').textContent = uhrText(rest);
     $('sand').style.width = (rest / dauer * 100) + '%';
     $('uhr').classList.toggle('um', rest <= 0);
+    $('uhr').classList.toggle('pause', !!pause);
   },
+  onPause: () => streifen.sag('Pause. Schreib weiter, dann läuft die Uhr wieder.'),
   onZeitUm: () => streifen.sag('Die Zeit ist um! Mach diese Aufgabe noch fertig.'),
   onEnde: ergebnis => {
     streifen.ausziehen();

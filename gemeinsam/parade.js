@@ -85,9 +85,9 @@ export function zeigeBlaetter(box, z) {
 }
 
 /** Rückblick nach der Runde als Dialog. */
-export function rueckblick({ neu, gewachsen, deko }, { gartenUrl }) {
+export function rueckblick({ neu, gewachsen, deko, nochRunden = 0 }, { gartenUrl }) {
   const d = el('dialog', 'rueckblick');
-  d.append(el('h2', null, 'Für heute geschafft!'));
+  d.append(el('h2', null, nochRunden > 0 ? 'Runde geschafft!' : 'Für heute geschafft!'));
   const n = neu.length;
   d.append(el('p', null, n ? (n === 1 ? 'Ein neues Tier ist in den Garten gezogen.' : `${n} neue Tiere sind in den Garten gezogen.`) : 'Heute ist niemand Neues dazugekommen, aber deine Begleiter waren dabei.'));
   if (n) {
@@ -102,10 +102,10 @@ export function rueckblick({ neu, gewachsen, deko }, { gartenUrl }) {
     const row = el('div', 'row'); row.append(svgElement(decoSVG(deko))); d.append(row);
     d.append(el('p', null, `Für 5 Übungstage gibt es neu im Garten: ${DECO[deko]}.`));
   }
-  d.append(el('p', 'note', 'Morgen geht die Parade weiter.'));
+  d.append(el('p', 'note', nochRunden === Infinity ? 'Willst du noch eine Runde? Schreib einfach weiter.' : nochRunden > 0 ? `Heute geht noch ${nochRunden === 1 ? 'eine Runde' : nochRunden + ' Runden'}. Schreib einfach weiter.` : 'Morgen geht die Parade weiter.'));
   const knoepfe = el('div', 'knoepfe');
   const garten = el('a', 'btn primary', 'Zum Garten'); garten.href = gartenUrl;
-  const weiter = el('button', 'btn', 'Weiter üben'); weiter.type = 'button';
+  const weiter = el('button', 'btn', nochRunden > 0 ? 'Noch eine Runde' : 'Weiter üben'); weiter.type = 'button';
   weiter.addEventListener('click', () => { d.close(); d.remove(); });
   knoepfe.append(garten, weiter); d.append(knoepfe);
   document.body.append(d);

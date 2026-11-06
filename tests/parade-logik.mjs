@@ -1,7 +1,7 @@
 // Prüft die Regeln der Schneckenparade ohne Browser. Aufruf: node tests/parade-logik.mjs
 import {
   startGarten, rundeStarten, richtig, falsch, rundeBeenden, kannHeuteSpielen, begleiterUmschalten,
-  bereinigeZustand, parade, album, stageOf, neueSchnecke,
+  bereinigeZustand, parade, album, stageOf, neueSchnecke, nochRunden, pausieren, fortsetzen, restzeit,
 } from '../gemeinsam/parade-logik.js';
 
 let fehler = 0; const chk = (c, m) => { console.log((c ? 'ok     ' : 'FEHLER ') + m); if (!c) fehler++; };
@@ -67,6 +67,28 @@ chk(album(z).find(g => g.titel === 'Garten-Deko').eintraege.every(x => x.da), 'A
 // Begleiter: höchstens 3
 z.walkers = []; z.garden.slice(0, 5).forEach(s => begleiterUmschalten(z, s.id));
 chk(z.walkers.length === 3 && z.walkers[0] === z.garden[2].id, 'Höchstens 3 Begleiter, der zuerst gewählte fällt heraus');
+
+// Mehrere Runden am Tag (Einstellung), Übungstage zählen einmal pro Tag
+z = startGarten({}, zufall(31), '2026-11-01');
+const TAG = '2026-11-10';
+for (let i = 0; i < 3; i++) { chk(rundeStarten(z, 0, 300000, TAG, 3), `Runde ${i + 1} von 3 startet`); rundeBeenden(z, TAG); }
+chk(!rundeStarten(z, 0, 300000, TAG, 3) && nochRunden(z, TAG, 3) === 0, 'Vierte Runde am selben Tag nicht möglich');
+chk(z.practiceDays === 1 && z.rundenHeute === 3, 'Drei Runden zählen als ein Übungstag');
+chk(z.garden.filter(s => z.walkers.includes(s.id)).every(s => s.runs === 3), 'Jede Runde ist ein Ausflug für die Begleiter');
+chk(nochRunden(z, '2026-11-11', 3) === 3, 'Am nächsten Tag wieder 3 Runden');
+chk(rundeStarten(z, 0, 300000, TAG, 0) && nochRunden(z, TAG, 0) === Infinity, 'Unbegrenzt: Runden gehen immer');
+rundeBeenden(z, TAG);
+// Deko nicht doppelt, wenn an einem 5. Übungstag mehrere Runden gespielt werden
+z = startGarten({}, zufall(32), '2026-11-01');
+for (let t = 1; t <= 5; t++) for (let i = 0; i < 2; i++) { rundeStarten(z, 0, 300000, `2026-12-0${t}`, 2); rundeBeenden(z, `2026-12-0${t}`); }
+chk(z.deco.join() === 'pilz' && z.practiceDays === 5, 'Deko nur einmal am 5. Übungstag, auch bei 2 Runden täglich');
+// Pause
+z = startGarten({}, zufall(33), '2026-11-01');
+rundeStarten(z, 1000, 300000, TAG, 3);
+chk(pausieren(z, 61000) && restzeit(z, 500000) === 240000, 'Pause hält die Uhr an (Restzeit bleibt stehen)');
+chk(fortsetzen(z, 900000) && restzeit(z, 960000) === 180000, 'Fortsetzen: Uhr läuft mit der Restzeit weiter');
+z.runde.zeitUm = true; chk(!pausieren(z, 1e6), 'Nach Ablauf der Zeit keine Pause mehr');
+rundeBeenden(z, TAG);
 
 // Manipulierte Daten
 const boese = bereinigeZustand({

@@ -37,4 +37,4 @@ Numi (`andreas-luehning/numi`) bleibt eine **eigene Welt** mit eigener Belohnung
 - Fotos der Arbeitsblätter: entschieden, sie bleiben lokal und kommen nicht ins Git.
 - Mehrere Kinder pro Tablet?
 - Zehnerweg: Aufgaben, bei denen Ergebnis und eine andere Stelle vorgegeben sind? (siehe `zehnerweg.md`, Offene Punkte)
-- Mehr als eine Runde mit Blättern pro Tag (z. B. als Einstellung für Erwachsene)? Bisher: eine Runde, danach freies Üben ohne Blätter.
+- ~~Mehr als eine Runde pro Tag~~ Umgesetzt: Einstellung „Runden pro Tag“, Standard 3, und Pause, wenn niemand schreibt.

@@ -32,6 +32,9 @@
 .uhr .sand { width: 70px; height: 12px; border-radius: 999px; background: var(--rule); overflow: hidden; }
 .uhr .sand i { display: block; height: 100%; width: 100%; background: var(--star); border-radius: 999px; transition: width .5s linear; }
 .uhr.um { color: var(--muted); }
+.uhr.pause { color: var(--muted); }
+.uhr.pause .sand i { background: var(--muted); }
+.uhr.pause::after { content: "Pause"; font: 700 .8rem var(--body); color: var(--muted); }
 .leaves { display: flex; align-items: center; gap: 4px; }
 .leaves svg { width: 30px; height: 30px; }
 .leaves .lf { fill: var(--leaf-off); stroke: var(--line); stroke-width: 1.4; transition: fill .3s; }
