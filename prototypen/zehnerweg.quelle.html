@@ -1,0 +1,586 @@
+<title>Zehnerweg</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@600;800&display=swap">
+<style>
+/* Layout: one working sheet. Header strip, task line, the Zehnerweg stage (road + fields), action bar. Stage turns vertical in portrait like the printed sheet. */
+:root {
+  /* Kinder-Thema hell: Pastellhimmel, Sonnengelb, Flieder, Mandarine */
+  --paper: #f3f9ff; --sheet: #ffffff; --fg: #26315a; --muted: #5f6c94; --rule: #d6e6f7;
+  --ink: #4b3ae0; --road: #7f8db3; --dash: #ffffff; --line: #3a4675;
+  --oval: #f0eaff; --f-start: #fff6d1; --f-ten: #e2f6ff; --f-goal: #ffeaf2;
+  --arrow: #ffa25e; --heart: #ff6f9b; --good: #19a866; --good-bg: #dcf8ea; --bad: #e5484d; --bad-bg: #ffe6e7;
+  --star: #ffbe0b; --btn: #7a5cff; --btn-fg: #ffffff; --btn-edge: #5a3fe0; --chip: #ffffff;
+  --blob1: #dff1ff; --blob2: #fff1c9; --blob3: #ffe3ef;
+  --display: "Grandstander", "Comic Sans MS", "Chalkboard SE", system-ui, sans-serif;
+  --body: "Andika", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121833; --sheet: #1c2348; --fg: #f1f3ff; --muted: #aab3dc; --rule: #343e6e;
+    --ink: #8fd3ff; --road: #46527f; --dash: #ffd23f; --line: #c8cff2;
+    --oval: #352e6b; --f-start: #3d3519; --f-ten: #173b54; --f-goal: #4a2036;
+    --arrow: #ff9d5c; --heart: #ff77a3; --good: #45d98d; --good-bg: #173a2b; --bad: #ff7b7f; --bad-bg: #452025;
+    --star: #ffd23f; --btn: #9a83ff; --btn-fg: #14193a; --btn-edge: #6a52d6; --chip: #1c2348; --blob1: #1a2550; --blob2: #2a2540; --blob3: #2b1d3d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121833; --sheet: #1c2348; --fg: #f1f3ff; --muted: #aab3dc; --rule: #343e6e;
+    --ink: #8fd3ff; --road: #46527f; --dash: #ffd23f; --line: #c8cff2;
+    --oval: #352e6b; --f-start: #3d3519; --f-ten: #173b54; --f-goal: #4a2036;
+    --arrow: #ff9d5c; --heart: #ff77a3; --good: #45d98d; --good-bg: #173a2b; --bad: #ff7b7f; --bad-bg: #452025;
+    --star: #ffd23f; --btn: #9a83ff; --btn-fg: #14193a; --btn-edge: #6a52d6; --chip: #1c2348; --blob1: #1a2550; --blob2: #2a2540; --blob3: #2b1d3d; color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: radial-gradient(circle at 8% 12%, var(--blob1) 0 14%, transparent 14.2%), radial-gradient(circle at 92% 88%, var(--blob3) 0 16%, transparent 16.2%), radial-gradient(circle at 96% 6%, var(--blob2) 0 9%, transparent 9.2%), var(--paper);
+  color: var(--fg); font-family: var(--body); font-size: 16px;
+  -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; touch-action: manipulation; overscroll-behavior: none;
+}
+.stage { touch-action: none; }
+.app {
+  max-width: 1280px; margin: 0 auto; height: 100%; overflow: hidden; position: relative;
+  display: flex; flex-direction: column; gap: 8px;
+  padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+}
+header { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
+.brand { display: flex; flex-direction: column; }
+.eq { margin-right: auto; font: 800 clamp(1.7rem, 4vw, 2.5rem) var(--display); font-variant-numeric: tabular-nums; letter-spacing: .02em; line-height: 1; }
+.eq .q { color: var(--ink); }
+.info-btn svg { width: 22px; height: 22px; display: block; margin: auto; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+#b-theme .sun { stroke: var(--star); }
+.info-btn[aria-pressed="true"] { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); }
+.info-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--rule); background: var(--sheet); color: var(--fg); font: 800 1.1rem var(--display); cursor: pointer; }
+.brand h1 { font-family: var(--display); font-weight: 800; font-size: 1.6rem; line-height: 1; margin: 0; letter-spacing: .01em; }
+.brand small { color: var(--muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+.seg { display: inline-flex; border: 1.5px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--sheet); }
+.seg button {
+  font: 700 .95rem var(--body); color: var(--muted); background: none; border: 0; border-radius: 999px;
+  padding: 8px 14px; min-height: 40px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--btn); color: var(--btn-fg); }
+.stars { display: flex; align-items: center; gap: 6px; font: 800 1.15rem var(--display); color: var(--fg); font-variant-numeric: tabular-nums; }
+.stars svg { width: 26px; height: 26px; fill: var(--star); }
+.stars.pop svg { animation: pop .6s ease; }
+@keyframes pop { 40% { transform: scale(1.5) rotate(-12deg); } }
+
+.bottom { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; }
+.hint { color: var(--muted); font-size: 1.05rem; min-height: 1.4em; flex: 1 1 300px; min-width: 0; }
+.hint.good { color: var(--good); font-weight: 700; }
+.hint.bad { color: var(--bad); font-weight: 700; }
+
+.stage-wrap { flex: 1 1 0; display: flex; justify-content: center; align-items: center; min-height: 0; }
+.stage {
+  position: relative; width: 100%; aspect-ratio: var(--ar, 1000 / 600);
+  max-width: 100%; background: var(--sheet); border: 2px solid var(--rule); border-radius: 26px; box-shadow: 0 8px 0 var(--rule);
+}
+.stage svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.road { fill: var(--road); }
+.dash { fill: var(--dash); }
+.conn { stroke: var(--line); stroke-width: 2; fill: none; }
+.arr { stroke: var(--arrow); stroke-width: 9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.icon-line { stroke: var(--line); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.heart { fill: var(--heart); stroke: var(--line); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; }
+.stage:not(.minus) .for-minus, .stage.minus .for-plus { display: none; }
+.stage.love .heart { animation: beat 1.2s ease 2; }
+@keyframes beat { 15% { scale: 1.35; } 30% { scale: 1; } 45% { scale: 1.25; } 60% { scale: 1; } }
+.route { stroke: var(--good); stroke-width: 9; fill: none; stroke-linecap: round; opacity: 0; }
+.stage.done .route { opacity: .9; animation: drawroute 1.1s ease forwards; }
+.head { transition: stroke .25s; }
+.stage.done .head { stroke: var(--good); transition-delay: .9s; }
+@keyframes drawroute { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+
+.field {
+  position: absolute; box-sizing: border-box; background: var(--sheet);
+  border: 2.5px solid var(--line); touch-action: none; overflow: hidden;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
+}
+.field.oval { border-radius: 50%; background: var(--oval); border-width: 3px; }
+#f-start { background: var(--f-start); } #f-ten { background: var(--f-ten); } #f-goal { background: var(--f-goal); }
+.field { border-width: 3px !important; border-radius: 18px; }
+.field.oval { border-radius: 50%; }
+.field canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.field .given {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font: 700 clamp(1.8rem, 6vw, 3.6rem) var(--body); color: var(--fg); font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.field .op {
+  position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+  font: 800 1.5rem var(--display); color: var(--fg); pointer-events: none; line-height: 1;
+}
+.tag {
+  position: absolute; transform: translate(-50%, 6px); z-index: 2;
+  display: flex; align-items: center; gap: 2px; white-space: nowrap;
+  font: 700 .85rem var(--body); color: var(--muted); background: var(--sheet);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 0 0 0 10px; font-variant-numeric: tabular-nums;
+}
+.tag.unsure { border-style: dashed; color: var(--bad); }
+.tag .clr {
+  width: 32px; height: 30px; border: 0; background: none; color: var(--muted);
+  font: 700 1.1rem/1 var(--body); cursor: pointer; display: grid; place-items: center; padding: 0; border-radius: 999px;
+}
+.field.ok { border-color: var(--good); box-shadow: 0 0 0 4px var(--good-bg); }
+.field.no { border-color: var(--bad); box-shadow: 0 0 0 4px var(--bad-bg); animation: shake .35s; }
+@keyframes shake { 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
+.field.target:not(.has) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink) 18%, transparent); }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.btn {
+  font: 700 1.05rem var(--body); border-radius: 999px; padding: 12px 22px; min-height: 50px; cursor: pointer;
+  border: 1.5px solid var(--rule); background: var(--sheet); color: var(--fg);
+}
+.btn { border-width: 2px; box-shadow: 0 4px 0 var(--rule); font-family: var(--display); font-weight: 600; }
+.btn:active { translate: 0 3px; box-shadow: 0 1px 0 var(--rule); }
+.btn.primary { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); min-width: 140px; box-shadow: 0 4px 0 var(--btn-edge); }
+.btn.primary:active { box-shadow: 0 1px 0 var(--btn-edge); }
+.btn:focus-visible, .seg button:focus-visible, .clr:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+.grown {
+  position: absolute; z-index: 5; top: 62px; right: max(16px, env(safe-area-inset-right, 0px)); left: max(16px, env(safe-area-inset-left, 0px));
+  margin-left: auto; max-width: 62ch; color: var(--fg); font-size: .95rem; background: var(--sheet);
+  border: 1.5px solid var(--rule); border-radius: 14px; padding: 4px 18px; box-shadow: 0 10px 30px rgb(0 0 0 / .18);
+}
+.grown h2 { font: 800 1.1rem var(--display); margin: 12px 0 0; }
+.grown p { margin: .5em 0; line-height: 1.5; color: var(--muted); }
+
+/* Seitenleiste: auf breiten Bildschirmen wandern Aufgabe, Sterne und Buttons nach links, der Weg bekommt die volle Höhe. */
+.meta { display: flex; align-items: center; gap: 12px; }
+.app.side {
+  display: grid; max-width: none; grid-template-columns: minmax(230px, 270px) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr); column-gap: 0; row-gap: 20px; padding-block: 16px;
+}
+.app.side header { grid-column: 1; grid-row: 1; flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 20px; padding-right: 24px; }
+.app.side .eq { margin-right: 0; font-size: clamp(1.8rem, 3.4vw, 2.6rem); }
+.app.side .seg { display: flex; flex-direction: column; border-radius: 16px; gap: 2px; }
+.app.side .seg button { border-radius: 12px; min-height: 46px; font-size: 1rem; text-align: left; padding: 8px 16px; }
+.app.side .meta { justify-content: space-between; }
+.app.side .stage-wrap { grid-column: 2; grid-row: 1 / span 2; border-left: 1.5px solid var(--rule); padding-left: 24px; }
+.app.side .bottom { grid-column: 1; grid-row: 2; flex-direction: column; align-items: stretch; justify-content: flex-end; flex-wrap: nowrap; gap: 16px; padding-right: 24px; }
+.app.side .hint { flex: 0 0 auto; }
+.app.side .actions { flex-direction: column; gap: 12px; }
+.app.side .hint { line-height: 1.4; }
+.app.side .btn { width: 100%; }
+.app.side .grown { top: 16px; left: 300px; margin-left: 0; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  .stage.done .route { opacity: .9; }
+}
+</style>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <h1>Zehnerweg</h1>
+      <small>Rechnen bis 20</small>
+    </div>
+    <div class="eq" id="eq">8 + 5 = <span class="q">?</span></div>
+    <div class="seg" role="group" aria-label="Rechenart">
+      <button id="m-plus" data-mode="plus" aria-pressed="true">Plus</button>
+      <button id="m-minus" data-mode="minus" aria-pressed="false">Minus</button>
+      <button id="m-mix" data-mode="mix" aria-pressed="false">Gemischt</button>
+    </div>
+    <div class="meta">
+    <div class="stars" id="stars" aria-label="Sterne">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.5l1.3-6.6L2.5 9.3l6.6-.8z"/></svg>
+      <span id="starcount">0</span>
+    </div>
+    <button class="info-btn" id="b-flip" aria-label="Kreise auf die andere Seite der Straße"><svg viewBox="0 0 24 24"><path d="M8 3v18M8 3L4 7M8 3l4 4M16 21V3M16 21l-4-4M16 21l4-4"/></svg></button>
+    <button class="info-btn" id="b-theme" aria-label="Tag- oder Nachtmodus"></button>
+    <button class="info-btn" id="b-info" aria-expanded="false" aria-controls="grown" aria-label="Infos für Erwachsene">?</button>
+    </div>
+  </header>
+
+  <div class="grown" id="grown" hidden>
+    <h2>Für Erwachsene</h2>
+    <p>Der Weg folgt dem Arbeitsblatt: Am Anfang der Straße steht die Startzahl, im großen Kreis auf der Straße die zweite Zahl. Das Kind zerlegt sie in die beiden kleinen Kreise, rechnet erst bis zur 10 (mittleres Kästchen) und dann weiter bis zum Ergebnis am Ende der Straße. Bei Plus markiert das Herz die verliebte Zahl zur Startzahl. Bei Minus steht die Hand beim Wegnehmen bis zur 10, und das Herz zeigt, dass zweiter Kreis und Ergebnis zusammen 10 ergeben. Sind alle Felder ausgefüllt, prüft die App automatisch.</p>
+    <p>Die Zahlenerkennung läuft vollständig auf dem Gerät, es wird nichts übertragen. Am besten klappt es, wenn die Ziffern einer Zahl nebeneinander stehen und sich nicht berühren. Unter jedem Feld steht klein, was erkannt wurde. Mit × lässt sich ein Feld neu beschreiben. Wird ein Stift benutzt, ignoriert die App danach Berührungen mit der Hand.</p>
+  </div>
+
+  <div class="stage-wrap" id="wrap">
+    <div class="stage" id="stage">
+      <svg class="bg" id="bg" aria-hidden="true"></svg>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="hint" id="hint">Schreib mit dem Finger oder Stift in die leeren Felder.</div>
+    <div class="actions">
+      <button class="btn" id="b-clear">Alles löschen</button>
+      <button class="btn primary" id="b-check">Prüfen</button>
+      <button class="btn" id="b-next">Neue Aufgabe</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MODEL = __MODEL__;
+
+/* ---------- digit model ---------- */
+function dq(o){ const bin = atob(o.d); const a = new Float32Array(bin.length);
+  for (let i = 0; i < bin.length; i++){ let v = bin.charCodeAt(i); if (v > 127) v -= 256; a[i] = v * o.s; } return a; }
+const W1 = dq(MODEL.W1), B1 = dq(MODEL.b1), W2 = dq(MODEL.W2), B2 = dq(MODEL.b2), HID = B1.length;
+function predict(x){
+  const h = new Float32Array(B1);
+  for (let i = 0; i < 784; i++){ const v = x[i]; if (!v) continue; const r = i * HID; for (let j = 0; j < HID; j++) h[j] += v * W1[r + j]; }
+  const z = new Float32Array(10);
+  for (let k = 0; k < 10; k++){ let s = B2[k]; for (let j = 0; j < HID; j++) if (h[j] > 0) s += h[j] * W2[j * 10 + k]; z[k] = s; }
+  const m = Math.max(...z); let sum = 0; for (let k = 0; k < 10; k++){ z[k] = Math.exp(z[k] - m); sum += z[k]; }
+  for (let k = 0; k < 10; k++) z[k] /= sum; return z;
+}
+const R1 = document.createElement('canvas'); R1.width = R1.height = 112;
+const R2 = document.createElement('canvas'); R2.width = R2.height = 56;
+const R3 = document.createElement('canvas'); R3.width = R3.height = 28;
+function rasterize(strokes){
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const s of strokes) for (const p of s){ x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
+  const w = x1 - x0, h = y1 - y0, size = Math.max(w, h, 1);
+  const sc = 80 / size, ox = (112 - w * sc) / 2 - x0 * sc, oy = (112 - h * sc) / 2 - y0 * sc;
+  const c = R1.getContext('2d'); c.clearRect(0, 0, 112, 112);
+  c.strokeStyle = c.fillStyle = '#000'; c.lineWidth = 11; c.lineCap = 'round'; c.lineJoin = 'round';
+  for (const s of strokes){
+    if (s.length === 1){ c.beginPath(); c.arc(s[0].x * sc + ox, s[0].y * sc + oy, 5.5, 0, 7); c.fill(); continue; }
+    c.beginPath(); c.moveTo(s[0].x * sc + ox, s[0].y * sc + oy);
+    for (let i = 1; i < s.length; i++) c.lineTo(s[i].x * sc + ox, s[i].y * sc + oy);
+    c.stroke();
+  }
+  const c2 = R2.getContext('2d'); c2.imageSmoothingQuality = 'high'; c2.clearRect(0, 0, 56, 56); c2.drawImage(R1, 0, 0, 56, 56);
+  const c3 = R3.getContext('2d'); c3.imageSmoothingQuality = 'high'; c3.clearRect(0, 0, 28, 28); c3.drawImage(R2, 0, 0, 28, 28);
+  const d = c3.getImageData(0, 0, 28, 28).data, a = new Float32Array(784);
+  let m = 0, mx = 0, my = 0;
+  for (let i = 0; i < 784; i++){ const v = Math.min(1, d[i * 4 + 3] / 255 * 1.15); a[i] = v; m += v; mx += v * (i % 28); my += v * Math.floor(i / 28); }
+  if (!m) return a;
+  const dx = Math.round(13.5 - mx / m), dy = Math.round(13.5 - my / m), out = new Float32Array(784);
+  for (let y = 0; y < 28; y++) for (let x = 0; x < 28; x++){
+    const sx = x - dx, sy = y - dy; if (sx >= 0 && sx < 28 && sy >= 0 && sy < 28) out[y * 28 + x] = a[sy * 28 + sx];
+  }
+  return out;
+}
+function groupStrokes(strokes, fieldW){
+  const items = strokes.map(s => { let a = 1e9, b = -1e9; for (const p of s){ a = Math.min(a, p.x); b = Math.max(b, p.x); } return { s, a, b }; })
+    .sort((p, q) => p.a - q.a);
+  const groups = []; const tol = Math.max(3, fieldW * 0.012);
+  for (const it of items){
+    const g = groups[groups.length - 1];
+    if (g && it.a <= g.b + tol){ g.strokes.push(it.s); g.b = Math.max(g.b, it.b); }
+    else groups.push({ strokes: [it.s], a: it.a, b: it.b });
+  }
+  return groups;
+}
+function readNumber(strokes, fieldW, fieldH){
+  const real = strokes.filter(s => s.length > 0);
+  if (!real.length) return null;
+  let groups = groupStrokes(real, fieldW);
+  // drop specks (tiny accidental taps) when there are other groups
+  groups = groups.filter(g => {
+    let y0 = 1e9, y1 = -1e9; for (const s of g.strokes) for (const p of s){ y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+    return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;
+  });
+  if (!groups.length) return null;
+  const probs = groups.map(g => predict(rasterize(g.strokes)));
+  const pick = (p, allowed) => { let bi = allowed[0]; for (const k of allowed) if (p[k] > p[bi]) bi = k; return bi; };
+  const all = [0,1,2,3,4,5,6,7,8,9];
+  let digits, conf = 1;
+  if (probs.length === 2){
+    // Auf diesem Blatt kommen nur Zahlen bis 20 vor: erste Ziffer ist 1 oder 2.
+    const d0 = pick(probs[0], [1, 2]);
+    const d1 = d0 === 2 ? pick(probs[1], [0]) : pick(probs[1], all);
+    const p0 = probs[0][d0] / (probs[0][1] + probs[0][2]);
+    digits = [d0, d1]; conf = Math.min(p0, probs[1][d1]);
+    if (d0 === 2 && probs[1][0] < 0.3){ digits = [1, pick(probs[1], all)]; conf = probs[1][digits[1]]; }
+  } else {
+    digits = probs.map(p => pick(p, all)); conf = Math.min(...probs.map((p, i) => p[digits[i]]));
+  }
+  return { value: parseInt(digits.join(''), 10), conf };
+}
+
+/* ---------- geometry (horizontal; portrait mirrors the printed sheet) ---------- */
+const GH = { W: 1000, H: 600 };
+const SHAPES = {
+  start: { cx: 120, cy: 480, w: 200, h: 180, kind: 'box' },
+  big:   { cx: 500, cy: 480, w: 250, h: 190, kind: 'oval' },
+  part1: { cx: 300, cy: 255, w: 220, h: 170, kind: 'oval' },
+  ten:   { cx: 500, cy: 95,  w: 210, h: 160, kind: 'box' },
+  part2: { cx: 700, cy: 255, w: 220, h: 170, kind: 'oval' },
+  goal:  { cx: 880, cy: 480, w: 200, h: 180, kind: 'box' },
+};
+const ARROWS = [
+  { pts: [[150, 386], [150, 268], [186, 258]], head: true },
+  { pts: [[345, 174], [362, 97], [392, 95]], head: false },
+  { pts: [[608, 95], [645, 97], [664, 170]], head: true },
+  { pts: [[814, 262], [868, 272], [872, 386]], head: false },
+];
+let vertical = false;
+let flipped = false;
+const T = (x, y0) => { const y = flipped ? GH.H - y0 : y0; return vertical ? [GH.H - y, GH.W - x] : [x, y]; };
+const dims = () => vertical ? { W: GH.H, H: GH.W } : GH;
+
+function drawBg(){
+  const svg = document.getElementById('bg'); const { W, H } = dims();
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  let s = '';
+  // road between start and goal
+  const [ax, ay] = T(120, 450), [bx, by] = T(880, 510);
+  const rx = Math.min(ax, bx), ry = Math.min(ay, by), rw = Math.abs(bx - ax), rh = Math.abs(by - ay);
+  s += `<rect class="road" x="${rx}" y="${ry}" width="${rw}" height="${rh}"/>`;
+  for (let x = 236; x <= 740; x += 56){ if (x > 340 && x < 630) continue;
+    const [p, q] = T(x, 474), [p2, q2] = T(x + 28, 486);
+    s += `<rect class="dash" x="${Math.min(p, p2)}" y="${Math.min(q, q2)}" width="${Math.abs(p2 - p)}" height="${Math.abs(q2 - q)}"/>`; }
+  // thin lines: big circle splits into the two parts
+  for (const [x1, y1, x2, y2] of [[420, 408, 350, 335], [580, 408, 650, 335]]){
+    const [a, b] = T(x1, y1), [c, d] = T(x2, y2); s += `<line class="conn" x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`; }
+  // brown arrows
+  let route = '';
+  for (const ar of ARROWS){
+    const P = ar.pts.map(p => T(p[0], p[1]));
+    const d = `M${P[0]} Q${P[1]} ${P[2]}`; s += `<path class="arr" d="${d}"/>`;
+    route += (route ? ' ' : '') + d;
+    if (ar.head){
+      const [ex, ey] = P[2], [cx, cy] = P[1]; const ang = Math.atan2(ey - cy, ex - cx), L = 30, sp = 0.55;
+      const l = [ex - L * Math.cos(ang - sp), ey - L * Math.sin(ang - sp)], r = [ex - L * Math.cos(ang + sp), ey - L * Math.sin(ang + sp)];
+      s += `<path class="arr head" d="M${l} L${ex},${ey} L${r}"/>`;
+    }
+  }
+  s += `<path class="route" id="route" d="${route}"/>`;
+  // Herzen: Startzahl und erster kleiner Kreis sind verliebte Zahlen (zusammen 10). Die Hand steht beim Ergebnis.
+  // Plus: Herz beim ersten kleinen Kreis (Startzahl + Kreis = 10). Minus: Hand beim Start (wegnehmen), Herz beim zweiten Kreis (Kreis + Ergebnis = 10).
+  const [hx, hy] = T(58, 345), [gx, gy] = T(150, 195), [g2x, g2y] = T(850, 195);
+  s += `<g class="for-minus" transform="translate(${hx - 26} ${hy - 30})"><path class="icon-line" d="M14 56 C8 46 6 38 6 30 L6 14 Q6 10 10 10 Q14 10 14 14 L14 28 L14 6 Q14 2 18 2 Q22 2 22 6 L22 27 L22 4 Q22 0 26 0 Q30 0 30 4 L30 27 L30 8 Q30 4 34 4 Q38 4 38 8 L38 34 L43 26 Q46 22 49 25 Q51 27 49 31 L40 48 Q36 56 28 58 Z"/></g>`;
+  const HP = 'M22 38 C6 27 0 19 0 11 C0 4 5 0 11 0 C16 0 20 3 22 7 C24 3 28 0 33 0 C39 0 44 4 44 11 C44 19 38 27 22 38 Z';
+  s += `<g class="for-plus" transform="translate(${gx - 22} ${gy - 20})"><path class="heart" d="${HP}"/></g>`;
+  s += `<g class="for-minus" transform="translate(${g2x - 22} ${g2y - 20})"><path class="heart" d="${HP}"/></g>`;
+  svg.innerHTML = s;
+  const r = document.getElementById('route'); try { const len = r.getTotalLength(); r.style.strokeDasharray = len; r.style.setProperty('--len', len); r.style.strokeDashoffset = len; } catch (e) {}
+}
+
+/* ---------- fields ---------- */
+const stage = document.getElementById('stage');
+const FIELDS = {};
+let lastPen = 0;
+// Sicherheitsnetz: Wird irgendwo auf dem Bildschirm losgelassen, ist kein Feld mehr "blockiert"
+window.addEventListener('pointerup', e => { for (const id in FIELDS){ const f = FIELDS[id]; if (f.pid === e.pointerId && f.cur){ f.pid = null; f.cur = null; clearTimeout(f.timer); f.timer = setTimeout(() => recognize(f), 650); } } });
+window.addEventListener('blur', () => { for (const id in FIELDS){ const f = FIELDS[id]; f.pid = null; if (f.cur){ f.cur = null; recognize(f); } } });
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());
+const ORDER = ['part1', 'ten', 'part2', 'goal'];
+
+function makeField(id){
+  const sh = SHAPES[id];
+  const el = document.createElement('div'); el.className = 'field ' + sh.kind; el.id = 'f-' + id;
+  el.innerHTML = `<canvas></canvas><div class="given" hidden></div>${sh.kind === 'oval' ? '<span class="op"></span>' : ''}`;
+  stage.appendChild(el);
+  const tag = document.createElement('div'); tag.className = 'tag'; tag.hidden = true;
+  tag.innerHTML = '<span class="read"></span><button class="clr" aria-label="Feld löschen">×</button>';
+  stage.appendChild(tag);
+  const f = { id, el, cv: el.querySelector('canvas'), given: el.querySelector('.given'), tag, read: tag.querySelector('.read'), clr: tag.querySelector('.clr'), op: el.querySelector('.op'),
+    strokes: [], cur: null, value: null, conf: 0, fixed: false, timer: 0, w: 0, h: 0 };
+  FIELDS[id] = f;
+  const pos = e => { const r = f.cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  // Jedes Feld folgt genau einem Finger/Stift. Handballen und zweite Finger werden ignoriert.
+  f.pid = null;
+  f.cv.addEventListener('pointerdown', e => {
+    if (f.fixed) return;
+    if (e.pointerType === 'pen') lastPen = Date.now();
+    // Handflächen-Schutz nur kurz nach Stift-Benutzung, danach geht der Finger wieder
+    if (e.pointerType === 'touch' && Date.now() - lastPen < 1500) return;
+    if (f.pid !== null && f.pid !== e.pointerId) return;
+    e.preventDefault();
+    try { f.cv.setPointerCapture(e.pointerId); } catch (err) {}
+    f.pid = e.pointerId; clearTimeout(f.timer); f.timer = 0;
+    el.classList.remove('ok', 'no');
+    f.cur = [pos(e)]; f.strokes.push(f.cur); redraw(f);
+  });
+  f.cv.addEventListener('pointermove', e => {
+    if (e.pointerType === 'pen') lastPen = Date.now();
+    if (!f.cur || e.pointerId !== f.pid) return; e.preventDefault();
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for (const ev of evs) f.cur.push(pos(ev));
+    if (evs.length === 0) f.cur.push(pos(e));
+    redraw(f);
+  });
+  const end = e => {
+    if (e && f.pid !== null && e.pointerId !== f.pid) return;
+    f.pid = null; if (!f.cur) return; f.cur = null;
+    clearTimeout(f.timer); f.timer = setTimeout(() => recognize(f), 650);
+  };
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) f.cv.addEventListener(ev, end);
+  f.clr.addEventListener('click', () => clearField(f));
+  return f;
+}
+function inkColor(){ return getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#2346a6'; }
+function redraw(f){
+  const dpr = window.devicePixelRatio || 1, cv = f.cv;
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, f.w, f.h);
+  c.strokeStyle = c.fillStyle = inkColor(); c.lineCap = c.lineJoin = 'round';
+  c.lineWidth = Math.max(4, Math.min(f.w, f.h) * 0.045);
+  for (const s of f.strokes){
+    if (s.length === 1){ c.beginPath(); c.arc(s[0].x, s[0].y, c.lineWidth / 2, 0, 7); c.fill(); continue; }
+    c.beginPath(); c.moveTo(s[0].x, s[0].y);
+    for (let i = 1; i < s.length - 1; i++){ const mx = (s[i].x + s[i + 1].x) / 2, my = (s[i].y + s[i + 1].y) / 2; c.quadraticCurveTo(s[i].x, s[i].y, mx, my); }
+    const l = s[s.length - 1]; c.lineTo(l.x, l.y); c.stroke();
+  }
+}
+function recognize(f){
+  f.timer = 0;
+  const r = readNumber(f.strokes, f.w, f.h);
+  f.value = r ? r.value : null; f.conf = r ? r.conf : 0;
+  const has = f.strokes.length > 0;
+  f.el.classList.toggle('has', has); f.tag.hidden = !has;
+  f.read.textContent = r ? (r.conf < 0.4 ? r.value + ' ?' : 'erkannt: ' + r.value) : 'nicht erkannt';
+  f.tag.classList.toggle('unsure', !r || r.conf < 0.4);
+  updateTarget();
+  if (task && ((task.op === 'plus' && f.id === 'part1') || (task.op === 'minus' && f.id === 'goal')) && f.value === task.ans[f.id]){
+    stage.classList.remove('love'); void stage.offsetWidth; stage.classList.add('love');
+  }
+  // Automatisch prüfen, sobald alle Felder ausgefüllt sind
+  const busy = ORDER.some(id => FIELDS[id].cur || (FIELDS[id].strokes.length && FIELDS[id].value == null && FIELDS[id].timer && FIELDS[id] !== f));
+  if (!busy && ORDER.every(id => FIELDS[id].value != null)) check();
+}
+function clearField(f){
+  clearTimeout(f.timer); f.timer = 0; f.strokes = []; f.cur = null; f.pid = null; f.value = null; f.tag.hidden = true;
+  f.el.classList.remove('has', 'ok', 'no'); redraw(f); updateTarget();
+}
+function setGiven(f, v){ f.fixed = true; f.value = v; f.given.hidden = false; f.given.textContent = v; f.cv.style.cursor = 'default'; }
+
+const app = document.querySelector('.app');
+function layout(){
+  const wrap = document.getElementById('wrap');
+  // Seitenleiste nur, wenn der Weg dadurch größer wird (breite Bildschirme im Querformat)
+  const iw = window.innerWidth - 32, ih = window.innerHeight - 16;
+  const topBottom = Math.min(iw, (ih - 150) * GH.W / GH.H), sideways = Math.min(iw - 300, (ih - 40) * GH.W / GH.H);
+  app.classList.toggle('side', iw > ih && sideways > topBottom * 1.04);
+  const availH = Math.max(240, wrap.clientHeight - 30);
+  const availW = wrap.clientWidth - (app.classList.contains('side') ? 25 : 0);
+  const nowVertical = availW < availH * 1.05;
+  if (nowVertical !== vertical){ vertical = nowVertical; }
+  const { W, H } = dims();
+  stage.style.setProperty('--ar', `${W} / ${H}`);
+  stage.style.width = Math.min(availW, availH * W / H) + 'px';
+  drawBg();
+  for (const id in FIELDS){
+    const f = FIELDS[id], sh = SHAPES[id];
+    const [cx, cy] = T(sh.cx, sh.cy), w = vertical ? sh.h : sh.w, h = vertical ? sh.w : sh.h;
+    Object.assign(f.el.style, { left: (cx - w / 2) / W * 100 + '%', top: (cy - h / 2) / H * 100 + '%', width: w / W * 100 + '%', height: h / H * 100 + '%' });
+    Object.assign(f.tag.style, { left: cx / W * 100 + '%', top: (cy + h / 2) / H * 100 + '%' });
+  }
+  requestAnimationFrame(() => {
+    const dpr = window.devicePixelRatio || 1;
+    for (const id in FIELDS){
+      const f = FIELDS[id], r = f.el.getBoundingClientRect();
+      if (f.w && (Math.abs(r.width - f.w) > 1 || Math.abs(r.height - f.h) > 1)){
+        const sx = r.width / f.w, sy = r.height / f.h; for (const s of f.strokes) for (const p of s){ p.x *= sx; p.y *= sy; }
+      }
+      f.w = r.width; f.h = r.height; f.cv.width = Math.round(r.width * dpr); f.cv.height = Math.round(r.height * dpr); redraw(f);
+    }
+  });
+}
+
+/* ---------- tasks ---------- */
+let mode = 'plus', task = null;
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+function newTask(){
+  const op = mode === 'mix' ? (Math.random() < 0.5 ? 'plus' : 'minus') : mode;
+  let a, b;
+  if (op === 'plus'){ do { a = rnd(3, 9); b = rnd(2, 9); } while (a + b <= 10 || (task && task.a === a && task.b === b)); }
+  else { do { a = rnd(11, 18); b = rnd(2, 9); } while (a - b >= 10 || a - 10 >= b || (task && task.a === a && task.b === b)); }
+  const p1 = op === 'plus' ? 10 - a : a - 10;
+  task = { op, a, b, ans: { part1: p1, ten: 10, part2: b - p1, goal: op === 'plus' ? a + b : a - b } };
+  const sign = op === 'plus' ? '+' : '−';
+  document.getElementById('eq').innerHTML = `${a} ${sign} ${b} = <span class="q">?</span>`;
+  for (const id in FIELDS){ clearField(FIELDS[id]); FIELDS[id].fixed = false; FIELDS[id].given.hidden = true; FIELDS[id].cv.style.cursor = ''; if (FIELDS[id].op) FIELDS[id].op.textContent = sign; }
+  setGiven(FIELDS.start, a); setGiven(FIELDS.big, b);
+  stage.classList.remove('done', 'love'); stage.classList.toggle('minus', op === 'minus');
+  setHint('Schreib mit dem Finger oder Stift in die leeren Felder.');
+  updateTarget();
+}
+function updateTarget(){
+  let marked = false;
+  for (const id of ORDER){ const f = FIELDS[id]; const t = !marked && f.value == null; f.el.classList.toggle('target', t); if (t) marked = true; }
+}
+function setHint(t, cls){ const h = document.getElementById('hint'); h.textContent = t; h.className = 'hint' + (cls ? ' ' + cls : ''); }
+function hintFor(id){
+  const { op, a, b, ans } = task;
+  if (op === 'plus') return {
+    part1: `Welche Zahl ist in die ${a} verliebt? Zusammen ergeben sie 10.`,
+    ten: `${a} + ${ans.part1} = ? Dort kommst du nach dem ersten Schritt an.`,
+    part2: `Zerlege die ${b}: ${ans.part1} und wie viel noch?`,
+    goal: `Rechne jetzt 10 + ${ans.part2}.`,
+  }[id];
+  return {
+    part1: `Wie viel musst du von ${a} wegnehmen, um bei 10 zu landen?`,
+    ten: `${a} − ${ans.part1} = ? Dort kommst du nach dem ersten Schritt an.`,
+    part2: `Zerlege die ${b}: ${ans.part1} und wie viel noch?`,
+    goal: `10 − ${ans.part2}: Welche Zahl ist in die ${ans.part2} verliebt?`,
+  }[id];
+}
+let stars = 0;
+try { stars = parseInt(localStorage.getItem('zehnerweg-stars') || '0', 10) || 0; } catch (e) {}
+document.getElementById('starcount').textContent = stars;
+function check(){
+  for (const id of ORDER) if (FIELDS[id].timer && FIELDS[id].strokes.length && FIELDS[id].value == null) recognize(FIELDS[id]);
+  const empty = ORDER.filter(id => FIELDS[id].value == null);
+  let firstWrong = null;
+  for (const id of ORDER){
+    const f = FIELDS[id]; f.el.classList.remove('ok', 'no');
+    if (f.value == null) continue;
+    void f.el.offsetWidth;
+    if (f.value === task.ans[id]) f.el.classList.add('ok'); else { f.el.classList.add('no'); if (!firstWrong) firstWrong = id; }
+  }
+  if (firstWrong){
+    const f = FIELDS[firstWrong];
+    setHint((f.conf < 0.4 ? 'Ich habe ' + f.value + ' gelesen. Schreib es deutlicher, falls du etwas anderes meinst. ' : '') + hintFor(firstWrong), 'bad');
+  } else if (empty.length){
+    setHint(`Bis hier stimmt alles! ${hintFor(empty[0])}`, '');
+  } else {
+    const sign = task.op === 'plus' ? '+' : '−';
+    document.getElementById('eq').innerHTML = `${task.a} ${sign} ${task.b} = <span class="q">${task.ans.goal}</span>`;
+    setHint(`Super! ${task.a} ${sign} ${task.ans.part1} ${sign} ${task.ans.part2} = ${task.ans.goal}`, 'good');
+    if (!stage.classList.contains('done')){
+      stage.classList.add('done'); stars++; document.getElementById('starcount').textContent = stars;
+      const st = document.getElementById('stars'); st.classList.remove('pop'); void st.offsetWidth; st.classList.add('pop');
+      try { localStorage.setItem('zehnerweg-stars', String(stars)); } catch (e) {}
+    }
+  }
+}
+
+/* ---------- wiring ---------- */
+['start', 'big', 'part1', 'ten', 'part2', 'goal'].forEach(makeField);
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  mode = b.dataset.mode; document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); newTask();
+}));
+document.getElementById('b-check').addEventListener('click', check);
+/* Tag/Nacht: Standard ist Tag, die Wahl wird auf dem Gerät gemerkt */
+const themeBtn = document.getElementById('b-theme');
+const SUN = '<svg viewBox="0 0 24 24" class="sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  themeBtn.innerHTML = t === 'dark' ? SUN : MOON;
+  themeBtn.setAttribute('aria-label', t === 'dark' ? 'Tagmodus einschalten' : 'Nachtmodus einschalten');
+  try { localStorage.setItem('zehnerweg-theme', t); } catch (e) {}
+}
+let savedTheme = 'light'; try { savedTheme = localStorage.getItem('zehnerweg-theme') || 'light'; } catch (e) {}
+setTheme(savedTheme);
+const flipBtn = document.getElementById('b-flip');
+try { flipped = localStorage.getItem('zehnerweg-flip') === '1'; } catch (e) {}
+flipBtn.setAttribute('aria-pressed', String(flipped));
+flipBtn.addEventListener('click', () => {
+  flipped = !flipped; flipBtn.setAttribute('aria-pressed', String(flipped));
+  try { localStorage.setItem('zehnerweg-flip', flipped ? '1' : '0'); } catch (e) {}
+  layout();
+});
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+const infoBtn = document.getElementById('b-info'), grown = document.getElementById('grown');
+infoBtn.addEventListener('click', () => { grown.hidden = !grown.hidden; infoBtn.setAttribute('aria-expanded', String(!grown.hidden)); });
+stage.addEventListener('pointerdown', () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); });
+document.getElementById('b-next').addEventListener('click', newTask);
+document.getElementById('b-clear').addEventListener('click', () => { for (const id of ORDER) clearField(FIELDS[id]); stage.classList.remove('done'); setHint('Schreib mit dem Finger oder Stift in die leeren Felder.'); });
+let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 120); });
+const mq = window.matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener && mq.addEventListener('change', () => { for (const id in FIELDS) redraw(FIELDS[id]); });
+new MutationObserver(() => { for (const id in FIELDS) redraw(FIELDS[id]); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+layout(); newTask();
+</script>

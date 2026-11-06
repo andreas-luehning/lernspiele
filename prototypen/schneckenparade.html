@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schneckenparade</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@600;800&display=swap">
+<style>
+/* Layout: Probe-Seite. Oben die Straße mit der Parade und den Simulations-Knöpfen, darunter Garten + Sammelalbum, unten die Regeln und das Datenformat. Farben wie im Zehnerweg. */
+:root {
+  --paper: #f3f9ff; --sheet: #ffffff; --fg: #26315a; --muted: #5f6c94; --rule: #d6e6f7;
+  --ink: #4b3ae0; --road: #7f8db3; --dash: #ffffff; --line: #3a4675;
+  --grass: #d9f5d0; --grass-2: #bfeab2; --sky: #e7f4ff; --leaf: #4cc26a; --leaf-off: #cfe3cf;
+  --good: #19a866; --good-bg: #dcf8ea; --bad: #e5484d;
+  --star: #ffbe0b; --btn: #7a5cff; --btn-fg: #ffffff; --btn-edge: #5a3fe0;
+  --body-snail: #f7dcae; --cheek: #ff9bb5; --code-bg: #f1f5fd;
+  --display: "Grandstander", "Comic Sans MS", "Chalkboard SE", system-ui, sans-serif;
+  --body: "Andika", "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121833; --sheet: #1c2348; --fg: #f1f3ff; --muted: #aab3dc; --rule: #343e6e;
+    --ink: #8fd3ff; --road: #46527f; --dash: #ffd23f; --line: #1d2747;
+    --grass: #1f3b33; --grass-2: #26493d; --sky: #1a2550; --leaf: #5fd67e; --leaf-off: #2d4a3c;
+    --good: #45d98d; --good-bg: #173a2b; --bad: #ff7b7f;
+    --star: #ffd23f; --btn: #9a83ff; --btn-fg: #14193a; --btn-edge: #6a52d6;
+    --body-snail: #f0d3a0; --cheek: #ff8fab; --code-bg: #161c3c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121833; --sheet: #1c2348; --fg: #f1f3ff; --muted: #aab3dc; --rule: #343e6e;
+  --ink: #8fd3ff; --road: #46527f; --dash: #ffd23f; --line: #1d2747;
+  --grass: #1f3b33; --grass-2: #26493d; --sky: #1a2550; --leaf: #5fd67e; --leaf-off: #2d4a3c;
+  --good: #45d98d; --good-bg: #173a2b; --bad: #ff7b7f;
+  --star: #ffd23f; --btn: #9a83ff; --btn-fg: #14193a; --btn-edge: #6a52d6;
+  --body-snail: #f0d3a0; --cheek: #ff8fab; --code-bg: #161c3c; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+body { background: var(--paper); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.45; }
+.page {
+  max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px;
+  padding-block: 18px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header { display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; }
+header .t { margin-right: auto; min-width: 0; }
+h1 { font: 800 clamp(1.8rem, 4vw, 2.5rem)/1 var(--display); margin: 0; }
+.sub { color: var(--muted); margin-top: 4px; }
+h2 { font: 800 1.35rem/1.1 var(--display); margin: 0; text-wrap: balance; }
+.round-btn { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--rule); background: var(--sheet); color: var(--fg); cursor: pointer; display: grid; place-items: center; }
+.round-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.round-btn .sun { stroke: var(--star); }
+
+/* Parade */
+.parade { background: var(--sheet); border: 2px solid var(--rule); border-radius: 26px; box-shadow: 0 8px 0 var(--rule); overflow: hidden; }
+.bar { display: flex; align-items: center; gap: 10px 18px; flex-wrap: wrap; padding: 14px 18px; }
+.timer { display: flex; align-items: center; gap: 10px; font: 800 1.6rem var(--display); font-variant-numeric: tabular-nums; }
+.sand { width: 140px; max-width: 30vw; height: 14px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.sand i { display: block; height: 100%; width: 100%; background: var(--star); border-radius: 999px; transition: width 1s linear; }
+.day { color: var(--muted); font-weight: 700; }
+.leaves { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--muted); font-weight: 700; }
+.leaves svg { width: 30px; height: 30px; }
+.leaves .lf { fill: var(--leaf-off); stroke: var(--line); stroke-width: 1.4; transition: fill .3s; }
+.leaves .on .lf { fill: var(--leaf); }
+.leaves .on { animation: pop .5s ease; }
+.leaves .hatmark { width: 34px; height: 30px; transition: opacity .3s; }
+.leaves .hatmark.off { opacity: .25; filter: grayscale(1); }
+.track {
+  position: relative; height: 220px;
+  background: linear-gradient(to bottom, var(--sky) 0 38%, var(--grass) 38% 58%, var(--road) 58% 92%, var(--grass-2) 92%);
+}
+.track::after { content: ""; position: absolute; left: 0; right: 0; top: 74%; height: 6px;
+  background: repeating-linear-gradient(90deg, var(--dash) 0 34px, transparent 34px 70px); opacity: .9; }
+.walker { position: absolute; bottom: 10%; width: var(--w, 112px); transition: left 2.4s cubic-bezier(.3,.7,.3,1), width .8s; z-index: 1; }
+.walker svg { display: block; width: 100%; height: auto; overflow: visible; }
+.walker.moving svg { animation: crawl .6s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes crawl { 50% { transform: scaleX(1.07) scaleY(.95); } }
+.flyleaf { position: absolute; z-index: 5; width: 34px; height: 34px; pointer-events: none; transition: left .9s ease-in, top .9s ease-in, opacity .9s ease-in; }
+.flyleaf .lf { fill: var(--leaf); stroke: var(--line); stroke-width: 1.4; }
+.bubble {
+  position: absolute; top: 12px; left: 50%; translate: -50% 0; z-index: 3; max-width: calc(100% - 32px); width: max-content;
+  background: var(--sheet); border: 2px solid var(--line); border-radius: 18px; padding: 6px 14px;
+  font: 600 1.05rem var(--display); text-align: center; text-wrap: balance;
+}
+.bubble.pop { animation: pop .5s ease; }
+@keyframes pop { 0% { scale: .7; opacity: 0; } 60% { scale: 1.06; } 100% { scale: 1; opacity: 1; } }
+.track.sum { height: auto; min-height: 220px; padding: 10px; }
+.track.sum::after, .track.sum .walker, .track.sum .bubble { display: none; }
+.summary {
+  position: relative; z-index: 6; background: var(--sheet); border: 2px solid var(--line); border-radius: 20px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 10px 14px; overflow: auto;
+}
+.summary .row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: flex-end; }
+.summary .row svg { width: 58px; height: auto; }
+.summary p { margin: 0; }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 18px; border-top: 2px solid var(--rule); }
+.btn {
+  font: 600 1.05rem var(--display); border-radius: 999px; padding: 10px 20px; min-height: 48px; cursor: pointer;
+  border: 2px solid var(--rule); background: var(--sheet); color: var(--fg); box-shadow: 0 4px 0 var(--rule);
+}
+.btn:active { translate: 0 3px; box-shadow: 0 1px 0 var(--rule); }
+.btn.ok { background: var(--good); border-color: var(--good); color: var(--btn-fg); box-shadow: 0 4px 0 var(--good-bg); }
+.btn.primary { background: var(--btn); border-color: var(--btn); color: var(--btn-fg); box-shadow: 0 4px 0 var(--btn-edge); }
+.btn.small { font-size: .92rem; min-height: 40px; padding: 6px 14px; }
+.controls .sep { flex: 1 1 0; }
+.btn:focus-visible, .round-btn:focus-visible, .g-snail:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Garten + Album */
+.two { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 820px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.panel .head span { color: var(--muted); }
+.gardenbox { background: var(--grass); border-radius: 22px; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; }
+.deco { display: flex; flex-wrap: wrap; gap: 4px 10px; min-height: 52px; align-items: flex-end; border-bottom: 2px dashed var(--grass-2); padding-bottom: 6px; }
+.deco svg { width: 52px; height: 52px; }
+.deco .empty { color: var(--muted); font-size: .9rem; align-self: center; }
+.garden { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 4px 8px; align-items: end; }
+.g-snail { background: none; border: 2px solid transparent; padding: 4px 2px 6px; border-radius: 16px; cursor: pointer; color: var(--fg); font: 700 .88rem/1.2 var(--body); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; height: 100%; }
+.g-snail svg { width: calc(86px * var(--k, 1)); height: auto; }
+.g-snail small { font-weight: 400; color: var(--muted); font-size: .76rem; }
+.g-snail.walks { border-color: var(--btn); background: color-mix(in srgb, var(--btn) 12%, transparent); }
+.g-snail .tag { position: absolute; top: 2px; right: 4px; background: var(--btn); color: var(--btn-fg); font-size: .68rem; border-radius: 999px; padding: 0 7px; }
+.g-snail .tag.new { background: var(--good); }
+.hint { color: var(--muted); font-size: .92rem; }
+.album { display: flex; flex-direction: column; gap: 14px; background: var(--sheet); border: 2px solid var(--rule); border-radius: 22px; padding: 16px; }
+.album h3 { font: 700 .82rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; display: flex; justify-content: space-between; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .9rem; border-radius: 999px; padding: 3px 11px; border: 2px solid var(--line); }
+.chip.miss { border-style: dashed; border-color: var(--rule); color: var(--muted); }
+.chip .sw { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line); }
+
+/* Regeln */
+.rules { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 820px) { .rules { grid-template-columns: minmax(0, 1fr); } }
+.tablewrap { overflow-x: auto; background: var(--sheet); border: 2px solid var(--rule); border-radius: 22px; }
+table { border-collapse: collapse; width: 100%; min-width: 480px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1.5px solid var(--rule); }
+th { font: 700 .8rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 700; }
+.week { display: flex; flex-direction: column; gap: 8px; background: var(--sheet); border: 2px solid var(--rule); border-radius: 22px; padding: 16px; }
+.week dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+.week dt { font: 800 1.2rem var(--display); font-variant-numeric: tabular-nums; text-align: right; }
+.week dd { margin: 0; align-self: center; }
+pre { margin: 0; background: var(--code-bg); border: 2px solid var(--rule); border-radius: 18px; padding: 14px; overflow-x: auto; font: .85rem/1.5 var(--mono); color: var(--fg); }
+.note { color: var(--muted); font-size: .92rem; max-width: 65ch; margin: 0; }
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="page">
+  <header>
+    <div class="t">
+      <h1>Schneckenparade</h1>
+      <div class="sub">Probe für den Zehnerweg. Die Aufgaben werden hier nur per Knopf simuliert.</div>
+    </div>
+    <button class="round-btn" id="b-theme" aria-label="Nachtmodus einschalten"></button>
+  </header>
+
+  <section class="parade" aria-label="Parade">
+    <div class="bar">
+      <div class="timer"><span id="clock">5:00</span><div class="sand" aria-hidden="true"><i id="sand"></i></div></div>
+      <span class="day" id="daylabel"></span>
+      <div class="leaves" id="leaves" aria-label="Salatblätter bis zur nächsten Schnecke"></div>
+    </div>
+    <div class="track" id="track">
+      <div class="bubble" id="bubble"></div>
+      <div class="summary" id="summary" hidden></div>
+    </div>
+    <div class="controls">
+      <button class="btn ok" id="b-ok">Aufgabe richtig</button>
+      <button class="btn" id="b-no">Aufgabe falsch</button>
+      <span class="sep"></span>
+      <button class="btn small" id="b-fast">Zeit vorspulen</button>
+      <button class="btn small" id="b-day">Nächster Tag</button>
+      <button class="btn small" id="b-reset">Zurücksetzen</button>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="panel">
+      <div class="head"><h2>Schneckengarten</h2><span id="gcount"></span></div>
+      <div class="gardenbox">
+        <div class="deco" id="deco"></div>
+        <div class="garden" id="garden"></div>
+      </div>
+      <div class="hint">Vor der Runde tippt das Kind bis zu 3 Schnecken an, die mitlaufen. Wer mitläuft, wächst.</div>
+    </section>
+    <section class="panel">
+      <div class="head"><h2>Sammelalbum</h2><span id="acount"></span></div>
+      <div class="album" id="album"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Die Logik dahinter</h2>
+    <div class="rules">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Wann</th><th>Was passiert</th></tr></thead>
+          <tbody>
+            <tr><td>Einmal am Tag</td><td>Eine Runde dauert 5 Minuten. Die gewählten Begleiter (bis zu 3) stehen am Anfang der Straße. Danach ist für heute Schluss, der Garten bleibt offen.</td></tr>
+            <tr><td>Richtige Aufgabe</td><td>Ein Salatblatt fliegt zur Parade.</td></tr>
+            <tr><td>3 Salatblätter</td><td>Eine neue Babyschnecke kriecht dazu. Hausfarbe und Muster sind zufällig, bevorzugt eine Kombination, die noch fehlt.</td></tr>
+            <tr><td>3 Blätter ohne Fehler dazwischen</td><td>Die neue Schnecke trägt einen Hut, bevorzugt einen, der im Album noch fehlt.</td></tr>
+            <tr><td>Falsche Aufgabe</td><td>Kein Blatt, aber nichts geht verloren. Nur der Hut für die laufenden 3 Blätter fällt weg.</td></tr>
+            <tr><td>Ende der 5 Minuten</td><td>Die angefangene Aufgabe darf fertig werden. Jeder Begleiter zählt einen Ausflug. Rückblick mit neuen und gewachsenen Schnecken.</td></tr>
+            <tr><td>Wachsen</td><td>Baby, ab 2 Ausflügen Klein, ab 5 Groß, ab 10 Glitzerhaus.</td></tr>
+            <tr><td>Alle 5 Übungstage</td><td>Neue Garten-Deko: Pilz, Blume, Teich, Bank, Gießkanne, Schneckenhotel.</td></tr>
+            <tr><td>Selten</td><td>Etwa jede 15. neue Schnecke hat ein Regenbogenhaus. Jede 10. neue Schnecke bringt einen Marienkäfer als Gast mit.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="week">
+          <h2>Eine typische Woche</h2>
+          <dl>
+            <dt>5</dt><dd>Übungstage zu je 5 Minuten</dd>
+            <dt>~25</dt><dd>Aufgaben, also Salatblätter</dd>
+            <dt>~8</dt><dd>neue Schnecken, davon einige mit Hut</dd>
+            <dt>1</dt><dd>neues Stück Garten-Deko</dd>
+            <dt>3</dt><dd>Begleiter, die je einen Ausflug weiter wachsen</dd>
+          </dl>
+          <p class="note">Mit 6 Hausfarben, 6 Mustern und 8 Hüten reicht das Album für viele Monate.</p>
+        </div>
+        <pre id="json"></pre>
+        <p class="note">So wird jede Schnecke gespeichert. Gezeichnet wird sie aus diesen Teilen, Bilddateien braucht es nicht.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ---------- Bausteine ---------- */
+const COLORS = {
+  rosa: { name: 'Rosa', adj: 'rosa', fill: '#ff9ec4' }, gelb: { name: 'Gelb', adj: 'gelbem', fill: '#ffd447' }, mint: { name: 'Mint', adj: 'mintgrünem', fill: '#7fe0b8' },
+  blau: { name: 'Himmelblau', adj: 'himmelblauem', fill: '#7cc8ff' }, lila: { name: 'Lila', adj: 'lila', fill: '#b79bff' }, orange: { name: 'Orange', adj: 'orangem', fill: '#ffad66' },
+};
+const PATTERNS = { uni: 'Einfarbig', punkte: 'Punkte', streifen: 'Streifen', sterne: 'Sterne', herzen: 'Herzen', wellen: 'Wellen' };
+const HATS = { krone: 'Krone', zylinder: 'Zylinder', blumen: 'Blumenkranz', pirat: 'Piratenhut', zipfel: 'Zipfelmütze', party: 'Partyhut', schleife: 'Schleife', koch: 'Kochmütze' };
+const HAT_ART = { krone: 'einer', zylinder: 'einem', blumen: 'einem', pirat: 'einem', zipfel: 'einer', party: 'einem', schleife: 'einer', koch: 'einer' };
+const SPECIALS = { glitzer: 'Glitzerhaus', regenbogen: 'Regenbogenhaus', kaefer: 'Marienkäfer' };
+const DECO = { pilz: 'Pilz', blume: 'Blume', teich: 'Teich', bank: 'Bank', kanne: 'Gießkanne', hotel: 'Schneckenhotel' };
+const STAGES = ['Baby', 'Klein', 'Groß', 'Glitzer'];
+const GROW = [0, 2, 5, 10];          // Ausflüge ab denen die Stufe gilt
+const SCALE = [0.6, 0.78, 1, 1];     // Größe je Stufe
+const NAMES = ['Lotti','Paul','Frieda','Kurt','Mia','Ole','Wilma','Theo','Ida','Fritz','Greta','Emil','Lina','Bruno','Pia','Jonte','Rosi','Anton','Mila','Hugo','Nele','Otto','Flora','Max','Tilda','Leo','Edda','Moritz','Ronja','Karl'];
+const ROUND = 5 * 60 * 1000;
+
+let uid = 0;
+const L = '#1d2747';
+const STAR = 'M0 -6 L1.8 -1.9 L6 -1.9 L2.6 0.8 L3.8 5 L0 2.5 L-3.8 5 L-2.6 0.8 L-6 -1.9 L-1.8 -1.9Z';
+const HEART = 'M0 4 C-6 0 -6 -5 -3 -5 C-1.5 -5 0 -4 0 -2.5 C0 -4 1.5 -5 3 -5 C6 -5 6 0 0 4Z';
+const LEAF = '<svg viewBox="0 0 30 30" aria-hidden="true"><path class="lf" d="M5 25 C4 13 12 4 26 4 C26 18 17 26 5 25Z"/><path d="M6 24 L20 10" stroke="#1d2747" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>';
+function patternSVG(p){
+  const W = 'fill="#fff" fill-opacity=".75"';
+  if (p === 'punkte') return [[40,36],[62,32],[72,52],[44,62],[60,70],[32,52],[54,48]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="4.2" ${W}/>`).join('');
+  if (p === 'streifen') return [28,44,60,76].map(x => `<rect x="${x}" y="20" width="7" height="70" ${W} transform="rotate(18 54 52)"/>`).join('');
+  if (p === 'sterne') return [[40,36],[66,38],[70,62],[40,64],[54,52]].map(([x,y]) => `<path d="${STAR}" transform="translate(${x} ${y})" ${W}/>`).join('');
+  if (p === 'herzen') return [[40,38],[66,36],[70,62],[40,64],[54,52]].map(([x,y]) => `<path d="${HEART}" transform="translate(${x} ${y}) scale(1.1)" ${W}/>`).join('');
+  if (p === 'wellen') return [32,44,56,68].map(y => `<path d="M20 ${y} q8 -6 16 0 t16 0 t16 0 t16 0 t16 0" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="3.5"/>`).join('');
+  return '';
+}
+function hatSVG(h){
+  const S = `stroke="${L}" stroke-width="2" stroke-linejoin="round"`;
+  const g = s => `<g transform="translate(54 25)">${s}</g>`;
+  switch (h){
+    case 'krone': return g(`<path d="M-16 1 L-16 -16 L-8 -7 L0 -21 L8 -7 L16 -16 L16 1Z" fill="#ffcc33" ${S}/><circle cx="0" cy="-6" r="2.6" fill="#ff4f87"/>`);
+    case 'zylinder': return g(`<rect x="-11" y="-26" width="22" height="24" rx="2" fill="#333a55" ${S}/><rect x="-11" y="-9" width="22" height="5" fill="#ff4f87"/><rect x="-19" y="-3" width="38" height="5" rx="2.5" fill="#333a55" ${S}/>`);
+    case 'blumen': return g([[-19,-1,'#ff6f9b'],[-10,-7,'#ffd447'],[0,-9,'#7cc8ff'],[10,-7,'#b79bff'],[19,-1,'#ff9ec4']].map(([x,y,c]) => `<circle cx="${x}" cy="${y}" r="5.5" fill="${c}" ${S}/><circle cx="${x}" cy="${y}" r="1.8" fill="#fff"/>`).join(''));
+    case 'pirat': return g(`<path d="M-24 0 Q-12 -24 0 -20 Q12 -24 24 0 Q0 -8 -24 0Z" fill="#2a2f45" ${S}/><circle cx="0" cy="-11" r="3.4" fill="#fff"/>`);
+    case 'zipfel': return g(`<path d="M-16 1 Q-6 -10 8 -30 Q12 -12 16 1Z" fill="#e5484d" ${S}/><rect x="-18" y="-3" width="36" height="6" rx="3" fill="#fff" ${S}/><circle cx="8" cy="-30" r="5" fill="#fff" ${S}/>`);
+    case 'party': return g(`<path d="M-12 1 L0 -30 L12 1Z" fill="#7cc8ff" ${S}/><circle cx="-3" cy="-9" r="2.2" fill="#ffd447"/><circle cx="4" cy="-16" r="2.2" fill="#ff6f9b"/><circle cx="0" cy="-3" r="2.2" fill="#fff"/><circle cx="0" cy="-31" r="4" fill="#ffd447" ${S}/>`);
+    case 'schleife': return g(`<path d="M0 -8 L-18 -18 L-18 2 Z M0 -8 L18 -18 L18 2Z" fill="#ff6f9b" ${S}/><circle cx="0" cy="-8" r="5" fill="#ff9ec4" ${S}/>`);
+    case 'koch': return g(`<rect x="-11" y="-12" width="22" height="13" fill="#fff" ${S}/><circle cx="-9" cy="-16" r="8" fill="#fff" ${S}/><circle cx="9" cy="-16" r="8" fill="#fff" ${S}/><circle cx="0" cy="-21" r="9" fill="#fff" ${S}/><rect x="-10" y="-11" width="20" height="10" fill="#fff"/>`);
+  }
+  return '';
+}
+function snailSVG(s){
+  if (s.special === 'kaefer') return bugSVG();
+  const id = 's' + (uid++);
+  const col = COLORS[s.color].fill;
+  const glitter = s.special === 'glitzer' || s.stage >= 3;
+  let defs = `<clipPath id="c${id}"><circle cx="54" cy="52" r="29"/></clipPath>`, fill = col, extra = '';
+  if (s.special === 'regenbogen'){
+    defs += `<linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1">${['#ff6f9b','#ffad66','#ffd447','#7fe0b8','#7cc8ff','#b79bff'].map((c,i) => `<stop offset="${i/5}" stop-color="${c}"/>`).join('')}</linearGradient>`;
+    fill = `url(#g${id})`;
+  } else if (glitter){
+    defs += `<radialGradient id="g${id}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="${col}"/><stop offset="1" stop-color="${col}"/></radialGradient>`;
+    fill = `url(#g${id})`;
+  }
+  if (glitter) extra = [[30,26,.8],[84,34,1],[80,74,.7],[24,70,.9]].map(([x,y,k]) => `<path d="${STAR}" transform="translate(${x} ${y}) scale(${k})" fill="#ffd447" stroke="${L}" stroke-width=".8"/>`).join('');
+  return `<svg viewBox="0 0 130 100" aria-hidden="true"><defs>${defs}</defs>
+  <path d="M8 86 Q6 76 20 76 L92 76 Q100 76 102 66 L104 50 Q106 36 116 37 Q127 39 125 54 L121 72 Q117 89 96 89 L16 89 Q8 89 8 86Z" fill="var(--body-snail)" stroke="${L}" stroke-width="2.4"/>
+  <path d="M111 41 L105 17 M119 42 L123 19" stroke="${L}" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="105" cy="15" r="5.5" fill="#fff" stroke="${L}" stroke-width="2"/><circle cx="123" cy="17" r="5.5" fill="#fff" stroke="${L}" stroke-width="2"/>
+  <circle cx="106.5" cy="15.5" r="2.4" fill="${L}"/><circle cx="124.5" cy="17.5" r="2.4" fill="${L}"/>
+  <path d="M112 58 Q117 63 122 57" fill="none" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="110" cy="53" r="3.2" fill="var(--cheek)"/>
+  <circle cx="54" cy="52" r="29" fill="${fill}" stroke="${L}" stroke-width="2.6"/>
+  <g clip-path="url(#c${id})">${patternSVG(s.pattern)}</g>
+  <path d="M54 52 a4 4 0 1 1 6 3 a9 9 0 1 1 -14 -9 a15 15 0 1 1 22 16 a21 21 0 1 1 -31 -24" fill="none" stroke="${L}" stroke-opacity=".35" stroke-width="2.6" stroke-linecap="round"/>
+  ${extra}${s.hat ? hatSVG(s.hat) : ''}</svg>`;
+}
+function bugSVG(){
+  return `<svg viewBox="0 0 130 100" aria-hidden="true">
+  <path d="M100 48 L110 28 M108 52 L122 36" stroke="${L}" stroke-width="2.4" stroke-linecap="round"/><circle cx="110" cy="27" r="3.5" fill="${L}"/><circle cx="122" cy="35" r="3.5" fill="${L}"/>
+  <circle cx="98" cy="62" r="15" fill="${L}"/><circle cx="102" cy="58" r="3.5" fill="#fff"/><circle cx="103" cy="58" r="1.6" fill="${L}"/>
+  <ellipse cx="60" cy="62" rx="36" ry="27" fill="#e5484d" stroke="${L}" stroke-width="2.6"/>
+  <path d="M60 35 L60 89" stroke="${L}" stroke-width="2.4"/>
+  ${[[44,52,6],[46,73,5],[76,52,6],[74,73,5],[34,63,4],[86,63,4]].map(([x,y,r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${L}"/>`).join('')}
+  <path d="M40 88 l-4 6 M60 89 l0 7 M80 88 l4 6" stroke="${L}" stroke-width="2.4" stroke-linecap="round"/></svg>`;
+}
+function decoSVG(d){
+  const S = `stroke="${L}" stroke-width="2" stroke-linejoin="round"`;
+  const v = b => `<svg viewBox="0 0 60 60" aria-label="${DECO[d]}" role="img">${b}</svg>`;
+  switch (d){
+    case 'pilz': return v(`<rect x="24" y="30" width="12" height="24" rx="5" fill="#fff4dc" ${S}/><path d="M6 32 Q8 8 30 8 Q52 8 54 32Z" fill="#e5484d" ${S}/><circle cx="20" cy="20" r="4" fill="#fff"/><circle cx="36" cy="16" r="3" fill="#fff"/><circle cx="42" cy="26" r="3.5" fill="#fff"/>`);
+    case 'blume': return v(`<path d="M30 56 L30 28" stroke="#3aa65a" stroke-width="4"/><path d="M30 46 Q18 40 16 48 Q24 52 30 46Z" fill="#4cc26a" ${S}/>${[0,72,144,216,288].map(a => `<circle cx="${30 + 10 * Math.cos(a * Math.PI / 180)}" cy="${20 + 10 * Math.sin(a * Math.PI / 180)}" r="7" fill="#ff9ec4" ${S}/>`).join('')}<circle cx="30" cy="20" r="6" fill="#ffd447" ${S}/>`);
+    case 'teich': return v(`<ellipse cx="30" cy="44" rx="27" ry="12" fill="#7cc8ff" ${S}/><path d="M18 42 a7 4 0 1 0 12 0 l-6 -1Z" fill="#4cc26a" ${S}/><circle cx="40" cy="44" r="3" fill="#ff9ec4"/>`);
+    case 'bank': return v(`<rect x="6" y="26" width="48" height="8" rx="2" fill="#c98a4b" ${S}/><rect x="6" y="38" width="48" height="6" rx="2" fill="#c98a4b" ${S}/><path d="M12 44 L12 56 M48 44 L48 56" stroke="${L}" stroke-width="4"/>`);
+    case 'kanne': return v(`<path d="M14 26 L40 26 L42 54 L12 54Z" fill="#7cc8ff" ${S}/><path d="M40 32 L56 18" stroke="${L}" stroke-width="5" stroke-linecap="round"/><path d="M40 32 L56 18" stroke="#7cc8ff" stroke-width="2.5" stroke-linecap="round"/><path d="M18 26 Q27 12 36 26" fill="none" ${S}/>`);
+    case 'hotel': return v(`<path d="M8 28 L30 8 L52 28Z" fill="#e5484d" ${S}/><rect x="12" y="28" width="36" height="28" fill="#f2c189" ${S}/><circle cx="22" cy="38" r="4" fill="${L}"/><circle cx="38" cy="38" r="4" fill="${L}"/><circle cx="30" cy="50" r="4" fill="${L}"/>`);
+  }
+  return '';
+}
+function describe(s){
+  if (s.special === 'kaefer') return `${s.name}, der Marienkäfer`;
+  let t = `${s.name} mit ${COLORS[s.color].adj} Haus`;
+  if (s.pattern !== 'uni') t += ` voller ${PATTERNS[s.pattern]}`;
+  if (s.special === 'regenbogen') t = `${s.name} mit Regenbogenhaus`;
+  if (s.hat) t += ` und ${HAT_ART[s.hat]} ${HATS[s.hat]}`;
+  return t;
+}
+const stageOf = runs => GROW.filter(g => runs >= g).length - 1;
+
+/* ---------- Zustand ---------- */
+const KEY = 'schneckenparade-probe-v2';
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+function seed(){
+  const ex = [
+    { color: 'gelb', pattern: 'punkte', hat: 'krone', runs: 4 }, { color: 'mint', pattern: 'streifen', runs: 1 }, { color: 'rosa', pattern: 'herzen', runs: 9 },
+    { color: 'blau', pattern: 'wellen', hat: 'zipfel', runs: 0 }, { color: 'lila', pattern: 'sterne', runs: 2 }, { color: 'orange', pattern: 'uni', special: 'regenbogen', runs: 0 },
+  ];
+  const garden = ex.map((e, i) => ({ id: i + 1, name: NAMES[i], color: e.color, pattern: e.pattern, hat: e.hat || null, special: e.special || null, runs: e.runs, stage: stageOf(e.runs), example: true }));
+  // Beispiel: Tag 5 steht an, damit der erste Rückblick gleich Wachstum und Deko zeigt
+  return { garden, walkers: [1, 2, 3], leaves: 1, cleanLeaves: true, day: 5, lastRoundDay: 0, practiceDays: 4, deco: [], newCount: 0, nextId: 7 };
+}
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch (e) { S = seed(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const byId = id => S.garden.find(s => s.id === id);
+
+function makeSnail(withHat){
+  const have = new Set(S.garden.filter(s => !s.special).map(s => s.color + '|' + s.pattern));
+  const combos = [];
+  for (const c in COLORS) for (const p in PATTERNS) if (!have.has(c + '|' + p)) combos.push([c, p]);
+  const [color, pattern] = combos.length ? rnd(combos) : [rnd(Object.keys(COLORS)), rnd(Object.keys(PATTERNS))];
+  let hat = null;
+  if (withHat){ const owned = new Set(S.garden.map(s => s.hat)); const missing = Object.keys(HATS).filter(k => !owned.has(k)); hat = rnd(missing.length ? missing : Object.keys(HATS)); }
+  const special = Math.random() < 1 / 15 ? 'regenbogen' : null;
+  const used = new Set(S.garden.map(s => s.name)); const free = NAMES.filter(n => !used.has(n));
+  const name = free.length ? rnd(free) : rnd(NAMES) + ' ' + (S.garden.length + 1);
+  return { id: S.nextId++, name, color, pattern, hat, special, runs: 0, stage: 0, born: S.day };
+}
+
+/* ---------- Runde und Parade ---------- */
+const track = document.getElementById('track'), bubble = document.getElementById('bubble'), summary = document.getElementById('summary');
+let R = { running: false, endAt: 0, parade: [], fresh: [], ended: false };
+const els = new Map();
+
+function walkerEl(s){
+  const d = document.createElement('div'); d.className = 'walker';
+  d.innerHTML = snailSVG(s); track.appendChild(d); return d;
+}
+function placeParade(animate){
+  const n = R.parade.length;
+  const base = Math.max(60, 120 - Math.max(0, n - 6) * 6);
+  const tw = track.clientWidth, lead = tw - base - 24;
+  let x = lead;
+  R.parade.forEach((id, i) => {
+    const s = byId(id); if (!s) return;
+    const w = base * (s.special === 'kaefer' ? 0.7 : SCALE[s.stage || 0]);
+    let el = els.get(id);
+    if (!el){ el = walkerEl(s); els.set(id, el); el.style.left = (-w - 10) + 'px'; void el.offsetWidth; }
+    el.style.setProperty('--w', w + 'px'); el.style.zIndex = String(n - i);
+    if (animate){ el.classList.add('moving'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('moving'), 2400); }
+    el.style.left = Math.max(4, x + (base - w)) + 'px';
+    const step = n > 1 ? Math.min(base * 0.9, (lead - 8) / (n - 1)) : 0;
+    x -= step;
+  });
+}
+function say(t){ bubble.textContent = t; bubble.classList.remove('pop'); void bubble.offsetWidth; bubble.classList.add('pop'); }
+function clearParade(){ for (const el of els.values()) el.remove(); els.clear(); }
+function showWalkers(){ clearParade(); R.parade = S.walkers.filter(id => byId(id)); placeParade(false); }
+
+function canPlayToday(){ return S.lastRoundDay !== S.day; }
+function startRound(){
+  summary.hidden = true; track.classList.remove('sum');
+  R = { running: true, endAt: Date.now() + ROUND, parade: S.walkers.filter(id => byId(id)), fresh: [], ended: false, startWalkers: [...S.walkers] };
+  clearParade(); placeParade(true); tick(); renderGarden();
+}
+function endRound(){
+  R.running = false; R.ended = true;
+  S.lastRoundDay = S.day; S.practiceDays++;
+  const grown = [];
+  for (const id of R.startWalkers){
+    const s = byId(id); if (!s || s.special === 'kaefer') continue;
+    s.runs++; const st = stageOf(s.runs);
+    if (st > s.stage){ s.stage = st; grown.push(s); }
+  }
+  let newDeco = null;
+  if (S.practiceDays % 5 === 0){ const missing = Object.keys(DECO).filter(k => !S.deco.includes(k)); if (missing.length){ newDeco = missing[0]; S.deco.push(newDeco); } }
+  save();
+  R.parade.forEach((id, i) => { const el = els.get(id); if (!el) return; el.classList.add('moving'); el.style.transitionDelay = (i * 0.12) + 's'; el.style.left = (track.clientWidth + 40) + 'px'; });
+  setTimeout(() => {
+    const n = R.fresh.length;
+    let html = `<h2>Für heute geschafft!</h2>`;
+    html += `<p>${n ? `${n} neue ${n === 1 ? 'Schnecke ist' : 'Tiere sind'} in den Garten gezogen.` : 'Heute ist niemand Neues dazugekommen, aber deine Begleiter waren dabei.'}</p>`;
+    if (n) html += `<div class="row">${R.fresh.map(id => snailSVG(byId(id))).join('')}</div>`;
+    if (grown.length) html += `<p>Gewachsen: ${grown.map(s => `${s.name} ist jetzt ${STAGES[s.stage] === 'Glitzer' ? 'eine Glitzerschnecke' : STAGES[s.stage]}`).join(', ')}.</p>`;
+    if (newDeco) html += `<div class="row">${decoSVG(newDeco)}</div><p>Für 5 Übungstage gibt es neu im Garten: ${DECO[newDeco]}.</p>`;
+    html += `<p class="note">Morgen geht die Parade weiter.</p>`;
+    summary.innerHTML = html; summary.hidden = false; track.classList.add('sum');
+    renderAll();
+  }, 2600);
+}
+const clock = document.getElementById('clock'), sand = document.getElementById('sand');
+function tick(){
+  const left = R.running ? Math.max(0, R.endAt - Date.now()) : (canPlayToday() ? ROUND : 0);
+  const sec = Math.ceil(left / 1000);
+  clock.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+  sand.style.width = (left / ROUND * 100) + '%';
+  if (R.running && left <= 0) endRound();
+}
+setInterval(tick, 500);
+
+function flyLeaf(){
+  const f = document.createElement('div'); f.className = 'flyleaf'; f.innerHTML = LEAF;
+  const tr = track.getBoundingClientRect(), slot = document.querySelectorAll('#leaves .slot')[Math.max(0, S.leaves - 1)];
+  f.style.left = (track.clientWidth - 140) + 'px'; f.style.top = '140px'; track.appendChild(f);
+  requestAnimationFrame(() => {
+    if (slot){ const r = slot.getBoundingClientRect(); f.style.left = (r.left - tr.left) + 'px'; f.style.top = (r.top - tr.top) + 'px'; }
+    f.style.opacity = '0';
+  });
+  setTimeout(() => f.remove(), 1000);
+}
+function blocked(){ say('Für heute ist die Runde geschafft. Morgen geht die Parade weiter. Der Garten ist trotzdem offen.'); }
+function correct(){
+  if (!R.running){ if (!canPlayToday()) return blocked(); startRound(); }
+  S.leaves++; renderLeaves(); flyLeaf();
+  if (S.leaves >= 3){
+    const s = makeSnail(S.cleanLeaves);
+    S.garden.push(s); R.parade.push(s.id); R.fresh.push(s.id); S.newCount++;
+    let msg = `${describe(s)} kriecht zur Parade!`;
+    if (S.newCount % 10 === 0){
+      const bug = { id: S.nextId++, name: rnd(['Punkti','Kiki','Lulu']), color: 'rosa', pattern: 'uni', hat: null, special: 'kaefer', runs: 0, stage: 0, born: S.day };
+      S.garden.push(bug); R.parade.push(bug.id); R.fresh.push(bug.id); msg += ' Ein Marienkäfer kommt als Gast mit!';
+    }
+    S.leaves = 0; S.cleanLeaves = true;
+    setTimeout(() => { renderLeaves(); placeParade(true); say(msg); renderGarden(); }, 700);
+  } else say(['Ein Salatblatt für die Parade!', 'Lecker, noch ein Blatt!', 'Mmh, Salat!'][S.leaves % 3] + ` Noch ${3 - S.leaves}, dann kommt eine neue Schnecke.`);
+  save();
+}
+function wrong(){
+  if (!R.running){ if (!canPlayToday()) return blocked(); startRound(); }
+  S.cleanLeaves = false; renderLeaves(); save();
+  say('Macht nichts, niemand geht weg. Schau dir den Tipp an und probier es nochmal.');
+}
+
+/* ---------- Anzeige ---------- */
+function renderLeaves(){
+  const box = document.getElementById('leaves');
+  box.innerHTML = [0,1,2].map(i => `<span class="slot${i < S.leaves ? ' on' : ''}">${LEAF}</span>`).join('') +
+    `<svg class="hatmark${S.cleanLeaves ? '' : ' off'}" viewBox="25 -8 58 36" aria-label="${S.cleanLeaves ? 'Nächste Schnecke kommt mit Hut' : 'Diesmal ohne Hut'}">${hatSVG('zylinder')}</svg>`;
+  document.getElementById('daylabel').textContent = `Tag ${S.day} · ${S.practiceDays} Übungstage`;
+}
+function renderGarden(){
+  const g = document.getElementById('garden');
+  const fresh = new Set(R.fresh);
+  g.innerHTML = '';
+  [...S.garden].sort((a, b) => b.stage - a.stage || b.id - a.id).forEach(s => {
+    const b = document.createElement('button'); const walks = S.walkers.includes(s.id);
+    b.className = 'g-snail' + (walks ? ' walks' : '');
+    b.style.setProperty('--k', s.special === 'kaefer' ? 0.7 : SCALE[s.stage]);
+    const info = s.special === 'kaefer' ? 'Gast' : `${STAGES[s.stage]} · ${s.runs} ${s.runs === 1 ? 'Ausflug' : 'Ausflüge'}`;
+    b.innerHTML = snailSVG(s) + `<span>${s.name}</span><small>${info}</small>` + (fresh.has(s.id) ? '<span class="tag new">neu</span>' : walks ? '<span class="tag">läuft mit</span>' : '');
+    b.setAttribute('aria-pressed', String(walks));
+    b.setAttribute('aria-label', describe(s) + ', ' + info);
+    b.addEventListener('click', () => {
+      if (R.running){ say('Die Begleiter wählst du vor der nächsten Runde aus.'); return; }
+      if (walks) S.walkers = S.walkers.filter(id => id !== s.id);
+      else { if (S.walkers.length >= 3) S.walkers.shift(); S.walkers.push(s.id); }
+      save(); renderGarden(); if (!R.ended) showWalkers();
+      say(walks ? `${s.name} bleibt heute im Garten.` : `${s.name} läuft in der nächsten Runde mit.`);
+    });
+    g.appendChild(b);
+  });
+  document.getElementById('gcount').textContent = `${S.garden.length} Tiere`;
+  document.getElementById('deco').innerHTML = S.deco.length ? S.deco.map(decoSVG).join('') : '<span class="empty">Nach 5 Übungstagen kommt hier die erste Garten-Deko hin.</span>';
+  renderAlbum();
+  const last = S.garden[S.garden.length - 1];
+  const { example, ...clean } = last;
+  document.getElementById('json').textContent = '// zuletzt dazugekommen\n' + JSON.stringify(clean, null, 2);
+}
+function renderAlbum(){
+  const has = k => v => S.garden.some(s => s[k] === v);
+  const hasSpecial = v => v === 'glitzer' ? S.garden.some(s => s.stage >= 3) : S.garden.some(s => s.special === v);
+  const groups = [
+    ['Häuser', Object.fromEntries(Object.entries(COLORS).map(([k, v]) => [k, v.name])), has('color'), true],
+    ['Muster', PATTERNS, has('pattern')], ['Hüte', HATS, has('hat')], ['Besonderes', SPECIALS, hasSpecial], ['Garten-Deko', DECO, k => S.deco.includes(k)],
+  ];
+  let total = 0, found = 0;
+  document.getElementById('album').innerHTML = groups.map(([title, dict, test, swatch]) => {
+    const keys = Object.keys(dict), got = keys.filter(test).length; total += keys.length; found += got;
+    return `<div><h3><span>${title}</span><span>${got} von ${keys.length}</span></h3><div class="chips">${keys.map(k => {
+      const ok = test(k);
+      return `<span class="chip${ok ? '' : ' miss'}">${swatch && ok ? `<span class="sw" style="background:${COLORS[k].fill}"></span>` : ''}${ok ? dict[k] : '?'}</span>`;
+    }).join('')}</div></div>`;
+  }).join('');
+  document.getElementById('acount').textContent = `${found} von ${total} entdeckt`;
+}
+function renderAll(){ renderLeaves(); renderGarden(); tick(); }
+
+/* ---------- Knöpfe ---------- */
+document.getElementById('b-ok').addEventListener('click', correct);
+document.getElementById('b-no').addEventListener('click', wrong);
+document.getElementById('b-fast').addEventListener('click', () => { if (!R.running){ if (!canPlayToday()) return blocked(); startRound(); } R.endAt = Date.now() + 8000; say('Noch 8 Sekunden! Die angefangene Aufgabe darf fertig werden.'); });
+document.getElementById('b-day').addEventListener('click', () => {
+  if (R.running) { R.endAt = Date.now(); tick(); }
+  S.day++; save(); summary.hidden = true; track.classList.remove('sum'); R = { running: false, endAt: 0, parade: [], fresh: [], ended: false };
+  showWalkers(); renderAll(); say(`Tag ${S.day}: Die Parade wartet. Wer soll heute mitlaufen?`);
+});
+document.getElementById('b-reset').addEventListener('click', () => {
+  S = seed(); save(); R = { running: false, endAt: 0, parade: [], fresh: [], ended: false };
+  summary.hidden = true; track.classList.remove('sum'); showWalkers(); renderAll(); say('Zurückgesetzt. Löse eine Aufgabe, dann bekommt die Parade ein Salatblatt.');
+});
+
+const themeBtn = document.getElementById('b-theme');
+const SUN = '<svg viewBox="0 0 24 24" class="sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+function setTheme(t){ document.documentElement.setAttribute('data-theme', t); themeBtn.innerHTML = t === 'dark' ? SUN : MOON; themeBtn.setAttribute('aria-label', t === 'dark' ? 'Tagmodus einschalten' : 'Nachtmodus einschalten'); try { localStorage.setItem('zehnerweg-theme', t); } catch (e) {} }
+let th = 'light'; try { th = localStorage.getItem('zehnerweg-theme') || 'light'; } catch (e) {}
+setTheme(th);
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+showWalkers(); renderAll();
+say(canPlayToday() ? 'Löse eine Aufgabe, dann bekommt die Parade ein Salatblatt.' : 'Für heute ist die Runde geschafft. Morgen geht die Parade weiter.');
+let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (!R.ended) placeParade(false); }, 150); });
+</script>
+
+</body>
+</html>

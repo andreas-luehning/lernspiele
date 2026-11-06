@@ -1,0 +1,33 @@
+# Fotos der Arbeitsblätter aus dem Unterricht: nur lokal, nie ins Git
+docs/arbeitsblaetter/
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.heic
+*.HEIC
+*.png
+*.PNG
+# Ausnahme: selbst erstellte Spielgrafiken dürfen bewusst freigegeben werden, z. B.:
+# !gemeinsam/bilder/*.png
+
+# Persönliche Daten / lokale Notizen
+privat/
+*.privat.*
+
+# Trainingsdaten (MNIST, ggf. Kinderschrift-Proben)
+werkzeuge/ziffern-modell/mnist/
+werkzeuge/ziffern-modell/daten/
+*.gz
+
+# Test-Ausgaben (Playwright-Screenshots etc.)
+screenshots/
+test-results/
+playwright-report/
+
+# System / Werkzeuge
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+node_modules/
