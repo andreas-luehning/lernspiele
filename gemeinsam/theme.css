@@ -14,6 +14,7 @@
   --arrow: #ffa25e; --heart: #ff6f9b; --good: #19a866; --good-bg: #dcf8ea; --bad: #e5484d; --bad-bg: #ffe6e7;
   --star: #ffbe0b; --btn: #7a5cff; --btn-fg: #ffffff; --btn-edge: #5a3fe0; --chip: #ffffff;
   --blob1: #dff1ff; --blob2: #fff1c9; --blob3: #ffe3ef;
+  --grass: #d9f5d0; --grass-2: #bfeab2; --sky: #e7f4ff; --leaf: #4cc26a; --leaf-off: #cfe3cf; --body-snail: #f7dcae; --cheek: #ff9bb5;
   --display: "Grandstander", "Comic Sans MS", "Chalkboard SE", system-ui, sans-serif;
   --body: "Andika", "Segoe UI", system-ui, sans-serif;
   color-scheme: light;
@@ -25,6 +26,7 @@
   --arrow: #ff9d5c; --heart: #ff77a3; --good: #45d98d; --good-bg: #173a2b; --bad: #ff7b7f; --bad-bg: #452025;
   --star: #ffd23f; --btn: #9a83ff; --btn-fg: #14193a; --btn-edge: #6a52d6; --chip: #1c2348;
   --blob1: #1a2550; --blob2: #2a2540; --blob3: #2b1d3d;
+  --grass: #1f3b33; --grass-2: #26493d; --sky: #1a2550; --leaf: #5fd67e; --leaf-off: #2d4a3c; --body-snail: #f0d3a0; --cheek: #ff8fab;
   color-scheme: dark;
 }
 

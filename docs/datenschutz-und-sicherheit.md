@@ -17,6 +17,7 @@ Die Spiele werden von Kindern benutzt. Darum gilt: **so wenig Daten wie möglich
 | Daten fließen an fremde Server (IP-Adresse, Nutzungszeiten) | Schriften liegen im Repository; Content Security Policy erlaubt nur die eigene Adresse (`default-src 'none'`, sonst `'self'`) | `<meta http-equiv="Content-Security-Policy">` in jeder HTML-Seite, `gemeinsam/schriften/` |
 | Eingeschleuster Code (XSS) | Kein Inline-JavaScript, CSP ohne `'unsafe-inline'`. Texte werden mit `textContent` gesetzt. `innerHTML` nur für feste, eigene SVG-Formen und selbst berechnete Zahlen, nie für gespeicherte Daten oder Eingaben | alle Skripte |
 | Manipulierte oder kaputte Daten in `localStorage` | Beim Lesen wird nur übernommen, was im Standard-Objekt vorkommt und den richtigen Typ hat. Unbekannte Schlüssel (auch `__proto__`) werden verworfen, Zahlen begrenzt. Kaputtes JSON führt zu Standardwerten | `gemeinsam/speicher.js` |
+| Manipulierte Gartendaten (Schneckenparade) | Jede Schnecke wird beim Lesen geprüft: nur bekannte Farben, Muster, Hüte; Namen höchstens 20 Zeichen und nur per `textContent` angezeigt; doppelte IDs, unsinnige Zahlen und unbekannte Deko werden verworfen; höchstens 3000 Tiere | `gemeinsam/parade-logik.js` (`bereinigeZustand`) |
 | Verweis verrät, woher jemand kommt | `<meta name="referrer" content="no-referrer">`, `fetch` ohne Cookies und Referrer | HTML-Seiten, `gemeinsam/ziffern.js` |
 | Seite taucht in Suchmaschinen auf | `<meta name="robots" content="noindex">` (verhindert nur das Auflisten, nicht den Zugriff) | HTML-Seiten |
 | Fremder Code über Abhängigkeiten (Supply Chain) | Keine Bibliotheken, kein Build-Schritt, kein npm im ausgelieferten Code | gesamtes Projekt |
@@ -26,6 +27,10 @@ Die Spiele werden von Kindern benutzt. Darum gilt: **so wenig Daten wie möglich
 Automatisch geprüft (`tests/browser.js`, Playwright): keine Anfragen an fremde Server, keine CSP-Verstöße, manipulierter und kaputter Speicher wird abgefangen.
 
 **Bekannte Ausnahme:** Die Dateien in `prototypen/` laden noch Schriften von Google Fonts und haben keine CSP. Sie bleiben laut Absprache unverändert. Auf dem Tablet deshalb die Spiele über die Startseite öffnen, nicht die Prototypen.
+
+### Welche Daten die Schneckenparade speichert
+
+Nur Spielstand: Schnecken (Farbe, Muster, Hut, Ausflüge, Datum, in welchem Spiel verdient), gewählte Begleiter, Blätter, Übungstage und die laufende Runde. Die Schneckennamen kommen aus einer festen Liste, nicht vom Kind. Es gibt keine Uhrzeiten einzelner Aufgaben, keine Fehlerlisten und nichts über das Kind selbst. Der Probe-Modus (`?probe`) ändert nur die Rundendauer und zeigt den Knopf „Nächster Tag“; er gibt keinen Zugriff auf weitere Daten.
 
 ## Grenzen von GitHub Pages
 

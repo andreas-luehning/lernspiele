@@ -22,6 +22,13 @@
 .k-oval { fill: var(--oval); stroke: var(--line); stroke-width: 1.6; }
 .k-start, .k-ten, .k-goal { stroke: var(--line); stroke-width: 1.6; }
 .k-start { fill: var(--f-start); } .k-ten { fill: var(--f-ten); } .k-goal { fill: var(--f-goal); }
+.k-gras { fill: var(--grass); }
+.k-body { fill: var(--body-snail); stroke: var(--line); stroke-width: 2.4; }
+.k-line { stroke: var(--line); stroke-width: 2.4; stroke-linecap: round; fill: none; }
+.k-auge { fill: #fff; stroke: var(--line); stroke-width: 2; }
+.k-haus1 { fill: #ffd447; stroke: var(--line); stroke-width: 2.6; }
+.k-haus2 { fill: #b79bff; stroke: var(--line); stroke-width: 2.6; }
+.k-blatt { fill: var(--leaf); stroke: var(--line); stroke-width: 1.4; }
 .kachel text { font: 800 17px var(--display); fill: var(--fg); }
 
 .fuss { margin-top: auto; color: var(--muted); font-size: .95rem; }

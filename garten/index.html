@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Schneckengarten</title>
+<link rel="stylesheet" href="../gemeinsam/theme.css">
+<link rel="stylesheet" href="../gemeinsam/parade.css">
+<link rel="stylesheet" href="garten.css">
+<script src="../gemeinsam/thema.js"></script>
+<script type="module" src="garten.js"></script>
+</head>
+<body>
+<main class="garten-seite">
+  <header>
+    <a class="info-btn" href="../" aria-label="Zur Startseite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="titel">
+      <h1>Schneckengarten</h1>
+      <p class="sub" id="anzahl"></p>
+    </div>
+    <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
+  </header>
+
+  <p class="hinweis" id="hinweis" aria-live="polite"></p>
+
+  <section class="gardenbox" aria-label="Garten">
+    <div class="deco" id="deco"></div>
+    <div class="garden" id="garden"></div>
+  </section>
+
+  <div class="aktionen">
+    <a class="btn primary" id="b-spiel" href="../zehnerweg/">Zum Zehnerweg</a>
+    <button type="button" class="btn" id="b-tag" hidden>Nächster Tag (Probe)</button>
+  </div>
+
+  <section class="album-box" aria-labelledby="album-titel">
+    <h2 id="album-titel">Sammelalbum <span id="album-zahl"></span></h2>
+    <div class="album" id="album"></div>
+  </section>
+</main>
+</body>
+</html>

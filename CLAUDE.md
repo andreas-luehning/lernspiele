@@ -35,8 +35,11 @@ gemeinsam/
   ziffern-modell.json   Gewichte, siehe werkzeuge/ziffern-modell/
   schreibfeld.js        Schreibfeld mit robuster Stift-/Finger-Eingabe
   speicher.js           localStorage mit Präfix, Version, try/catch, Bereinigen
-  runde.js              (geplant) 5-Minuten-Runde, eine pro Tag
-  parade.js             (geplant) Schneckenparade: Logik, Zeichnen, Garten
+  runde.js              5-Minuten-Runde, eine pro Tag (Uhr nach Datum, Probe-Modus ?probe)
+  parade-logik.js       Schneckenparade: Regeln, Zustand, Prüfen der Gartendaten (ohne DOM)
+  parade-bilder.js      Schnecken, Hüte, Käfer, Deko als SVG
+  parade.js, parade.css Paradestreifen, Blatt-Plätze, Rückblick
+garten/                 Schneckengarten: Tiere, Begleiter wählen, Sammelalbum
 zehnerweg/              Spiel 1: Zehnerübergang nach Arbeitsblatt
   index.html, zehnerweg.css, zehnerweg.js (Seite)
   aufgaben.js           Aufgaben, Tipps, Bewertung (ohne DOM, direkt testbar)
@@ -45,13 +48,14 @@ gegenstaende/           Spiel 3 (Idee): Leuchttisch-Gegenstände, zählen und ze
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
 prototypen/             Die Prototypen aus der Ideenphase (nicht verändern, nur als Vorlage)
 werkzeuge/              Trainingsskript für das Ziffern-Modell
-tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Port 8123)
+tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-browser.js (Playwright, Server auf Port 8123)
 ```
 
 ## Stand
 
 - **Schritt 1 erledigt:** Der Zehnerweg ist aus dem Prototyp in `zehnerweg/` und `gemeinsam/` aufgeteilt, mit Startseite. Verhalten wie im Prototyp (noch mit Sternen). Speicher: `lernspiele:zehnerweg` (Sterne, Spiegeln, Rechenart) und `lernspiele:einstellungen` (Tag/Nacht); alte Prototyp-Werte werden einmalig übernommen.
-- **Nächster Schritt:** Schneckenparade (`docs/schneckenparade.md`) mit `runde.js` und `parade.js`.
+- **Schritt 2 (Branch `schneckenparade`):** Die Schneckenparade ersetzt die Sterne: 5-Minuten-Runde, Salatblätter, neue Schnecken, Rückblick, Garten-Seite mit Begleiter-Wahl und Album. Entscheidungen siehe `docs/schneckenparade.md`.
+- **Danach:** Offene Fragen der Parade klären (Pause, Weiterüben, Profile), dann die Leuchttisch-Spiele.
 - `prototypen/zehnerweg.html` ist ein funktionierender Prototyp in einer Datei (Modell eingebettet). `prototypen/zehnerweg.quelle.html` ist dieselbe Datei mit dem Platzhalter `__MODEL__` statt der Gewichte; die Gewichte liegen in `werkzeuge/ziffern-modell/model.json`.
 - `prototypen/schneckenparade.html` ist eine Probe der Belohnung. Die Aufgaben werden dort per Knopf simuliert.
 - Genaue Regeln: `docs/zehnerweg.md`, `docs/schneckenparade.md`. Ideen und offene Fragen: `docs/ideen-und-offene-fragen.md`.

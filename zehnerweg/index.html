@@ -8,6 +8,7 @@
 <meta name="robots" content="noindex">
 <title>Zehnerweg</title>
 <link rel="stylesheet" href="../gemeinsam/theme.css">
+<link rel="stylesheet" href="../gemeinsam/parade.css">
 <link rel="stylesheet" href="zehnerweg.css">
 <script src="../gemeinsam/thema.js"></script>
 <script type="module" src="zehnerweg.js"></script>
@@ -26,10 +27,9 @@
       <button type="button" data-mode="mix" aria-pressed="false">Gemischt</button>
     </div>
     <div class="meta">
-      <div class="stars" id="stars" aria-label="Sterne">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.5l1.3-6.6L2.5 9.3l6.6-.8z"/></svg>
-        <span id="starcount">0</span>
-      </div>
+      <div class="uhr" id="uhr" role="timer" aria-label="Restzeit"><span id="uhrzeit">5:00</span><div class="sand" aria-hidden="true"><i id="sand"></i></div></div>
+      <div class="leaves" id="leaves"></div>
+      <a class="info-btn" id="b-garten" href="../garten/" aria-label="Zum Schneckengarten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19h13a4 4 0 0 0 4-4V9.5"/><circle cx="10" cy="13" r="5"/><path d="M10 13a1.6 1.6 0 1 1 2 1.4"/><path d="M19 9.5 18 5M21 9.5 22 6"/></svg></a>
       <button type="button" class="info-btn" id="b-flip" aria-pressed="false" aria-label="Kreise auf die andere Seite der Straße"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v18M8 3L4 7M8 3l4 4M16 21V3M16 21l-4-4M16 21l4-4"/></svg></button>
       <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
       <button type="button" class="info-btn" id="b-info" aria-expanded="false" aria-controls="grown" aria-label="Infos für Erwachsene">?</button>
@@ -39,6 +39,7 @@
   <div class="grown" id="grown" hidden>
     <h2>Für Erwachsene</h2>
     <p>Der Weg folgt dem Arbeitsblatt: Am Anfang der Straße steht die Startzahl, im großen Kreis auf der Straße die zweite Zahl. Das Kind zerlegt sie in die beiden kleinen Kreise, rechnet erst bis zur 10 (mittleres Kästchen) und dann weiter bis zum Ergebnis am Ende der Straße. Bei Plus markiert das Herz die verliebte Zahl zur Startzahl. Bei Minus steht die Hand beim Wegnehmen bis zur 10, und das Herz zeigt, dass zweiter Kreis und Ergebnis zusammen 10 ergeben. Sind alle Felder ausgefüllt, prüft die App automatisch.</p>
+    <p>Belohnung ist die Schneckenparade: Einmal am Tag gibt es eine Runde von 5 Minuten. Sie beginnt mit dem ersten Strich. Jede richtige Aufgabe bringt ein Salatblatt, für 3 Blätter kommt eine neue Schnecke in den Garten. Danach kann weiter geübt werden, aber ohne Blätter. Zum Ausprobieren: <code>?probe</code> an die Adresse hängen (Runde 1 Minute, im Garten „Nächster Tag“).</p>
     <p>Die Zahlenerkennung läuft vollständig auf dem Gerät, es wird nichts übertragen. Am besten klappt es, wenn die Ziffern einer Zahl nebeneinander stehen und sich nicht berühren. Unter jedem Feld steht klein, was erkannt wurde. Mit × lässt sich ein Feld neu beschreiben. Wird ein Stift benutzt, ignoriert die App kurz danach Berührungen mit der Hand.</p>
   </div>
 
@@ -47,6 +48,8 @@
       <svg class="bg" id="bg" aria-hidden="true"></svg>
     </div>
   </div>
+
+  <div class="track" id="track" aria-label="Schneckenparade"></div>
 
   <div class="bottom">
     <div class="hint" id="hint" aria-live="polite">Einen Moment …</div>

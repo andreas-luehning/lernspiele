@@ -1,0 +1,43 @@
+.garten-seite {
+  box-sizing: border-box; max-width: 1100px; margin: 0 auto; min-height: 100%;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+.garten-seite header { display: flex; align-items: center; gap: 14px; }
+.garten-seite .titel { margin-right: auto; }
+.garten-seite h1 { font: 800 clamp(1.8rem, 5vw, 2.6rem) var(--display); margin: 0; line-height: 1; }
+.garten-seite .sub { margin: 4px 0 0; color: var(--muted); }
+.hinweis { margin: 0; font-size: 1.15rem; min-height: 1.5em; }
+
+.gardenbox { background: var(--grass); border-radius: 24px; padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.deco { display: flex; flex-wrap: wrap; gap: 4px 12px; min-height: 56px; align-items: flex-end; border-bottom: 2px dashed var(--grass-2); padding-bottom: 6px; }
+.deco svg { width: 56px; height: 56px; }
+.deco .leer { color: var(--muted); font-size: .95rem; align-self: center; }
+.garden { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 6px 10px; align-items: end; }
+.g-snail {
+  background: none; border: 3px solid transparent; padding: 6px 4px 8px; border-radius: 18px; cursor: pointer; color: var(--fg);
+  font: 700 1rem/1.2 var(--body); display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  position: relative; height: 100%; min-height: 110px;
+}
+.g-snail svg { width: calc(96px * var(--k, 1)); height: auto; }
+.g-snail small { font-weight: 400; color: var(--muted); font-size: .8rem; }
+.g-snail.walks { border-color: var(--btn); background: color-mix(in srgb, var(--btn) 14%, transparent); }
+.g-snail .marke { position: absolute; top: 2px; right: 4px; background: var(--btn); color: var(--btn-fg); font-size: .72rem; border-radius: 999px; padding: 1px 8px; }
+.g-snail .marke.neu { background: var(--good); }
+.g-snail:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.g-snail.wackeln { animation: wackeln .4s; }
+@keyframes wackeln { 25% { translate: -4px 0; } 75% { translate: 4px 0; } }
+
+.aktionen { display: flex; gap: 12px; flex-wrap: wrap; }
+.aktionen .btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+.album-box h2 { font: 800 1.35rem var(--display); margin: 8px 0 10px; }
+.album-box h2 span { font: 400 1rem var(--body); color: var(--muted); }
+.album { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); background: var(--sheet); border: 2px solid var(--rule); border-radius: 22px; padding: 16px; }
+.album h3 { font: 700 .82rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; display: flex; justify-content: space-between; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .9rem; border-radius: 999px; padding: 3px 11px; border: 2px solid var(--line); }
+.chip.miss { border-style: dashed; border-color: var(--rule); color: var(--muted); }
+.chip .sw { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line); }
+.sw-rosa { background: #ff9ec4; } .sw-gelb { background: #ffd447; } .sw-mint { background: #7fe0b8; }
+.sw-blau { background: #7cc8ff; } .sw-lila { background: #b79bff; } .sw-orange { background: #ffad66; }

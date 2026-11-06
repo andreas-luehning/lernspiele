@@ -58,12 +58,15 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
   "practiceDays": 4,
   "deco": ["pilz"],
   "newCount": 2,
-  "nextId": 9
+  "nextId": 9,
+  "runde": { "ende": 1762430400000, "tag": "2026-11-06", "begleiter": [1, 2, 3], "neu": [8], "zeitUm": false }
 }
 ```
 
 - `special`: `null`, `"regenbogen"`, `"kaefer"`. Glitzer ergibt sich aus `stage` 3.
 - `spiel`: in welchem Spiel die Schnecke verdient wurde (für die Elternansicht).
+- `runde`: die laufende Runde oder `null`. `ende` ist der Zeitpunkt (ms), an dem die 5 Minuten um sind; so läuft die Runde nach dem Neuladen weiter. `tag` ist der Tag, an dem sie begann; eine am Vortag nicht beendete Runde wird beim nächsten Öffnen für diesen Tag abgeschlossen und blockiert den neuen Tag nicht.
+- Beim Lesen wird jede Schnecke geprüft (bekannte Farbe, Muster, Hut, Name höchstens 20 Zeichen). Ungültige Einträge werden verworfen, siehe `datenschutz-und-sicherheit.md`.
 - Tage als Datum (`YYYY-MM-DD`, lokale Zeit). Die Probe zählt Tage nur simuliert hoch.
 
 ## In den Spielen
@@ -73,6 +76,17 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
 - Seitenleiste: Uhr (Sanduhr), 3 Blatt-Plätze, Hut-Anzeige.
 - Garten als eigener Bildschirm hinter einem Knopf; dort auch Begleiter wählen.
 - Nach der Runde: Rückblick, dann „Für heute geschafft! Morgen geht die Parade weiter.“ Das Spiel selbst bleibt zum freien Üben offen, bringt aber keine Blätter mehr (offene Frage, siehe unten).
+
+## Entscheidungen für die erste Umsetzung
+
+- **Startgarten:** Ein neuer Garten beginnt mit 3 Babyschnecken ohne Hut. Sie sind die ersten Begleiter.
+- **Rundenbeginn:** Die Runde beginnt mit dem ersten Strich in einem Feld, nicht schon beim Öffnen des Spiels.
+- **Zeit um:** Die angefangene Aufgabe darf fertig werden. Die Runde endet, sobald diese Aufgabe gelöst ist oder „Neue Aufgabe“ gedrückt wird, spätestens 3 Minuten nach Ablauf.
+- **Nach der Runde:** Das Spiel bleibt zum freien Üben offen, bringt aber keine Blätter mehr (vorläufig, siehe offene Fragen).
+- **Uhr:** Läuft nach Datum und Uhrzeit, also auch weiter, wenn das Tablet kurz aus ist. Eine Pause gibt es noch nicht.
+- **Anzeige im Zehnerweg:** Ein schmaler Paradestreifen unter dem Rechenweg. Uhr, 3 Blatt-Plätze und Hut-Anzeige stehen oben bei der Aufgabe, ein Schnecken-Knopf führt zum Garten.
+- **Garten:** eigene Seite `garten/` mit Deko, allen Tieren, Begleiter-Wahl und Sammelalbum.
+- **Probe-Modus für Erwachsene:** Mit `?probe` an der Adresse dauert eine Runde 1 Minute, und im Garten gibt es den Knopf „Nächster Tag“. So lässt sich alles ausprobieren, ohne einen Tag zu warten.
 
 ## Offene Fragen
 

@@ -3,18 +3,20 @@ import { ladeModell } from '../gemeinsam/ziffern.js';
 import { Schreibfeld, alleNeuZeichnen } from '../gemeinsam/schreibfeld.js';
 import { lesen, schreiben, vorhanden, altLesen } from '../gemeinsam/speicher.js';
 import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgaben.js';
+import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
+import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
+import { richtig, falsch, parade, describe } from '../gemeinsam/parade-logik.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
-const STANDARD = { sterne: 0, gespiegelt: false, modus: 'plus' };
+const STANDARD = { gespiegelt: false, modus: 'plus' };
 const MODI = ['plus', 'minus', 'mix'];
 let zustand;
 if (vorhanden('zehnerweg')) {
   zustand = lesen('zehnerweg', STANDARD);
 } else {
   // Einmalige Übernahme aus dem Prototyp (alte Schlüssel bleiben, damit der Prototyp weiter geht)
-  zustand = { ...STANDARD, sterne: parseInt(altLesen('zehnerweg-stars') || '0', 10) || 0, gespiegelt: altLesen('zehnerweg-flip') === '1' };
+  zustand = { ...STANDARD, gespiegelt: altLesen('zehnerweg-flip') === '1' };
 }
-zustand.sterne = Math.min(Math.max(0, Math.floor(zustand.sterne)), 1_000_000);
 if (!MODI.includes(zustand.modus)) zustand.modus = 'plus';
 const speichern = () => schreiben('zehnerweg', zustand);
 
@@ -97,7 +99,7 @@ for (const id of Object.keys(SHAPES)) {
   FIELDS[id] = new Schreibfeld(stage, {
     id, kind: SHAPES[id].kind,
     onErkannt: nachErkennung,
-    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); },
+    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); paradeStarten(); },
     onGeloescht: () => { stage.classList.remove('done'); updateTarget(); },
   });
 }
@@ -106,7 +108,8 @@ function layout() {
   const wrap = $('wrap');
   // Seitenleiste nur, wenn der Weg dadurch größer wird (breite Bildschirme im Querformat)
   const iw = window.innerWidth - 32, ih = window.innerHeight - 16;
-  const topBottom = Math.min(iw, (ih - 150) * GH.W / GH.H), sideways = Math.min(iw - 300, (ih - 40) * GH.W / GH.H);
+  // Kopfzeile + Tipp/Knöpfe ≈ 150 px, Paradestreifen ≈ 104 px
+  const topBottom = Math.min(iw, (ih - 254) * GH.W / GH.H), sideways = Math.min(iw - 300, (ih - 144) * GH.W / GH.H);
   app.classList.toggle('side', iw > ih && sideways > topBottom * 1.04);
   const availH = Math.max(240, wrap.clientHeight - 30);
   const availW = wrap.clientWidth - (app.classList.contains('side') ? 25 : 0);
@@ -139,6 +142,7 @@ function newTask() {
   stage.classList.remove('done', 'love'); stage.classList.toggle('minus', task.op === 'minus');
   setHint(START_TIPP);
   updateTarget();
+  runde?.aufgabeFertig(); // war die Zeit schon um, endet die Runde jetzt
 }
 function updateTarget() {
   let marked = false;
@@ -159,6 +163,7 @@ function check() {
     if (b.falsch.includes(id)) el.classList.add('no');
   }
   if (b.falsch.length) {
+    paradeFalsch();
     const f = FIELDS[b.falsch[0]];
     setHint((f.unsicher ? `Ich habe ${f.value} gelesen. Schreib es deutlicher, falls du etwas anderes meinst. ` : '') + tipp(task, f.id), 'bad');
   } else if (b.leer.length) {
@@ -169,12 +174,55 @@ function check() {
     setHint(`Super! ${task.a} ${z} ${task.ans.part1} ${z} ${task.ans.part2} = ${task.ans.goal}`, 'good');
     if (!stage.classList.contains('done')) {
       stage.classList.add('done');
-      zustand.sterne++; speichern(); zeigeSterne();
-      const st = $('stars'); st.classList.remove('pop'); void st.offsetWidth; st.classList.add('pop');
+      paradeRichtig();
     }
   }
 }
-function zeigeSterne() { $('starcount').textContent = String(zustand.sterne); }
+
+/* ---------- Schneckenparade ---------- */
+const streifen = new ParadeStreifen($('track'));
+const blaetter = $('leaves');
+let runde = null;
+const sagStart = () => streifen.sag(runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : 'Für heute geschafft. Du kannst weiter üben.');
+function zeigeParade(animiert) { streifen.zeige(parade(runde.z), animiert); zeigeBlaetter(blaetter, runde.z); }
+function paradeStarten() {
+  if (runde.laeuft || !runde.heuteMoeglich) return;
+  if (runde.starten()) { zeigeParade(true); streifen.sag('Los geht’s! Die Parade läuft.'); }
+}
+function paradeRichtig() {
+  if (!runde.laeuft || task.belohnt) { if (!runde.laeuft && !runde.heuteMoeglich) streifen.sag('Super gerechnet!'); return; }
+  task.belohnt = true;
+  const erg = richtig(runde.z); runde.speichern();
+  const slot = blaetter.querySelectorAll('.slot')[Math.min(2, Math.max(0, runde.z.leaves - 1))];
+  streifen.blattFliegt(FIELDS.goal.el, erg.neu ? blaetter.querySelectorAll('.slot')[2] : slot);
+  setTimeout(() => {
+    zeigeParade(true);
+    if (erg.neu) streifen.sag(`${describe(erg.neu)} kriecht zur Parade!${erg.kaefer ? ' Ein Marienkäfer kommt als Gast mit!' : ''}`);
+    else streifen.sag(['Mmh, Salat!', 'Ein Salatblatt für die Parade!', 'Lecker, noch ein Blatt!'][runde.z.leaves % 3] + ` Noch ${3 - runde.z.leaves}, dann kommt eine neue Schnecke.`);
+  }, 800);
+  setTimeout(() => runde.aufgabeFertig(), 2200);
+}
+function paradeFalsch() {
+  if (!runde.laeuft || task.fehlerGezaehlt || task.belohnt) return;
+  task.fehlerGezaehlt = true; // zählt nur einmal pro Aufgabe
+  falsch(runde.z); runde.speichern(); zeigeBlaetter(blaetter, runde.z);
+  streifen.sag('Macht nichts, niemand geht weg. Schau dir den Tipp an.');
+}
+const gartenUrl = '../garten/' + (PROBE ? '?probe' : '');
+$('b-garten').href = gartenUrl;
+runde = new Runde({
+  onTick: (rest, dauer) => {
+    $('uhrzeit').textContent = uhrText(rest);
+    $('sand').style.width = (rest / dauer * 100) + '%';
+    $('uhr').classList.toggle('um', rest <= 0);
+  },
+  onZeitUm: () => streifen.sag('Die Zeit ist um! Mach diese Aufgabe noch fertig.'),
+  onEnde: ergebnis => {
+    streifen.ausziehen();
+    setTimeout(() => { rueckblick(ergebnis, { gartenUrl }); zeigeParade(false); sagStart(); }, 2600);
+  },
+});
+
 
 /* ---------- Knöpfe ---------- */
 const grown = $('grown'), infoBtn = $('b-info'), flipBtn = $('b-flip');
@@ -210,8 +258,9 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 
 /* ---------- Start ---------- */
 flipBtn.setAttribute('aria-pressed', String(zustand.gespiegelt));
-zeigeModus(); zeigeSterne();
+zeigeModus();
 layout(); newTask();
+zeigeParade(false); sagStart(); runde.tick();
 setHint('Einen Moment, die Zahlenerkennung lädt …');
 ladeModell()
   .then(() => setHint(START_TIPP))
