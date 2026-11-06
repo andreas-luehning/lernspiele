@@ -45,7 +45,7 @@ gegenstaende/           Spiel 3 (Idee): Leuchttisch-Gegenstände, zählen und ze
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
 prototypen/             Die Prototypen aus der Ideenphase (nicht verändern, nur als Vorlage)
 werkzeuge/              Trainingsskript für das Ziffern-Modell
-tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Port 8123)
+tests/                  logik.mjs (Node), browser.js, ziffern-browser.js (Playwright, Server auf Port 8123)
 ```
 
 ## Stand
@@ -63,6 +63,7 @@ tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Por
 - **Eingabe robust machen.** Schreiben hing manchmal, bis die Seite neu geladen wurde. Ursachen: Nach einmaliger Stiftbenutzung wurden Finger dauerhaft ignoriert; Handballen oder ein zweiter Finger störten; Loslassen außerhalb des Feldes. Lösung im Prototyp: genau ein Zeiger pro Feld, Handflächen-Sperre nur 1,5 s nach einem Stift-Ereignis, `lostpointercapture` und `pointerup` am Fenster als Sicherheitsnetz, `touch-action: none` auf der Spielfläche, Kontextmenü und Zoom-Gesten aus. **Auf einem echten Tablet noch nicht bestätigt.**
 - **Automatisch prüfen**, sobald alle Felder erkannt sind. Der Knopf „Prüfen“ bleibt zusätzlich.
 - **Zweistellige Zahlen** gelingen am besten, wenn die Ziffern nebeneinander stehen und sich nicht berühren.
+- **Deutsche 1 wurde oft als 7 gelesen.** Das Modell kennt nur die amerikanische 1. Eine Formprüfung nach dem Modell korrigiert das (`gemeinsam/ziffern.js`, Test `tests/ziffern-browser.js`).
 
 ## Was nicht ins Git darf
 

@@ -84,6 +84,76 @@ export function groupStrokes(strokes, fieldW) {
   return groups;
 }
 
+/* ---------- Formprüfung 1 / 7 ----------
+   Das Modell kennt die amerikanische 1 (ein senkrechter Strich). In Deutschland lernen Kinder die 1 mit
+   langem Anstrich von links unten; die sieht für das Modell aus wie eine 7 ohne Querstrich. Umgekehrt wird
+   eine schmale 7 mit kurzem Balken manchmal als 1 gelesen. Darum wird nach dem Modell die Form geprüft. */
+
+function punkteVon(strokes) { const pts = []; for (const s of strokes) for (const p of s) pts.push(p); return pts; }
+const median = a => { const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; };
+
+/** Deutsche 1: schmaler Stamm unten, Spitze über dem Stamm, Anstrich fällt nach links ab, keine Schlaufe. */
+export function istDeutscheEins(strokes) {
+  const pts = punkteVon(strokes); if (pts.length < 3) return false;
+  let y0 = Infinity, y1 = -Infinity; for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return false;
+  // Ein Fußstrich ganz unten (manche schreiben die 1 mit Sockel) zählt nicht zum Stamm
+  const ohneFuss = pts.filter(p => p.y < y0 + 0.9 * h);
+  const unten = ohneFuss.filter(p => p.y > y0 + 0.72 * h);                 // unterhalb des Anstrichs
+  if (unten.length < 2) return false;
+  const ux = unten.map(p => p.x);
+  if (Math.max(...ux) - Math.min(...ux) > 0.25 * h) return false;          // unten nur ein schmaler Stamm
+  const stamm = median(ux);
+  const spitze = ohneFuss.reduce((a, p) => (p.y < a.y ? p : a));
+  if (Math.abs(spitze.x - stamm) > 0.18 * h) return false;                  // Spitze sitzt über dem Stamm
+  if (ohneFuss.some(p => p.x > stamm + 0.18 * h && p.y < y0 + 0.9 * h)) return false; // nichts weit rechts (kein Balken)
+  const links = ohneFuss.filter(p => p.x < stamm - 0.1 * h);
+  if (!links.length) return false;                                          // ohne Anstrich: das Modell kann das
+  if (links.some(p => p.y > y0 + 0.7 * h)) return false;                    // Anstrich bleibt oben
+  // Anstrich ist eine Linie, die nach links abfällt: in jedem Abschnitt nur eine Höhe, links tiefer als rechts
+  const xs = links.map(p => p.x), xMin = Math.min(...xs), xMax = stamm - 0.1 * h, n = 4;
+  const fach = Array.from({ length: n }, () => []);
+  for (const p of links) fach[Math.min(n - 1, Math.floor((p.x - xMin) / Math.max(1, xMax - xMin) * n))].push(p.y);
+  let vorher = -Infinity;
+  for (let i = n - 1; i >= 0; i--) {                                        // von rechts (Spitze) nach links
+    if (!fach[i].length) continue;
+    if (Math.max(...fach[i]) - Math.min(...fach[i]) > 0.15 * h) return false; // zwei Höhen = Schlaufe (z. B. 9)
+    const m = fach[i].reduce((a, b) => a + b, 0) / fach[i].length;
+    if (m < vorher - 0.03 * h) return false;
+    vorher = m;
+  }
+  const anfang = links.reduce((a, p) => (p.x < a.x ? p : a));
+  return anfang.y - spitze.y >= 0.12 * h;                                   // Anstrich fällt deutlich ab
+}
+
+/** 7: Querstrich in der Mitte, oder flacher Balken oben, der rechts von der Spitze des Abstrichs liegt. */
+export function istSieben(strokes) {
+  const pts = punkteVon(strokes); if (pts.length < 3) return false;
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const p of pts) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return false;
+  // Querstrich: ein eigener, flacher Strich in der mittleren Höhe
+  const quer = strokes.some(s => {
+    if (s.length < 2 || strokes.length < 2) return false;
+    let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity; for (const p of s) { a = Math.min(a, p.x); b = Math.max(b, p.x); c = Math.min(c, p.y); d = Math.max(d, p.y); }
+    const my = (c + d) / 2;
+    return b - a > 0.15 * h && d - c < 0.15 * h && my > y0 + 0.3 * h && my < y0 + 0.75 * h;
+  });
+  if (quer) return true;
+  // Flacher Balken oben: Punkte im obersten Zehntel reichen weit nach links und rechts
+  const oben = pts.filter(p => p.y <= y0 + 0.1 * h);
+  const ox = oben.map(p => p.x);
+  return oben.length > 1 && Math.max(...ox) - Math.min(...ox) >= 0.18 * h && !istDeutscheEins(strokes);
+}
+
+function formKorrektur(p, strokes) {
+  const top = p.indexOf(Math.max(...p));
+  const zu = z => { const q = p.map(v => v * 0.1); q[z] += 0.9; return q; };
+  if (top !== 1 && istDeutscheEins(strokes)) return zu(1);
+  if (top === 1 && istSieben(strokes)) return zu(7);
+  return p;
+}
+
 /**
  * Liest eine Zahl aus den Strichen eines Feldes.
  * @param {{x:number,y:number}[][]} strokes  Striche in Feld-Koordinaten (Pixel)
@@ -100,7 +170,7 @@ export function leseZahl(strokes, fieldW, fieldH) {
     return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;
   });
   if (!groups.length) return null;
-  const probs = groups.map(g => predict(rasterize(g.strokes)));
+  const probs = groups.map(g => formKorrektur(predict(rasterize(g.strokes)), g.strokes));
   const pick = (p, allowed) => { let bi = allowed[0]; for (const k of allowed) if (p[k] > p[bi]) bi = k; return bi; };
   const all = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   let digits, conf = 1;

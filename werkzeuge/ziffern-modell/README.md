@@ -24,6 +24,9 @@ Die Erkennung im Prototyp `prototypen/zehnerweg.quelle.html` (Funktionen `raster
 3. In zwei Schritten auf 28×28 verkleinern (112 → 56 → 28), dann nach Schwerpunkt zentrieren.
 4. Bei zwei Ziffern ist die erste nur 1 oder 2 (auf dem Blatt gibt es nur Zahlen bis 20), und bei 2 ist die zweite nur 0.
 5. Liegt die Sicherheit unter 0,4, zeigt die App die Zahl mit Fragezeichen an.
+6. **Formprüfung 1/7** (`istDeutscheEins`, `istSieben` in `gemeinsam/ziffern.js`): MNIST kennt nur die amerikanische 1 (ein senkrechter Strich). Die deutsche 1 mit langem Anstrich hält das Modell oft für eine 7. Darum wird nach dem Modell die Form geprüft: schmaler Stamm unten, Spitze darüber, Anstrich fällt nach links ab, keine Schlaufe → 1. Querstrich in der Mitte oder flacher Balken oben → 7. Test: `tests/ziffern-browser.js` (vorher 82 %, jetzt 100 % der Testformen).
+
+Besser wäre auf Dauer ein Nachtraining mit deutschen Einsen. Dafür reichen künstlich erzeugte Einsen mit Anstrich; echte Kinderschrift nur mit Einverständnis und nur lokal (siehe `docs/datenschutz-und-sicherheit.md`).
 
 ## Neu trainieren
 
