@@ -27,8 +27,14 @@ Beide Spiele nutzen dieselbe Zahlenerkennung, dieselbe 5-Minuten-Runde und diese
 - **Korrektur per Antippen,** wenn die Zahlenerkennung falsch liegt.
 - ~~**Offline und installierbar** als Web-App.~~ Umgesetzt (Startseite → „Für Erwachsene“).
 
+## Numi
+
+Numi (`andreas-luehning/numi`) bleibt eine **eigene Welt** mit eigener Belohnung (Numis Freunde). Idee: Auf der Startseite eine Kachel für Numi und eine für Numis Freunde, so wie Zehnerweg und Schneckengarten. Vorlesen wird nicht gebraucht. Schriften müssen nicht von Google kommen und werden lokal eingebunden. Vor dem Zusammenführen klären: gleiche Adresse (gemeinsamer Speicher, ein Service Worker) oder nur verlinkt.
+
 ## Offene Fragen
 
 - Welche Tablets werden genutzt (Größe, Stift)?
 - Fotos der Arbeitsblätter: entschieden, sie bleiben lokal und kommen nicht ins Git.
 - Mehrere Kinder pro Tablet?
+- Zehnerweg: Aufgaben, bei denen Ergebnis und eine andere Stelle vorgegeben sind? (siehe `zehnerweg.md`, Offene Punkte)
+- Mehr als eine Runde mit Blättern pro Tag (z. B. als Einstellung für Erwachsene)? Bisher: eine Runde, danach freies Üben ohne Blätter.

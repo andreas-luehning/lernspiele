@@ -94,7 +94,7 @@ function nachErkennung(f) {
   if (f.kritzel) { setHint('Hier ist Platz für eine Zahl. Tippe auf ×, dann kannst du neu schreiben.', 'bad'); return; }
   // Automatisch prüfen, sobald alle Felder sicher erkannt sind und keins mehr in Arbeit ist
   if (pruefeLaeuft || !ORDER.every(id => FIELDS[id].value != null && !FIELDS[id].wartet)) return;
-  if (ORDER.some(id => FIELDS[id].unsicher)) setHint('Bei einem Feld bin ich nicht sicher, was da steht. Schreib deutlicher oder tippe auf Prüfen.', '');
+  if (ORDER.some(id => FIELDS[id].unsicher)) { setHint('Bei einem Feld bin ich nicht sicher, was da steht. Schreib deutlicher oder tippe auf Prüfen.', ''); knoepfe('pruefen'); }
   else check();
 }
 let pruefeLaeuft = false;
@@ -103,7 +103,7 @@ for (const id of Object.keys(SHAPES)) {
     id, kind: SHAPES[id].kind,
     onErkannt: nachErkennung,
     onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); paradeStarten(); },
-    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); },
+    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); knoepfe('rechnen'); },
   });
 }
 
@@ -144,12 +144,24 @@ function newTask() {
   FIELDS.start.vorgeben(task.a); FIELDS.big.vorgeben(task.b);
   stage.classList.remove('done', 'love'); stage.classList.toggle('minus', task.op === 'minus');
   setHint(START_TIPP);
+  knoepfe('rechnen');
   updateTarget();
   runde?.aufgabeFertig(); // war die Zeit schon um, endet die Runde jetzt
 }
 function updateTarget() {
   let marked = false;
   for (const id of ORDER) { const f = FIELDS[id]; const t = !marked && f.value == null; f.el.classList.toggle('target', t); if (t) marked = true; }
+}
+/**
+ * Der hervorgehobene Knopf zeigt den nächsten sinnvollen Schritt:
+ * rechnen → keiner (die Felder sind dran), pruefen → „Prüfen“ (alles ausgefüllt, aber unsicher),
+ * weiter → „Neue Aufgabe“ (gelöst, mit sanftem Pulsieren).
+ */
+function knoepfe(zustand) {
+  $('b-check').classList.toggle('primary', zustand === 'pruefen');
+  $('b-check').classList.toggle('leise', zustand === 'weiter');
+  $('b-next').classList.toggle('primary', zustand === 'weiter');
+  $('b-next').classList.toggle('puls', zustand === 'weiter');
 }
 function setHint(t, cls) { const h = $('hint'); h.textContent = t; h.className = 'hint' + (cls ? ' ' + cls : ''); }
 
@@ -178,6 +190,7 @@ function check() {
     setHint(`Super! ${task.a} ${z} ${task.ans.part1} ${z} ${task.ans.part2} = ${task.ans.goal}`, 'good');
     if (!stage.classList.contains('done')) {
       stage.classList.add('done');
+      knoepfe('weiter');
       paradeRichtig();
     }
   }
@@ -240,7 +253,7 @@ $('b-check').addEventListener('click', check);
 $('b-next').addEventListener('click', newTask);
 $('b-clear').addEventListener('click', () => {
   for (const id of ORDER) FIELDS[id].loeschen();
-  stage.classList.remove('done'); setHint(START_TIPP); updateTarget();
+  stage.classList.remove('done'); setHint(START_TIPP); updateTarget(); knoepfe('rechnen');
 });
 flipBtn.addEventListener('click', () => {
   zustand.gespiegelt = !zustand.gespiegelt; speichern();

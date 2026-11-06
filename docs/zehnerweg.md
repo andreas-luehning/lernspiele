@@ -33,7 +33,7 @@ Eine Straße verbindet zwei Kästchen: Start und Ergebnis. Auf der Straße liegt
 - Unter jedem Feld steht klein, was erkannt wurde („erkannt: 7“, bei Unsicherheit „7 ?“), daneben × zum Löschen.
 - Sobald alle vier Felder **sicher** erkannt sind, prüft die App automatisch. Richtig: Feld grün. Falsch: Feld rot mit kurzem Wackeln.
 - Ist die Erkennung bei einem Feld unsicher („7 ?“), prüft die App nicht von selbst, sondern sagt: „Bei einem Feld bin ich nicht sicher, was da steht. Schreib deutlicher oder tippe auf Prüfen.“
-- **Malen statt schreiben:** Sieht ein Feld nach einem Bild aus (sehr viel Tinte wie beim Ausmalen, mehr als 8 Striche oder mehr als zwei Zahlen nebeneinander), liest die App keine Zahl. Unter dem Feld steht „Bitte nur eine Zahl“, der Tipp sagt: „Hier ist Platz für eine Zahl. Tippe auf ×, dann kannst du neu schreiben.“ Das zählt nicht als Fehler. Grenze: Ein einzelner Kreis oder ein Gesicht sieht für die Erkennung aus wie eine 0 und wird nicht als Bild erkannt.
+- **Malen statt schreiben:** Sieht ein Feld nach einem Bild aus (sehr viel Tinte wie beim Ausmalen, ein Knäuel oder eine Spirale mit vielen Schleifen, mehr als 8 Striche oder mehr als zwei Zahlen nebeneinander), liest die App keine Zahl. Unter dem Feld steht „Bitte nur eine Zahl“, der Tipp sagt: „Hier ist Platz für eine Zahl. Tippe auf ×, dann kannst du neu schreiben.“ Das zählt nicht als Fehler. Grenze: Ein einzelner Kreis oder ein Gesicht sieht für die Erkennung aus wie eine 0 und wird nicht als Bild erkannt.
 - Der Tipp gilt immer dem ersten falschen Feld:
   - Erster Kreis, Plus: „Welche Zahl ist in die 8 verliebt? Zusammen ergeben sie 10.“
   - Erster Kreis, Minus: „Wie viel musst du von 13 wegnehmen, um bei 10 zu landen?“
@@ -43,7 +43,8 @@ Eine Straße verbindet zwei Kästchen: Start und Ergebnis. Auf der Straße liegt
 - War die Erkennung unsicher, steht davor: „Ich habe 7 gelesen. Schreib es deutlicher, falls du etwas anderes meinst.“
 - Fehlen noch Felder, aber alles bisher stimmt: „Bis hier stimmt alles!“ und der Tipp für das nächste leere Feld.
 - Alles richtig: Ein grüner Weg zeichnet sich über die Pfeile, die Pfeilspitzen werden grün, die Lösung steht oben in der Aufgabe. Wenn das Herz-Feld richtig ist, schlagen die Herzen kurz.
-- Belohnung: Bisher ein Stern pro gelöster Aufgabe. Wird ersetzt durch die Schneckenparade (`schneckenparade.md`).
+- Belohnung: Schneckenparade (`schneckenparade.md`).
+- **Knöpfe:** Hervorgehoben ist immer der nächste sinnvolle Schritt. Beim Rechnen keiner (die Felder sind dran). Alles ausgefüllt, aber unsicher erkannt: „Prüfen“. Gelöst: „Neue Aufgabe“ mit sanftem Pulsieren, „Prüfen“ tritt zurück.
 
 ## Bildschirm
 
@@ -61,6 +62,8 @@ Siehe `../werkzeuge/ziffern-modell/README.md`. Kurz: Striche werden pro Feld ges
 **7 nur mit Querstrich** (wie in der Grundschule in Deutschland gelernt): Eine 7 zählt nur, wenn sie einen Querstrich in der Mitte hat. Was wie eine 7 ohne Querstrich aussieht, wird als 1 gelesen, denn die deutsche 1 mit Anstrich hat fast dieselbe Form. Ist die Antwort dadurch falsch und gehört in das Feld eine 7, sagt der Tipp: „Ich habe eine 1 gelesen. Eine 7 bekommt einen Querstrich in der Mitte.“ Erwachsene können die Regel auf der Startseite unter „Für Erwachsene“ ausschalten. Gespeichert unter `lernspiele:erkennung` `{ version: 1, siebenMitQuerstrich: true }`.
 
 ## Offene Punkte
+
+- **Andere Aufgabentypen?** Bisher sind immer Start und großer Kreis vorgegeben. Denkbar: Ergebnis und eine andere Stelle vorgegeben, das Kind ergänzt den Rest (z. B. 8 + ? = 13). Mit der Lehrkraft klären, ob es solche Blätter gibt.
 
 - Auf echten Tablets mit echter Kinderschrift testen (iPad mit und ohne Stift, Android).
 - Korrektur per Antippen: Tippt das Kind auf „erkannt: 7“, erscheint eine Zahlenreihe 0–20 zur Auswahl.

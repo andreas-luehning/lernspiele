@@ -100,7 +100,9 @@ function striche(form, ox, oy, sx, sy, wackel) {
   const zickzack = [Array.from({ length: 30 }, (_, i) => ({ x: 10 + (i % 2) * 200, y: 10 + i * 5 }))];
   const vieleStriche = Array.from({ length: 10 }, (_, k) => [{ x: 15 + k * 20, y: 60 }, { x: 20 + k * 20, y: 110 }]);
   const dreiZahlen = [...striche(ALLE[1], 10, 30, 50, 100, 0), ...striche(ALLE[2], 80, 30, 50, 100, 0), ...striche(ALLE[3], 150, 30, 50, 100, 0)];
-  for (const [n, s] of Object.entries({ Ausmalen: zickzack, 'viele Striche': vieleStriche, 'drei Zahlen': dreiZahlen })) {
+  const knaeuel = n => [Array.from({ length: n * 30 }, (_, i) => ({ x: 110 + (50 + 15 * Math.sin(i / 7)) * Math.cos(i / 4.8), y: 85 + (30 + 10 * Math.cos(i / 9)) * Math.sin(i / 4.8) }))];
+  const spirale = [Array.from({ length: 120 }, (_, i) => ({ x: 110 + (5 + i * 0.6) * Math.cos(i / 4), y: 85 + (5 + i * 0.5) * Math.sin(i / 4) }))];
+  for (const [n, s] of Object.entries({ Ausmalen: zickzack, 'viele Striche': vieleStriche, 'drei Zahlen': dreiZahlen, 'Knäuel 4 Schleifen': knaeuel(4), 'Knäuel 6 Schleifen': knaeuel(6), Spirale: spirale })) {
     gesamt++; if (await kritzel(s)) richtig++; else falsch.push(`${n} nicht als Gekritzel erkannt`);
   }
 

@@ -54,4 +54,6 @@ dialog.rueckblick figure { margin: 0; display: flex; flex-direction: column; ali
 dialog.rueckblick figure svg { width: 84px; height: auto; }
 dialog.rueckblick .row > svg { width: 64px; height: 64px; }
 dialog.rueckblick .knoepfe { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
-dialog.rueckblick .btn { text-decoration: none; display: inline-flex; align-items: center; }
+dialog.rueckblick .btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-width: 170px; box-sizing: border-box; }
+dialog.rueckblick h2, dialog.rueckblick p { margin-left: auto; margin-right: auto; max-width: 34ch; text-wrap: balance; }
+dialog.rueckblick figure figcaption { margin-top: 2px; }

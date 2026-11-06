@@ -178,8 +178,22 @@ function formKorrektur(p, strokes, siebenMitQuerstrich) {
 /* ---------- Gekritzel ----------
    Malt ein Kind ins Feld statt eine Zahl zu schreiben, soll die App nicht raten (sonst prüft sie automatisch
    und es zählt als Fehler). Grenzwerte gemessen an Ziffern 0–20 in voller Feldgröße (tests/ziffern-browser.js):
-   Tinte bis etwa das 5-Fache der Felddiagonale (auch dick nachgezogen), bis 6 Striche, höchstens 2 Zifferngruppen. */
-export const KRITZEL = { tinte: 6, striche: 8, gruppen: 2 };
+   Tinte bis etwa das 5-Fache der Felddiagonale (auch dick nachgezogen), bis 6 Striche, höchstens 2 Zifferngruppen,
+   höchstens 2,7 Umdrehungen in einem Strich (eine 0 ist eine, eine 8 etwa zwei; Knäuel ab 4 Schleifen ≈ 3,9). */
+export const KRITZEL = { tinte: 6, striche: 8, gruppen: 2, drehung: 3.3 };
+
+/** Wie oft dreht sich ein Strich im Kreis (in vollen Umdrehungen)? Vorher geglättet, damit Zittern nicht zählt. */
+export function drehung(strich, schritt) {
+  const r = [strich[0]];
+  for (const p of strich) { const l = r[r.length - 1]; if (Math.hypot(p.x - l.x, p.y - l.y) >= schritt) r.push(p); }
+  let sum = 0;
+  for (let i = 2; i < r.length; i++) {
+    let d = Math.atan2(r[i].y - r[i - 1].y, r[i].x - r[i - 1].x) - Math.atan2(r[i - 1].y - r[i - 2].y, r[i - 1].x - r[i - 2].x);
+    while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+    sum += Math.abs(d);
+  }
+  return sum / (2 * Math.PI);
+}
 
 /** Ist das eher ein Bild als eine Zahl? */
 export function istGekritzel(strokes, fieldW, fieldH) {
@@ -189,6 +203,8 @@ export function istGekritzel(strokes, fieldW, fieldH) {
   for (const s of real) for (let i = 1; i < s.length; i++) tinte += Math.hypot(s[i].x - s[i - 1].x, s[i].y - s[i - 1].y);
   if (tinte > KRITZEL.tinte * Math.hypot(fieldW, fieldH)) return true;
   if (real.length > KRITZEL.striche) return true;
+  const schritt = 0.05 * Math.hypot(fieldW, fieldH);
+  if (real.some(s => s.length > 2 && drehung(s, schritt) > KRITZEL.drehung)) return true; // Knäuel, Spirale
   const gruppen = groupStrokes(real, fieldW).filter(g => {
     let y0 = 1e9, y1 = -1e9; for (const s of g.strokes) for (const p of s) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
     return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;

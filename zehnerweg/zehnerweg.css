@@ -28,6 +28,10 @@ header { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
 .hint.good { color: var(--good); font-weight: 700; }
 .hint.bad { color: var(--bad); font-weight: 700; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.actions .btn { transition: background-color .25s, color .25s, border-color .25s, opacity .25s; }
+.actions .btn.leise { opacity: .55; }
+.actions .btn.puls { animation: puls 1.6s ease-in-out 1.2s infinite; }
+@keyframes puls { 0%, 100% { box-shadow: 0 4px 0 var(--btn-edge), 0 0 0 0 color-mix(in srgb, var(--btn) 45%, transparent); } 50% { box-shadow: 0 4px 0 var(--btn-edge), 0 0 0 10px transparent; } }
 
 .grown {
   position: absolute; z-index: 5; top: 62px;
