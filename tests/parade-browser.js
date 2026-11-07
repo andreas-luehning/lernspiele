@@ -83,7 +83,14 @@ const SHOTS = path.join(__dirname, '..', 'screenshots'); fs.mkdirSync(SHOTS, { r
   const ohne = page.locator('.g-snail:not(.walks)').first(); const name = await ohne.locator('span').first().textContent();
   await ohne.click(); await page.waitForTimeout(200);
   chk(await page.locator('.g-snail.walks').count() === 3 && (await page.textContent('#hinweis')).includes(name), `Neuer Begleiter ${name} gewählt, weiterhin höchstens 3`);
-  chk(/von \d+ entdeckt/.test(await page.textContent('#album-zahl')), 'Sammelalbum wird angezeigt');
+  chk(await page.locator('#seite-album').isHidden(), 'Garten-Reiter ist vorne, Album verborgen');
+  await page.click('#r-album'); await page.waitForTimeout(200);
+  chk(await page.locator('#seite-garten').isHidden() && await page.locator('#r-album[aria-selected=true]').count() === 1 && page.url().endsWith('#album'), 'Reiter „Sammelalbum“ wechselt die Ansicht');
+  chk(/von 53 entdeckt/.test(await page.textContent('#album-zahl')) && await page.locator('.sticker').count() === 53, 'Sammelalbum: 53 Felder, Fortschritt angezeigt');
+  chk(await page.locator('.sticker:not(.miss) svg').count() === await page.locator('.sticker:not(.miss)').count() && await page.locator('.sticker.miss').first().textContent() === '?', 'Gefundenes als Bild, Fehlendes als „?“');
+  await page.reload(); await page.waitForTimeout(300);
+  chk(await page.locator('#seite-album').isVisible(), 'Mit #album öffnet sich gleich das Album');
+  await page.click('#r-garten'); await page.waitForTimeout(200);
   await page.screenshot({ path: path.join(SHOTS, 'garten-ipad-hoch.png'), fullPage: true });
 
   // Nächster Tag (Probe)

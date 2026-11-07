@@ -15,9 +15,9 @@ Ziel ist, dass jede neue Schnecke ein kleines Ereignis bleibt. Deshalb nicht ein
 | Runden am Tag | Eine Runde dauert 5 Minuten. Die gewählten Begleiter (bis zu 3) stehen am Anfang der Straße. Wie viele Runden es am Tag gibt, stellen Erwachsene ein (1, 2, 3 oder unbegrenzt; Standard 3). Danach ist für heute Schluss; der Garten bleibt offen. |
 | Vor der Runde | Das Kind tippt im Garten bis zu 3 Begleiter an. Ohne Wahl laufen die vom letzten Mal mit. |
 | Richtige Aufgabe | Ein Salatblatt fliegt zur Parade. Anzeige: 3 Blatt-Plätze. |
-| 3 Salatblätter | Eine neue Babyschnecke kriecht in die Parade. Hausfarbe und Muster zufällig; in 20 % der Fälle bewusst ein Haus, das im Sammelbuch noch fehlt. Blätter zählen neu. |
+| 3 Salatblätter | Eine neue Babyschnecke kriecht in die Parade. Hausfarbe und Muster zufällig; in 20 % der Fälle bewusst ein Haus, das im Sammelalbum noch fehlt. Blätter zählen neu. |
 | Mehr als 3 neue Schnecken am Tag? | Nein, höchstens **3 neue Schnecken pro Tag**. Danach wandern volle Blattreihen in den **Salatkorb** (Platz für 2). Am nächsten Tag schlüpfen sie zu Beginn der ersten Runde („Aus deinem Salatkorb sind 2 Schnecken geschlüpft!“) und zählen für diesen Tag mit. Ist der Korb voll, gibt es trotzdem Lob. |
-| 3 Blätter ohne Fehler dazwischen | Die neue Schnecke trägt einen Hut; in 20 % der Fälle bewusst einen, der im Sammelbuch fehlt. Anzeige: kleiner Hut neben den Blättern, der bei einem Fehler blass wird. |
+| 3 Blätter ohne Fehler dazwischen | Die neue Schnecke trägt einen Hut; in 20 % der Fälle bewusst einen, der im Sammelalbum fehlt. Anzeige: kleiner Hut neben den Blättern, der bei einem Fehler blass wird. |
 | Falsche Aufgabe | Kein Blatt. Nichts geht verloren. Nur der Hut für die laufenden 3 Blätter fällt weg. |
 | Ende der 5 Minuten | Die angefangene Aufgabe darf fertig werden. Die Parade zieht ins Ziel. Jeder Begleiter, der von Anfang an dabei war, zählt einen Ausflug, **jede Schnecke höchstens einmal am Tag**. Wer in der nächsten Runde andere Begleiter mitnimmt, lässt auch diese wachsen. Rückblick: neue Schnecken, gewachsene Schnecken, neue Deko. |
 | Wachsen | Baby (0), Klein (ab 2 Ausflügen), Groß (ab 5), Glitzerhaus (ab 10). Neue Schnecken starten als Baby. |
@@ -34,13 +34,15 @@ Ziel ist, dass jede neue Schnecke ein kleines Ereignis bleibt. Deshalb nicht ein
 | Neue Tiere pro Tag | etwa 1,7 | höchstens 3 (plus seltene Marienkäfer) |
 | Alle 36 Häuser | etwa 6 Wochen | etwa 4 Wochen |
 | Alle 8 Hüte | etwa 4 Wochen | etwa 2 Wochen |
-| Ganzes Sammelbuch (53) | etwa 6 Wochen | etwa 4–5 Wochen (Deko alle 5 Übungstage bremst) |
+| Ganzes Sammelalbum (53) | etwa 6 Wochen | etwa 4–5 Wochen (Deko alle 5 Übungstage bremst) |
 
 Neu zu sammeln später denkbar: Freischaltungen über andere Spiele (z. B. eine Deko oder ein Hut, den es nur im Leuchttisch-Spiel gibt).
 
-## Sammelbuch
+## Sammelalbum
 
-Das Album zeigt jedes **Haus einzeln** (6 Farben × 6 Muster = 36 Felder; gefundene mit Bild, fehlende als „?“), dazu 8 Hüte, 3 Besonderheiten (Glitzer-, Regenbogenhaus, Marienkäfer) und 6 Deko-Stücke: zusammen 53.
+Die Garten-Seite hat zwei Reiter: **Garten** (wer bei dir wohnt: jede Schnecke einzeln mit Namen, Größe, Ausflügen; hier werden die Begleiter gewählt) und **Sammelalbum** (was schon entdeckt ist: jede Art nur einmal). Mit `#album` an der Adresse öffnet sich gleich das Album.
+
+Das Album ist ein Stickeralbum **ganz in Bildern**, weil die Kinder noch nicht sicher lesen: 36 Häuser (6 Farben × 6 Muster, jede Zeile eine Farbe), 8 Hüte, 3 Besonderheiten (Glitzerhaus, Regenbogenhaus, Marienkäfer) und 6 Deko-Stücke, zusammen 53. Gefundenes sitzt leicht schräg wie eingeklebt, Fehlendes ist ein gestricheltes „?“-Feld. Oben ein Fortschrittsbalken „x von 53 entdeckt“, die Zahl steht auch am Reiter. Namen gibt es nur für Vorlese-Hilfen (`aria-label`).
 
 ## Eine typische Woche
 
