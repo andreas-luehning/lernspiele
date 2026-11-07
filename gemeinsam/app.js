@@ -7,6 +7,8 @@
 // Datenschutz: Nichts davon sendet Daten weg; die Diagnose zeigt nur Angaben dieses Geräts an.
 
 import { einstellungen, setzeEinstellung } from './einstellungen.js';
+import { PROBE, probeStarten, probeBeenden } from './probe.js';
+import { alleLoeschen } from './speicher.js';
 
 const SW_URL = new URL('../sw.js', import.meta.url);
 const SCOPE = new URL('../', import.meta.url);
@@ -48,6 +50,18 @@ document.addEventListener('click', async e => {
   }
   if (e.target.closest('[data-vollbild-knopf]')) vollbildUmschalten();
   if (e.target.closest('[data-diagnose-knopf]')) diagnose();
+  if (e.target.closest('[data-probe-knopf]')) {
+    if (PROBE) probeBeenden(); else probeStarten();
+    location.href = location.pathname; // ohne ?probe neu laden
+  }
+  if (e.target.closest('[data-probe-zuruecksetzen]')) {
+    alleLoeschen(true); location.href = location.pathname;
+  }
+  if (e.target.closest('[data-alles-zuruecksetzen]')) {
+    if (!confirm('Alles zurücksetzen? Garten, Schnecken, Runden und Einstellungen auf diesem Gerät werden gelöscht.')) return;
+    if (!confirm('Wirklich? Das lässt sich nicht rückgängig machen.')) return;
+    alleLoeschen(false); location.href = location.pathname;
+  }
 });
 
 /* ---------- Vollbild ----------
@@ -134,6 +148,18 @@ document.addEventListener('change', e => {
   setzeEinstellung({ [k]: wert }); einstellungenAnzeigen();
 });
 
+/* ---------- Probe-Modus sichtbar machen ---------- */
+function probeAnzeige() {
+  document.documentElement.classList.toggle('probe', PROBE);
+  if (PROBE && !document.querySelector('.probe-schild')) {
+    const s = document.createElement('div'); s.className = 'probe-schild'; s.textContent = 'Probe-Modus'; s.setAttribute('role', 'status');
+    document.body.append(s);
+  }
+  alle('[data-probe-knopf]').forEach(k => { k.textContent = PROBE ? 'Probe beenden' : 'Probe-Modus starten'; });
+  alle('[data-probe-zuruecksetzen]').forEach(k => { k.hidden = !PROBE; });
+  alle('[data-nur-echt]').forEach(k => { k.hidden = PROBE; });
+}
+
 /* ---------- Start ---------- */
-const start = () => { installAnzeige(); vollbildAnzeige(); einstellungenAnzeigen(); };
+const start = () => { installAnzeige(); vollbildAnzeige(); einstellungenAnzeigen(); probeAnzeige(); };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

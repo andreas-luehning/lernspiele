@@ -5,7 +5,7 @@ import { lesen, schreiben, vorhanden, altLesen } from '../gemeinsam/speicher.js'
 import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgaben.js';
 import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
 import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
-import { richtig, falsch, parade, describe } from '../gemeinsam/parade-logik.js';
+import { richtig, falsch, parade, describe, limitErreicht } from '../gemeinsam/parade-logik.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
 const STANDARD = { gespiegelt: false, modus: 'plus' };
@@ -209,7 +209,11 @@ const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dan
 function zeigeParade(animiert) { streifen.zeige(parade(runde.z), animiert); zeigeBlaetter(blaetter, runde.z); }
 function paradeStarten() {
   const was = runde.aktivitaet(); // startet eine Runde oder setzt nach einer Pause fort
-  if (was === 'neu') { zeigeParade(true); streifen.sag('Los geht’s! Die Parade läuft.'); }
+  if (was === 'neu') {
+    zeigeParade(true);
+    const n = runde.z.runde.ausKorb.filter(id => runde.z.garden.find(s => s.id === id)?.special !== 'kaefer').length;
+    streifen.sag(n ? `Aus deinem Salatkorb ${n === 1 ? 'ist eine Schnecke' : 'sind ' + n + ' Schnecken'} geschlüpft!` : 'Los geht’s! Die Parade läuft.');
+  }
   else if (was === 'weiter') streifen.sag('Weiter geht’s!');
 }
 function paradeRichtig() {
@@ -221,7 +225,9 @@ function paradeRichtig() {
   setTimeout(() => {
     zeigeParade(true);
     if (erg.neu) streifen.sag(`${describe(erg.neu)} kriecht zur Parade!${erg.kaefer ? ' Ein Marienkäfer kommt als Gast mit!' : ''}`);
-    else streifen.sag(['Mmh, Salat!', 'Ein Salatblatt für die Parade!', 'Lecker, noch ein Blatt!'][runde.z.leaves % 3] + ` Noch ${3 - runde.z.leaves}, dann kommt eine neue Schnecke.`);
+    else if (erg.korb) streifen.sag('Ein Korb voll Salat! Heute sind genug Schnecken gekommen. Morgen schlüpft eine neue.');
+    else if (erg.korbVoll) streifen.sag('Super gerechnet! Der Salatkorb ist voll. Morgen geht es weiter.');
+    else streifen.sag(['Mmh, Salat!', 'Ein Salatblatt für die Parade!', 'Lecker, noch ein Blatt!'][runde.z.leaves % 3] + ` Noch ${3 - runde.z.leaves}, dann ${limitErreicht(runde.z) ? 'kommt Salat in den Korb' : 'kommt eine neue Schnecke'}.`);
   }, 800);
   setTimeout(() => runde.aufgabeFertig(), 2200);
 }

@@ -30,6 +30,10 @@ Automatisch geprüft (`tests/browser.js`, Playwright): keine Anfragen an fremde 
 
 **Bekannte Ausnahme:** Die Dateien in `prototypen/` laden noch Schriften von Google Fonts und haben keine CSP. Sie bleiben laut Absprache unverändert. Auf dem Tablet deshalb die Spiele über die Startseite öffnen, nicht die Prototypen.
 
+### Probe-Modus und Zurücksetzen
+
+Im Probe-Modus speichert alles unter `lernspiele:probe:…`, getrennt vom Garten des Kindes; der Modus gilt nur für den Tab (`sessionStorage`). „Alles zurücksetzen“ löscht nur lokale Einträge `lernspiele:…` (außer Tag/Nacht), nach zwei Rückfragen. Es wird nichts gesendet.
+
 ### Einstellungen
 
 `lernspiele:spiel` speichert nur, ob die Regel „7 nur mit Querstrich“ an ist (wahr/falsch) und wie viele Runden es pro Tag gibt (Zahl aus einer festen Liste), geprüft über `speicher.js`.

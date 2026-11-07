@@ -53,10 +53,22 @@ function zeigeAlbum() {
     const da = gruppe.eintraege.filter(e => e.da).length; gesamt += gruppe.eintraege.length; gefunden += da;
     const div = el('div'); const h = el('h3');
     h.append(el('span', null, gruppe.titel), el('span', null, `${da} von ${gruppe.eintraege.length}`));
+    if (gruppe.titel === 'Häuser') {
+      // 6 × 6 Felder: jede Farbe mit jedem Muster
+      div.className = 'voll';
+      const raster = el('div', 'haeuser');
+      for (const e of gruppe.eintraege) {
+        const [color, pattern] = e.key.split('|');
+        const f = el('span', 'haus' + (e.da ? '' : ' miss')); f.setAttribute('role', 'img'); f.setAttribute('aria-label', e.da ? e.name : 'noch nicht gefunden');
+        if (e.da) f.append(svgElement(snailSVG({ color, pattern, hat: null, special: null, stage: 1 })));
+        else f.textContent = '?';
+        raster.append(f);
+      }
+      div.append(h, raster); box.append(div); continue;
+    }
     const chips = el('div', 'chips');
     for (const e of gruppe.eintraege) {
       const c = el('span', 'chip' + (e.da ? '' : ' miss'));
-      if (e.da && gruppe.titel === 'Häuser') c.append(el('span', 'sw sw-' + e.key));
       c.append(document.createTextNode(e.da ? e.name : '?'));
       chips.append(c);
     }
@@ -71,7 +83,8 @@ if (PROBE) {
   t.addEventListener('click', () => {
     z = ladeParade();
     if (z.runde) rundeBeenden(z, heute());
-    z.lastRoundDay = ''; // so tun, als wäre heute noch keine Runde gewesen
+    z.lastRoundDay = ''; z.neuHeuteTag = ''; // so tun, als wäre heute noch keine Runde gewesen und keine Schnecke gekommen
+    for (const s of z.garden) s.ausflug = '';
     speichereParade(z); zeigeGarten(); standardHinweis();
     hinweis('Probe: Ein neuer Tag beginnt. Die nächste Runde kann starten.');
   });

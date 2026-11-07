@@ -6,7 +6,11 @@
 // (auch "__proto__") werden ignoriert. Alle Zugriffe sind in try/catch, weil localStorage im
 // privaten Modus oder bei vollem Speicher Fehler wirft.
 
-const PRAEFIX = 'lernspiele:';
+import { PROBE } from './probe.js';
+
+const BASIS = 'lernspiele:', PROBE_BASIS = 'lernspiele:probe:';
+// Im Probe-Modus eigener Speicher, damit Tests von Erwachsenen den Garten des Kindes nicht verändern
+const PRAEFIX = PROBE ? PROBE_BASIS : BASIS;
 export const VERSION = 1;
 
 function gleicherTyp(wert, standard) {
@@ -52,6 +56,24 @@ export function schreiben(name, daten) {
 /** Gibt es schon einen Eintrag `lernspiele:<name>`? */
 export function vorhanden(name) {
   try { return localStorage.getItem(PRAEFIX + name) != null; } catch (e) { return false; }
+}
+
+/**
+ * Gespeicherte Spielstände löschen. probe: true → nur den Probe-Speicher; false → alles Echte außer dem Tag/Nacht-Thema.
+ * @returns {number} Anzahl gelöschter Einträge
+ */
+export function alleLoeschen(probe) {
+  let n = 0;
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+    for (const k of keys) {
+      if (!k || !k.startsWith(BASIS)) continue;
+      const istProbe = k.startsWith(PROBE_BASIS);
+      if (probe ? istProbe : (!istProbe && k !== BASIS + 'einstellungen')) { localStorage.removeItem(k); n++; }
+    }
+  } catch (e) {}
+  return n;
 }
 
 /** Liest einen alten Schlüssel ohne Präfix (nur für die einmalige Übernahme aus den Prototypen). */

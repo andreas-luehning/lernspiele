@@ -79,6 +79,13 @@ body {
 .grown h2 { font: 800 1.1rem var(--display); margin: 12px 0 0; }
 .grown p { margin: .5em 0; line-height: 1.5; color: var(--muted); }
 
+/* Probe-Modus: farbiger Rahmen und kleines Schild, damit niemand aus Versehen im Probe-Garten spielt */
+html.probe body::after { content: ""; position: fixed; inset: 0; border: 5px solid #f59e0b; pointer-events: none; z-index: 1000; }
+.probe-schild {
+  position: fixed; top: 0; left: 50%; translate: -50% 0; z-index: 1001; pointer-events: none;
+  background: #f59e0b; color: #1d2747; font: 800 .85rem var(--display); padding: 2px 12px 4px; border-radius: 0 0 10px 10px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }

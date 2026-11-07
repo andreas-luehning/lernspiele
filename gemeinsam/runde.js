@@ -8,9 +8,9 @@ import {
   pausieren, fortsetzen, pausiert, heute, RUNDE_MS, NACHSPIEL_MS,
 } from './parade-logik.js';
 import { einstellungen } from './einstellungen.js';
-
-/** Probe-Modus für Erwachsene: ?probe an der Adresse → Runde 1 Minute, Nachspiel 30 s, Pause nach 20 s. */
-export const PROBE = new URLSearchParams(location.search).has('probe');
+import { PROBE } from './probe.js';
+export { PROBE };
+// Probe-Modus (siehe probe.js): Runde 1 Minute, Nachspiel 30 s, Pause nach 20 s.
 const RUHE_MS = PROBE ? 20 * 1000 : 60 * 1000; // so lange ohne Strich, dann Pause
 
 export class Runde {
@@ -71,7 +71,7 @@ export class Runde {
     if (!this.z.runde) return;
     const ergebnis = rundeBeenden(this.z, heute());
     this.speichern();
-    ergebnis.nochRunden = this.nochRunden;
+    ergebnis.nochRunden = this.nochRunden; ergebnis.korb = this.z.korb.length;
     this.onTick(this.rest, this.dauer, false);
     this.onEnde(ergebnis);
   }

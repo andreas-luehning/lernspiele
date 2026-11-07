@@ -42,6 +42,8 @@
 .leaves .on { animation: bpop .5s ease; }
 .leaves .hatmark { width: 32px; height: 28px; transition: opacity .3s; }
 .leaves .hatmark.off { opacity: .25; filter: grayscale(1); }
+.leaves .korb { display: inline-flex; align-items: center; gap: 2px; margin-left: 4px; font: 800 1rem var(--display); }
+.leaves .korb svg { width: 32px; height: 28px; }
 
 /* Rückblick */
 dialog.rueckblick {

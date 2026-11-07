@@ -2,6 +2,7 @@
 import {
   startGarten, rundeStarten, richtig, falsch, rundeBeenden, kannHeuteSpielen, begleiterUmschalten,
   bereinigeZustand, parade, album, stageOf, neueSchnecke, nochRunden, pausieren, fortsetzen, restzeit,
+  setzeBevorzugt, FEHLT_BEVORZUGT, NEU_PRO_TAG, KORB_MAX, limitErreicht,
 } from '../gemeinsam/parade-logik.js';
 
 let fehler = 0; const chk = (c, m) => { console.log((c ? 'ok     ' : 'FEHLER ') + m); if (!c) fehler++; };
@@ -60,8 +61,12 @@ for (let tag = 1; tag <= 30; tag++) {
 chk(decos.join() === 'pilz,blume,teich,bank,kanne,hotel', 'Deko alle 5 Übungstage in der richtigen Reihenfolge');
 chk(z.garden.filter(s => s.special === 'kaefer').length === Math.floor(z.newCount / 10), 'Jede 10. neue Schnecke bringt einen Marienkäfer');
 chk(z.garden.filter(s => z.walkers.includes(s.id)).every(s => s.stage === 3), 'Begleiter nach 30 Ausflügen: Glitzerhaus');
-const ersteNormale = z.garden.filter(s => !s.special).slice(0, 36);
-chk(new Set(ersteNormale.map(s => s.color + s.pattern)).size === ersteNormale.length, 'Bis alle 36 Kombinationen da sind, wiederholt sich keine Farbe-Muster-Kombination');
+// Bevorzugung fehlender Häuser: bei 100 % keine Wiederholung, beim Standard (20 %) gibt es Wiederholungen
+const standardWert = FEHLT_BEVORZUGT; setzeBevorzugt(1);
+const voll1 = { garden: [], nextId: 1 }; for (let i = 0; i < 36; i++) voll1.garden.push(neueSchnecke(voll1, false, zufall(i + 7)));
+chk(new Set(voll1.garden.filter(s => !s.special).map(s => s.color + s.pattern)).size === voll1.garden.filter(s => !s.special).length, 'Bei 100 % Bevorzugung keine doppelten Häuser');
+setzeBevorzugt(standardWert);
+chk(standardWert === 0.2, 'Standard: in 20 % der Fälle ein fehlendes Haus');
 chk(album(z).find(g => g.titel === 'Garten-Deko').eintraege.every(x => x.da), 'Album zeigt alle Deko-Stücke als entdeckt');
 
 // Begleiter: höchstens 3
@@ -74,7 +79,7 @@ const TAG = '2026-11-10';
 for (let i = 0; i < 3; i++) { chk(rundeStarten(z, 0, 300000, TAG, 3), `Runde ${i + 1} von 3 startet`); rundeBeenden(z, TAG); }
 chk(!rundeStarten(z, 0, 300000, TAG, 3) && nochRunden(z, TAG, 3) === 0, 'Vierte Runde am selben Tag nicht möglich');
 chk(z.practiceDays === 1 && z.rundenHeute === 3, 'Drei Runden zählen als ein Übungstag');
-chk(z.garden.filter(s => z.walkers.includes(s.id)).every(s => s.runs === 3), 'Jede Runde ist ein Ausflug für die Begleiter');
+chk(z.garden.filter(s => z.walkers.includes(s.id)).every(s => s.runs === 1), 'Jede Schnecke wächst höchstens einmal am Tag');
 chk(nochRunden(z, '2026-11-11', 3) === 3, 'Am nächsten Tag wieder 3 Runden');
 chk(rundeStarten(z, 0, 300000, TAG, 0) && nochRunden(z, TAG, 0) === Infinity, 'Unbegrenzt: Runden gehen immer');
 rundeBeenden(z, TAG);
@@ -89,6 +94,28 @@ chk(pausieren(z, 61000) && restzeit(z, 500000) === 240000, 'Pause hält die Uhr 
 chk(fortsetzen(z, 900000) && restzeit(z, 960000) === 180000, 'Fortsetzen: Uhr läuft mit der Restzeit weiter');
 z.runde.zeitUm = true; chk(!pausieren(z, 1e6), 'Nach Ablauf der Zeit keine Pause mehr');
 rundeBeenden(z, TAG);
+
+// Tageslimit 3 neue Schnecken, dann Salatkorb (Platz für 2), am nächsten Tag schlüpfen sie
+z = startGarten({}, zufall(41), '2026-11-01');
+const T = '2026-11-20', T2 = '2026-11-21';
+rundeStarten(z, 0, 300000, T, 3);
+const ergebnisse = []; for (let i = 0; i < 18; i++) ergebnisse.push(richtig(z, zufall(50 + i), T));
+chk(ergebnisse.filter(e => e.neu).length === NEU_PRO_TAG && limitErreicht(z, T), '18 richtige Aufgaben: genau 3 neue Schnecken (Tageslimit)');
+chk(z.korb.length === KORB_MAX && ergebnisse.filter(e => e.korb).length === 2 && ergebnisse.filter(e => e.korbVoll).length === 1, 'Danach füllt sich der Salatkorb (2), dann ist er voll');
+rundeBeenden(z, T);
+const vorher = z.garden.length;
+rundeStarten(z, 0, 300000, T2, 3);
+chk(z.garden.length >= vorher + 2 && z.runde.ausKorb.length >= 2 && z.korb.length === 0 && z.neuHeute === 2, 'Nächster Tag: 2 Schnecken schlüpfen aus dem Korb und zählen fürs Tageslimit');
+rundeBeenden(z, T2);
+// Andere Begleiter in der zweiten Runde wachsen auch
+z = startGarten({}, zufall(42), '2026-11-01');
+rundeStarten(z, 0, 1, T, 3); for (let i = 0; i < 3; i++) richtig(z, zufall(60 + i), T); rundeBeenden(z, T);
+const ersteBegleiter = [...z.walkers]; const neue = z.garden.find(s => !ersteBegleiter.includes(s.id));
+z.walkers = [neue.id];
+rundeStarten(z, 0, 1, T, 3); rundeBeenden(z, T);
+chk(neue.runs === 1 && z.garden.filter(s => ersteBegleiter.includes(s.id)).every(s => s.runs === 1), 'Zweite Runde mit anderem Begleiter: der wächst auch, die ersten nicht doppelt');
+// Korb wird beim Laden geprüft
+chk(bereinigeZustand({ korb: [true, 'x', false, true, 5] }).korb.join() === 'true,false', 'Salatkorb: nur wahr/falsch, höchstens 2');
 
 // Manipulierte Daten
 const boese = bereinigeZustand({

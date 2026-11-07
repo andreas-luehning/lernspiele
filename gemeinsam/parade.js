@@ -4,6 +4,8 @@
 import { SCALE, STAGES, DECO, describe } from './parade-logik.js';
 import { snailSVG, decoSVG, LEAF, HUT_ANZEIGE, svgElement } from './parade-bilder.js';
 
+const KORB = '<svg viewBox="0 0 32 28" aria-hidden="true"><path d="M9 10 Q16 0 23 10" fill="none" stroke="#1d2747" stroke-width="2.2"/><path class="lf" d="M8 11 C8 5 14 2 19 3 C19 8 15 11 8 11Z"/><path d="M3 10 H29 L26 25 H6 Z" fill="#e2b36b" stroke="#1d2747" stroke-width="2" stroke-linejoin="round"/><path d="M8 15 H24 M9 20 H23" stroke="#1d2747" stroke-width="1.4" opacity=".5"/></svg>';
+
 const el = (tag, klasse, text) => { const e = document.createElement(tag); if (klasse) e.className = klasse; if (text != null) e.textContent = text; return e; };
 
 /** Der Streifen mit den laufenden Schnecken und einer Sprechblase. */
@@ -81,11 +83,15 @@ export function zeigeBlaetter(box, z) {
     else if (!an) s.classList.remove('on');
   });
   box.querySelector('.hatmark').classList.toggle('off', !z.cleanLeaves);
-  box.setAttribute('aria-label', `${z.leaves} von 3 Salatblättern${z.cleanLeaves ? ', nächste Schnecke mit Hut' : ''}`);
+  // Salatkorb: Schnecken, die morgen schlüpfen
+  let korb = box.querySelector('.korb');
+  if (z.korb.length && !korb) { korb = el('span', 'korb'); korb.append(svgElement(KORB), el('b')); box.append(korb); }
+  if (korb) { korb.hidden = !z.korb.length; korb.querySelector('b').textContent = String(z.korb.length); }
+  box.setAttribute('aria-label', `${z.leaves} von 3 Salatblättern${z.cleanLeaves ? ', nächste Schnecke mit Hut' : ''}${z.korb.length ? `, im Salatkorb ${z.korb.length} für morgen` : ''}`);
 }
 
 /** Rückblick nach der Runde als Dialog. */
-export function rueckblick({ neu, gewachsen, deko, nochRunden = 0 }, { gartenUrl }) {
+export function rueckblick({ neu, gewachsen, deko, nochRunden = 0, korb = 0 }, { gartenUrl }) {
   const d = el('dialog', 'rueckblick');
   d.append(el('h2', null, nochRunden > 0 ? 'Runde geschafft!' : 'Für heute geschafft!'));
   const n = neu.length;
@@ -102,6 +108,7 @@ export function rueckblick({ neu, gewachsen, deko, nochRunden = 0 }, { gartenUrl
     const row = el('div', 'row'); row.append(svgElement(decoSVG(deko))); d.append(row);
     d.append(el('p', null, `Für 5 Übungstage gibt es neu im Garten: ${DECO[deko]}.`));
   }
+  if (korb) d.append(el('p', null, korb === 1 ? 'Im Salatkorb wartet eine Schnecke auf morgen.' : `Im Salatkorb warten ${korb} Schnecken auf morgen.`));
   d.append(el('p', 'note', nochRunden === Infinity ? 'Willst du noch eine Runde? Schreib einfach weiter.' : nochRunden > 0 ? `Heute geht noch ${nochRunden === 1 ? 'eine Runde' : nochRunden + ' Runden'}. Schreib einfach weiter.` : 'Morgen geht die Parade weiter.'));
   const knoepfe = el('div', 'knoepfe');
   const garten = el('a', 'btn primary', 'Zum Garten'); garten.href = gartenUrl;

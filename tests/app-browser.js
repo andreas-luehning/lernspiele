@@ -71,6 +71,33 @@ const ROOT = path.join(__dirname, '..');
   await schalter.click();
   chk(await page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:spiel')).siebenMitQuerstrich === true), 'Schalter wieder an');
 
+  // 5c. Probe-Modus: eigener Speicher, bleibt beim Seitenwechsel an, eigener Zurücksetzen-Knopf
+  await page.evaluate(() => localStorage.setItem('lernspiele:parade', JSON.stringify({ version: 1, garden: [{ id: 1, name: 'Echt', color: 'rosa', pattern: 'uni', hat: null, special: null, runs: 4 }], walkers: [1] })));
+  await page.click('[data-probe-knopf]'); await page.waitForTimeout(600);
+  chk(await page.evaluate(() => document.documentElement.classList.contains('probe')) && await page.locator('.probe-schild').isVisible(), 'Probe-Modus: Rahmen und Schild sichtbar');
+  await page.goto(BASE + 'garten/'); await page.waitForTimeout(400);
+  chk(await page.locator('.probe-schild').isVisible() && await page.locator('#b-tag').isVisible(), 'Probe-Modus bleibt beim Wechsel in den Garten an');
+  chk(!(await page.locator('.g-snail span').allTextContents()).includes('Echt'), 'Probe-Garten zeigt nicht den echten Garten');
+  await page.locator('.g-snail').first().click(); await page.waitForTimeout(200); // Begleiter wählen → speichert im Probe-Garten
+  chk(await page.evaluate(() => !!localStorage.getItem('lernspiele:probe:parade') && JSON.parse(localStorage.getItem('lernspiele:parade')).garden[0].name === 'Echt'), 'Probe speichert getrennt, echter Garten unverändert');
+  await page.goto(BASE); await page.click('.erwachsene summary');
+  chk(await page.locator('[data-alles-zuruecksetzen]').isHidden(), 'Im Probe-Modus kein „Alles zurücksetzen“ (nur Probe zurücksetzen)');
+  await page.click('[data-probe-zuruecksetzen]'); await page.waitForTimeout(500);
+  chk(await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('lernspiele:probe:')).length === 0 && !!localStorage.getItem('lernspiele:parade')), 'Probe zurücksetzen löscht nur den Probe-Speicher');
+  await page.click('.erwachsene summary'); await page.click('[data-probe-knopf]'); await page.waitForTimeout(500);
+  // Alles zurücksetzen: zwei Rückfragen, Thema bleibt
+  await page.evaluate(() => localStorage.setItem('lernspiele:einstellungen', JSON.stringify({ version: 1, thema: 'dunkel' })));
+  let fragen = 0; const antwort = d => { fragen++; d.accept(); }; page.on('dialog', antwort);
+  await page.click('.erwachsene summary'); await page.click('[data-alles-zuruecksetzen]'); await page.waitForTimeout(600);
+  page.off('dialog', antwort);
+  chk(fragen === 2 && await page.evaluate(() => localStorage.getItem('lernspiele:parade') === null && !!localStorage.getItem('lernspiele:einstellungen')), 'Alles zurücksetzen: zwei Rückfragen, Garten gelöscht, Tag/Nacht bleibt');
+  page.once('dialog', d => d.dismiss());
+  await page.evaluate(() => localStorage.setItem('lernspiele:parade', '{"version":1}'));
+  await page.click('.erwachsene summary'); await page.click('[data-alles-zuruecksetzen]'); await page.waitForTimeout(300);
+  chk(await page.evaluate(() => localStorage.getItem('lernspiele:parade') !== null), 'Abbrechen bei der Rückfrage löscht nichts');
+  await page.evaluate(() => localStorage.removeItem('lernspiele:einstellungen'));
+  await page.reload(); await page.click('.erwachsene summary');
+
   // 6. Diagnose
   await page.click('[data-diagnose-knopf]'); await page.waitForTimeout(1500);
   const d = await page.textContent('[data-diagnose-ausgabe]');

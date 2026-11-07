@@ -38,6 +38,8 @@
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .9rem; border-radius: 999px; padding: 3px 11px; border: 2px solid var(--line); }
 .chip.miss { border-style: dashed; border-color: var(--rule); color: var(--muted); }
-.chip .sw { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line); }
-.sw-rosa { background: #ff9ec4; } .sw-gelb { background: #ffd447; } .sw-mint { background: #7fe0b8; }
-.sw-blau { background: #7cc8ff; } .sw-lila { background: #b79bff; } .sw-orange { background: #ffad66; }
+.album .voll { grid-column: 1 / -1; }
+.haeuser { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 640px; }
+.haus { aspect-ratio: 13 / 10; display: grid; place-items: center; border-radius: 12px; background: var(--grass); }
+.haus svg { width: 92%; height: auto; }
+.haus.miss { background: none; border: 2px dashed var(--rule); color: var(--muted); font: 800 1.1rem var(--display); }

@@ -6,11 +6,11 @@
 //
 // Bei jeder Änderung an den Dateien VERSION erhöhen. Neue Dateien in DATEIEN eintragen
 // (tests/app-browser.js prüft, dass nichts fehlt).
-const VERSION = 'v6';
+const VERSION = 'v7';
 const CACHE = 'lernspiele-' + VERSION;
 const DATEIEN = [
   './', 'index.html', 'startseite.css', 'manifest.webmanifest',
-  'gemeinsam/theme.css', 'gemeinsam/thema.js', 'gemeinsam/app.js', 'gemeinsam/speicher.js', 'gemeinsam/einstellungen.js',
+  'gemeinsam/theme.css', 'gemeinsam/thema.js', 'gemeinsam/app.js', 'gemeinsam/speicher.js', 'gemeinsam/einstellungen.js', 'gemeinsam/probe.js',
   'gemeinsam/ziffern.js', 'gemeinsam/ziffern-modell.json', 'gemeinsam/schreibfeld.js',
   'gemeinsam/runde.js', 'gemeinsam/parade-logik.js', 'gemeinsam/parade-bilder.js', 'gemeinsam/parade.js', 'gemeinsam/parade.css',
   'gemeinsam/schriften/andika-latin-400-normal.woff2', 'gemeinsam/schriften/andika-latin-700-normal.woff2',

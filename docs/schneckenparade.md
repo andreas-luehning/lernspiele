@@ -15,20 +15,36 @@ Ziel ist, dass jede neue Schnecke ein kleines Ereignis bleibt. Deshalb nicht ein
 | Runden am Tag | Eine Runde dauert 5 Minuten. Die gewählten Begleiter (bis zu 3) stehen am Anfang der Straße. Wie viele Runden es am Tag gibt, stellen Erwachsene ein (1, 2, 3 oder unbegrenzt; Standard 3). Danach ist für heute Schluss; der Garten bleibt offen. |
 | Vor der Runde | Das Kind tippt im Garten bis zu 3 Begleiter an. Ohne Wahl laufen die vom letzten Mal mit. |
 | Richtige Aufgabe | Ein Salatblatt fliegt zur Parade. Anzeige: 3 Blatt-Plätze. |
-| 3 Salatblätter | Eine neue Babyschnecke kriecht in die Parade. Hausfarbe und Muster zufällig, bevorzugt eine Kombination, die noch fehlt. Blätter zählen neu. |
-| 3 Blätter ohne Fehler dazwischen | Die neue Schnecke trägt einen Hut, bevorzugt einen, der im Album fehlt. Anzeige: kleiner Hut neben den Blättern, der bei einem Fehler blass wird. |
+| 3 Salatblätter | Eine neue Babyschnecke kriecht in die Parade. Hausfarbe und Muster zufällig; in 20 % der Fälle bewusst ein Haus, das im Sammelbuch noch fehlt. Blätter zählen neu. |
+| Mehr als 3 neue Schnecken am Tag? | Nein, höchstens **3 neue Schnecken pro Tag**. Danach wandern volle Blattreihen in den **Salatkorb** (Platz für 2). Am nächsten Tag schlüpfen sie zu Beginn der ersten Runde („Aus deinem Salatkorb sind 2 Schnecken geschlüpft!“) und zählen für diesen Tag mit. Ist der Korb voll, gibt es trotzdem Lob. |
+| 3 Blätter ohne Fehler dazwischen | Die neue Schnecke trägt einen Hut; in 20 % der Fälle bewusst einen, der im Sammelbuch fehlt. Anzeige: kleiner Hut neben den Blättern, der bei einem Fehler blass wird. |
 | Falsche Aufgabe | Kein Blatt. Nichts geht verloren. Nur der Hut für die laufenden 3 Blätter fällt weg. |
-| Ende der 5 Minuten | Die angefangene Aufgabe darf fertig werden. Die Parade zieht ins Ziel. Jeder Begleiter, der von Anfang an dabei war, zählt einen Ausflug. Rückblick: neue Schnecken, gewachsene Schnecken, neue Deko. |
+| Ende der 5 Minuten | Die angefangene Aufgabe darf fertig werden. Die Parade zieht ins Ziel. Jeder Begleiter, der von Anfang an dabei war, zählt einen Ausflug, **jede Schnecke höchstens einmal am Tag**. Wer in der nächsten Runde andere Begleiter mitnimmt, lässt auch diese wachsen. Rückblick: neue Schnecken, gewachsene Schnecken, neue Deko. |
 | Wachsen | Baby (0), Klein (ab 2 Ausflügen), Groß (ab 5), Glitzerhaus (ab 10). Neue Schnecken starten als Baby. |
 | Alle 5 Übungstage | Neue Garten-Deko, in dieser Reihenfolge: Pilz, Blume, Teich, Bank, Gießkanne, Schneckenhotel. |
 | Selten | Etwa jede 15. neue Schnecke hat ein Regenbogenhaus. Jede 10. neue Schnecke bringt einen Marienkäfer als Gast mit (läuft mit, wächst nicht). |
 | Blätter vom Vortag | Bleiben stehen. Wer gestern 2 Blätter hatte, braucht heute nur noch eins. |
 
-Übungstage zählen nur, wenn eine Runde gespielt wurde, und jeder Tag nur einmal, auch bei mehreren Runden. Verpasste Tage haben keine Folgen. Jeder Begleiter zählt pro Runde einen Ausflug.
+Übungstage zählen nur, wenn eine Runde gespielt wurde, und jeder Tag nur einmal, auch bei mehreren Runden. Verpasste Tage haben keine Folgen. Jede Schnecke zählt höchstens einen Ausflug am Tag.
+
+## Tempo (simuliert, 5 Aufgaben je Runde, 30 % mit Fehler)
+
+| | 1 Runde/Tag | 3 Runden/Tag |
+|---|---|---|
+| Neue Tiere pro Tag | etwa 1,7 | höchstens 3 (plus seltene Marienkäfer) |
+| Alle 36 Häuser | etwa 6 Wochen | etwa 4 Wochen |
+| Alle 8 Hüte | etwa 4 Wochen | etwa 2 Wochen |
+| Ganzes Sammelbuch (53) | etwa 6 Wochen | etwa 4–5 Wochen (Deko alle 5 Übungstage bremst) |
+
+Neu zu sammeln später denkbar: Freischaltungen über andere Spiele (z. B. eine Deko oder ein Hut, den es nur im Leuchttisch-Spiel gibt).
+
+## Sammelbuch
+
+Das Album zeigt jedes **Haus einzeln** (6 Farben × 6 Muster = 36 Felder; gefundene mit Bild, fehlende als „?“), dazu 8 Hüte, 3 Besonderheiten (Glitzer-, Regenbogenhaus, Marienkäfer) und 6 Deko-Stücke: zusammen 53.
 
 ## Eine typische Woche
 
-5 Übungstage × etwa 5 Aufgaben = etwa 25 Blätter, also etwa 8 neue Schnecken, 1 Stück Deko und 3 Begleiter, die je einen Ausflug weiter wachsen. Mit 6 Hausfarben × 6 Mustern × 8 Hüten (288 Kombinationen) reicht das Album für viele Monate.
+5 Übungstage mit je einer Runde ≈ 25 Blätter ≈ 8 neue Schnecken, 1 Stück Deko, Begleiter wachsen je einen Ausflug pro Tag. Mit 3 Runden am Tag höchstens 3 neue Schnecken täglich; was darüber hinaus gesammelt wird, wartet im Salatkorb auf morgen.
 
 ## Bausteine
 
@@ -49,7 +65,7 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
   "version": 1,
   "garden": [
     { "id": 8, "name": "Max", "color": "lila", "pattern": "streifen", "hat": "blumen",
-      "special": null, "runs": 0, "stage": 0, "born": "2026-11-06", "spiel": "zehnerweg" }
+      "special": null, "runs": 0, "stage": 0, "born": "2026-11-06", "spiel": "zehnerweg", "ausflug": "2026-11-06" }
   ],
   "walkers": [1, 2, 3],
   "leaves": 1,
@@ -58,6 +74,9 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
   "rundenHeute": 1,
   "practiceDays": 4,
   "deco": ["pilz"],
+  "neuHeuteTag": "2026-11-06",
+  "neuHeute": 2,
+  "korb": [true],
   "newCount": 2,
   "nextId": 9,
   "runde": { "ende": 1762430400000, "pause": null, "tag": "2026-11-06", "begleiter": [1, 2, 3], "neu": [8], "zeitUm": false }
@@ -87,7 +106,8 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
 - **Uhr und Pause:** Die Uhr hält von selbst an, wenn die App verlassen oder das Tablet gesperrt wird oder eine Minute lang niemand schreibt. Beim nächsten Strich läuft sie weiter. So geht keine Zeit verloren, wenn das Kind die App vergisst. Ist die Zeit schon um und die angefangene Aufgabe wird nicht fertig, endet die Runde nach 3 Minuten.
 - **Anzeige im Zehnerweg:** Ein schmaler Paradestreifen unter dem Rechenweg. Uhr, 3 Blatt-Plätze und Hut-Anzeige stehen oben bei der Aufgabe, ein Schnecken-Knopf führt zum Garten.
 - **Garten:** eigene Seite `garten/` mit Deko, allen Tieren, Begleiter-Wahl und Sammelalbum.
-- **Probe-Modus für Erwachsene:** Mit `?probe` an der Adresse dauert eine Runde 1 Minute, und im Garten gibt es den Knopf „Nächster Tag“. So lässt sich alles ausprobieren, ohne einen Tag zu warten.
+- **Probe-Modus für Erwachsene:** Mit `?probe` an der Adresse oder dem Knopf „Probe-Modus“ unter „Für Erwachsene“ wird in einem **eigenen Probe-Speicher** gespielt (`lernspiele:probe:…`); der echte Garten des Kindes bleibt unberührt. Der Modus bleibt beim Wechsel zwischen den Seiten an, bis er beendet wird. Eine Runde dauert dann 1 Minute, die Pause kommt nach 20 Sekunden, im Garten gibt es „Nächster Tag“. Ein Band oben zeigt „Probe“ mit „Probe zurücksetzen“ und „Beenden“.
+- **Zurücksetzen:** Unter „Für Erwachsene“ löscht „Alles zurücksetzen“ (mit zwei Rückfragen) Garten, Runden und Einstellungen auf diesem Gerät. Das Tag/Nacht-Thema bleibt.
 
 ## Offene Fragen
 

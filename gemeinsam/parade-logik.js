@@ -23,6 +23,10 @@ const SPIELE = ['zehnerweg', 'start'];
 export const RUNDE_MS = 5 * 60 * 1000;
 export const NACHSPIEL_MS = 3 * 60 * 1000; // so lange darf die angefangene Aufgabe nach Ablauf noch dauern
 export const MAX_BEGLEITER = 3;
+export const NEU_PRO_TAG = 3;      // höchstens so viele neue Schnecken am Tag
+export const KORB_MAX = 2;         // Salatkorb: so viele Schnecken können für morgen warten
+export let FEHLT_BEVORZUGT = 0.2;  // Wahrscheinlichkeit, dass eine neue Schnecke ein fehlendes Haus (bzw. einen fehlenden Hut) bekommt
+export const setzeBevorzugt = w => { FEHLT_BEVORZUGT = w; }; // nur für Simulationen
 const MAX_NAME = 20, MAX_TIERE = 3000;
 
 export const stageOf = runs => GROW.filter(g => runs >= g).length - 1;
@@ -45,7 +49,7 @@ export function describe(s) {
 /* ---------- Speichern und Prüfen ---------- */
 
 const STANDARD = {
-  garden: [], walkers: [], leaves: 0, cleanLeaves: true, lastRoundDay: '', rundenHeute: 0, practiceDays: 0,
+  garden: [], walkers: [], leaves: 0, cleanLeaves: true, lastRoundDay: '', rundenHeute: 0, practiceDays: 0, neuHeuteTag: '', neuHeute: 0, korb: [],
   deco: [], newCount: 0, nextId: 1, runde: null,
 };
 const istId = v => Number.isInteger(v) && v > 0 && v < 1e9;
@@ -65,6 +69,7 @@ export function pruefeSchnecke(s) {
     id: s.id, name: s.name.trim().slice(0, MAX_NAME), color: s.color, pattern: s.pattern, hat: s.hat,
     special: s.special, runs, stage: s.special === 'kaefer' ? 0 : stageOf(runs),
     born: istTag(s.born) ? s.born : '', spiel: SPIELE.includes(s.spiel) ? s.spiel : '',
+    ausflug: istTag(s.ausflug) ? s.ausflug : '',
   };
 }
 
@@ -82,6 +87,9 @@ export function bereinigeZustand(roh) {
   z.rundenHeute = istZahl(z.rundenHeute, 10000) ? z.rundenHeute : (z.lastRoundDay ? 1 : 0);
   z.deco = Object.keys(DECO).filter(k => Array.isArray(z.deco) && z.deco.includes(k));
   z.newCount = istZahl(z.newCount, 1e6) ? z.newCount : 0;
+  z.neuHeuteTag = istTag(z.neuHeuteTag) ? z.neuHeuteTag : '';
+  z.neuHeute = istZahl(z.neuHeute, 1000) ? z.neuHeute : 0;
+  z.korb = (Array.isArray(z.korb) ? z.korb : []).filter(k => typeof k === 'boolean').slice(0, KORB_MAX);
   const maxId = z.garden.reduce((m, s) => Math.max(m, s.id), 0);
   z.nextId = istId(z.nextId) && z.nextId > maxId ? z.nextId : maxId + 1;
   const r = z.runde;
@@ -90,6 +98,7 @@ export function bereinigeZustand(roh) {
     pause: Number.isFinite(r.pause) && r.pause >= 0 && r.pause <= 24 * 3600 * 1000 ? r.pause : null,
     begleiter: (Array.isArray(r.begleiter) ? r.begleiter : []).filter(id => ids.has(id)).slice(0, MAX_BEGLEITER),
     neu: (Array.isArray(r.neu) ? r.neu : []).filter(id => ids.has(id)).slice(0, 200),
+    ausKorb: (Array.isArray(r.ausKorb) ? r.ausKorb : []).filter(id => ids.has(id)).slice(0, 10),
     zeitUm: r.zeitUm === true,
   } : null;
   return z;
@@ -119,11 +128,12 @@ export function neueSchnecke(z, mitHut, rnd = Math.random, tag = heute(), spiel 
   const vorhanden = new Set(z.garden.filter(s => !s.special).map(s => s.color + '|' + s.pattern));
   const frei = [];
   for (const c in COLORS) for (const p in PATTERNS) if (!vorhanden.has(c + '|' + p)) frei.push([c, p]);
-  const [color, pattern] = frei.length ? wahl(rnd, frei) : [wahl(rnd, Object.keys(COLORS)), wahl(rnd, Object.keys(PATTERNS))];
+  // Manchmal bewusst ein fehlendes Haus, sonst zufällig: So füllt sich das Sammelbuch über Wochen, nicht über Tage
+  const [color, pattern] = frei.length && rnd() < FEHLT_BEVORZUGT ? wahl(rnd, frei) : [wahl(rnd, Object.keys(COLORS)), wahl(rnd, Object.keys(PATTERNS))];
   let hut = null;
   if (mitHut) {
     const da = new Set(z.garden.map(s => s.hat)); const fehlt = Object.keys(HATS).filter(k => !da.has(k));
-    hut = wahl(rnd, fehlt.length ? fehlt : Object.keys(HATS));
+    hut = wahl(rnd, fehlt.length && rnd() < FEHLT_BEVORZUGT ? fehlt : Object.keys(HATS));
   }
   const special = rnd() < 1 / 15 ? 'regenbogen' : null;
   const benutzt = new Set(z.garden.map(s => s.name)); const freieNamen = NAMES.filter(n => !benutzt.has(n));
@@ -143,7 +153,15 @@ export const laeuft = z => !!z.runde;
 export function rundeStarten(z, jetzt = Date.now(), dauer = RUNDE_MS, tag = heute(), max = 1) {
   if (z.runde) return true;
   if (nochRunden(z, tag, max) <= 0) return false;
-  z.runde = { ende: jetzt + dauer, pause: null, tag, begleiter: [...z.walkers], neu: [], zeitUm: false };
+  z.runde = { ende: jetzt + dauer, pause: null, tag, begleiter: [...z.walkers], neu: [], zeitUm: false, ausKorb: [] };
+  // Neuer Tag: Aus dem Salatkorb schlüpfen die Schnecken, die gestern warten mussten
+  if (z.korb.length && z.neuHeuteTag !== tag) {
+    z.neuHeuteTag = tag; z.neuHeute = 0;
+    while (z.korb.length && z.neuHeute < NEU_PRO_TAG) {
+      const { neu, kaefer } = schluepfen(z, z.korb.shift(), Math.random, tag, 'zehnerweg');
+      z.runde.ausKorb.push(neu.id); if (kaefer) z.runde.ausKorb.push(kaefer.id);
+    }
+  }
   return true;
 }
 
@@ -170,14 +188,27 @@ export function richtig(z, rnd = Math.random, tag = heute(), spiel = 'zehnerweg'
   if (!z.runde) return null;
   z.leaves++;
   let neu = null, kaefer = null;
+  let korb = false, korbVoll = false;
   if (z.leaves >= 3) {
-    neu = neueSchnecke(z, z.cleanLeaves, rnd, tag, spiel);
-    z.garden.push(neu); z.runde.neu.push(neu.id); z.newCount++;
-    if (z.newCount % 10 === 0) {
-      kaefer = { id: z.nextId++, name: wahl(rnd, KAEFER_NAMEN), color: 'rosa', pattern: 'uni', hat: null, special: 'kaefer', runs: 0, stage: 0, born: tag, spiel };
-      z.garden.push(kaefer); z.runde.neu.push(kaefer.id);
-    }
+    if (z.neuHeuteTag !== tag) { z.neuHeuteTag = tag; z.neuHeute = 0; }
+    if (z.neuHeute < NEU_PRO_TAG) ({ neu, kaefer } = schluepfen(z, z.cleanLeaves, rnd, tag, spiel));
+    else if (z.korb.length < KORB_MAX) { z.korb.push(z.cleanLeaves); korb = true; } // für morgen
+    else korbVoll = true;
     z.leaves = 0; z.cleanLeaves = true;
+  }
+  return { neu, kaefer, korb, korbVoll };
+}
+
+/** Sind heute schon 3 neue Schnecken gekommen? */
+export const limitErreicht = (z, tag = heute()) => z.neuHeuteTag === tag && z.neuHeute >= NEU_PRO_TAG;
+
+/** Eine neue Schnecke kommt in Garten und Parade (zählt für das Tageslimit); jede 10. bringt einen Marienkäfer mit. */
+function schluepfen(z, mitHut, rnd, tag, spiel) {
+  const neu = neueSchnecke(z, mitHut, rnd, tag, spiel); let kaefer = null;
+  z.garden.push(neu); z.runde.neu.push(neu.id); z.newCount++; z.neuHeute++;
+  if (z.newCount % 10 === 0) {
+    kaefer = { id: z.nextId++, name: wahl(rnd, KAEFER_NAMEN), color: 'rosa', pattern: 'uni', hat: null, special: 'kaefer', runs: 0, stage: 0, born: tag, spiel, ausflug: '' };
+    z.garden.push(kaefer); z.runde.neu.push(kaefer.id);
   }
   return { neu, kaefer };
 }
@@ -204,7 +235,8 @@ export function rundeBeenden(z, tag = heute()) {
   const gewachsen = [];
   for (const id of r.begleiter) {
     const s = byId.get(id); if (!s || s.special === 'kaefer') continue;
-    s.runs++; const st = stageOf(s.runs);
+    if (s.ausflug === rundenTag) continue; // jede Schnecke wächst höchstens einmal am Tag
+    s.ausflug = rundenTag; s.runs++; const st = stageOf(s.runs);
     if (st > s.stage) { s.stage = st; gewachsen.push(s); }
   }
   let deko = null;
@@ -230,9 +262,11 @@ export function parade(z) {
 /** Sammelalbum: was ist schon entdeckt? */
 export function album(z) {
   const hatWert = (k, v) => z.garden.some(s => s[k] === v);
+  // Sammelbuch: jedes Haus (Farbe × Muster) einzeln, dazu Hüte, Besonderes und Deko
+  const haeuser = {};
+  for (const c in COLORS) for (const p in PATTERNS) haeuser[c + '|' + p] = `${COLORS[c].name}, ${PATTERNS[p]}`;
   const gruppen = [
-    ['Häuser', Object.fromEntries(Object.entries(COLORS).map(([k, v]) => [k, v.name])), k => hatWert('color', k)],
-    ['Muster', PATTERNS, k => hatWert('pattern', k)],
+    ['Häuser', haeuser, k => z.garden.some(s => !s.special && s.color + '|' + s.pattern === k)],
     ['Hüte', HATS, k => hatWert('hat', k)],
     ['Besonderes', SPECIALS, k => (k === 'glitzer' ? z.garden.some(s => s.stage >= 3) : hatWert('special', k))],
     ['Garten-Deko', DECO, k => z.deco.includes(k)],
