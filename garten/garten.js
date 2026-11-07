@@ -1,6 +1,6 @@
 // Schneckengarten: alle Tiere, Deko, Begleiter wählen, Sammelalbum.
 import { ladeParade, speichereParade, begleiterUmschalten, rundeBeenden, album, describe, heute, SCALE, STAGES, MAX_BEGLEITER } from '../gemeinsam/parade-logik.js';
-import { snailSVG, decoSVG, svgElement } from '../gemeinsam/parade-bilder.js';
+import { snailSVG, decoSVG, hatSVG, bugSVG, svgElement } from '../gemeinsam/parade-bilder.js';
 import { PROBE } from '../gemeinsam/runde.js';
 
 const $ = id => document.getElementById(id);
@@ -46,36 +46,46 @@ function waehle(s, knopf) {
   hinweis(vorher ? `${s.name} bleibt heute im Garten.` : `${s.name} läuft in der nächsten Runde mit.`);
 }
 
+// Sammelalbum: alles als eingeklebte Bilder (Kinder lesen noch nicht sicher); Namen nur für Vorlese-Hilfen
+const HUT_BILD = h => `<svg viewBox="26 -10 56 40" aria-hidden="true">${hatSVG(h)}</svg>`;
+function stickerBild(gruppe, key) {
+  if (gruppe === 'Häuser') { const [color, pattern] = key.split('|'); return snailSVG({ color, pattern, hat: null, special: null, stage: 1 }); }
+  if (gruppe === 'Hüte') return HUT_BILD(key);
+  if (gruppe === 'Besonderes') {
+    if (key === 'kaefer') return bugSVG();
+    return snailSVG({ color: 'gelb', pattern: 'uni', hat: null, special: key === 'regenbogen' ? 'regenbogen' : null, stage: key === 'glitzer' ? 3 : 1 });
+  }
+  return decoSVG(key);
+}
 function zeigeAlbum() {
   const box = $('album'); box.replaceChildren();
   let gesamt = 0, gefunden = 0;
   for (const gruppe of album(z)) {
     const da = gruppe.eintraege.filter(e => e.da).length; gesamt += gruppe.eintraege.length; gefunden += da;
-    const div = el('div'); const h = el('h3');
-    h.append(el('span', null, gruppe.titel), el('span', null, `${da} von ${gruppe.eintraege.length}`));
-    if (gruppe.titel === 'Häuser') {
-      // 6 × 6 Felder: jede Farbe mit jedem Muster
-      div.className = 'voll';
-      const raster = el('div', 'haeuser');
-      for (const e of gruppe.eintraege) {
-        const [color, pattern] = e.key.split('|');
-        const f = el('span', 'haus' + (e.da ? '' : ' miss')); f.setAttribute('role', 'img'); f.setAttribute('aria-label', e.da ? e.name : 'noch nicht gefunden');
-        if (e.da) f.append(svgElement(snailSVG({ color, pattern, hat: null, special: null, stage: 1 })));
-        else f.textContent = '?';
-        raster.append(f);
-      }
-      div.append(h, raster); box.append(div); continue;
-    }
-    const chips = el('div', 'chips');
+    const teil = el('section', 'seite-teil' + (gruppe.titel === 'Häuser' ? ' haeuser-teil' : ''));
+    const h = el('h3'); h.append(el('span', null, gruppe.titel), el('span', 'teil-zahl', `${da} von ${gruppe.eintraege.length}`));
+    const raster = el('div', 'sticker-raster' + (gruppe.titel === 'Häuser' ? ' sechs' : ''));
     for (const e of gruppe.eintraege) {
-      const c = el('span', 'chip' + (e.da ? '' : ' miss'));
-      c.append(document.createTextNode(e.da ? e.name : '?'));
-      chips.append(c);
+      const f = el('span', 'sticker' + (e.da ? '' : ' miss') + (gruppe.titel === 'Garten-Deko' || gruppe.titel === 'Hüte' ? ' klein' : ''));
+      f.setAttribute('role', 'img'); f.setAttribute('aria-label', e.da ? e.name : 'noch nicht gefunden');
+      if (e.da) f.append(svgElement(stickerBild(gruppe.titel, e.key))); else f.textContent = '?';
+      raster.append(f);
     }
-    div.append(h, chips); box.append(div);
+    teil.append(h, raster); box.append(teil);
   }
-  $('album-zahl').textContent = `· ${gefunden} von ${gesamt} entdeckt`;
+  $('album-zahl').textContent = `${gefunden} von ${gesamt} entdeckt`;
+  $('album-zahl-reiter').textContent = `${gefunden}/${gesamt}`;
+  $('album-balken').style.width = Math.round(gefunden / gesamt * 100) + '%';
 }
+
+/* ---------- Reiter Garten / Sammelalbum (Adresse #album merkt sich die Wahl) ---------- */
+function zeigeReiter(album) {
+  $('r-garten').setAttribute('aria-selected', String(!album)); $('r-album').setAttribute('aria-selected', String(album));
+  $('seite-garten').hidden = album; $('seite-album').hidden = !album;
+}
+$('r-garten').addEventListener('click', () => { history.replaceState(null, '', location.pathname + location.search); zeigeReiter(false); });
+$('r-album').addEventListener('click', () => { history.replaceState(null, '', location.pathname + location.search + '#album'); zeigeReiter(true); });
+zeigeReiter(location.hash === '#album');
 
 if (PROBE) {
   $('b-spiel').href = '../zehnerweg/?probe';

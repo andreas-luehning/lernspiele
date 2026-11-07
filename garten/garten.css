@@ -31,15 +31,27 @@
 .aktionen { display: flex; gap: 12px; flex-wrap: wrap; }
 .aktionen .btn { text-decoration: none; display: inline-flex; align-items: center; }
 
-.album-box h2 { font: 800 1.35rem var(--display); margin: 8px 0 10px; }
-.album-box h2 span { font: 400 1rem var(--body); color: var(--muted); }
-.album { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); background: var(--sheet); border: 2px solid var(--rule); border-radius: 22px; padding: 16px; }
-.album h3 { font: 700 .82rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; display: flex; justify-content: space-between; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .9rem; border-radius: 999px; padding: 3px 11px; border: 2px solid var(--line); }
-.chip.miss { border-style: dashed; border-color: var(--rule); color: var(--muted); }
-.album .voll { grid-column: 1 / -1; }
-.haeuser { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 640px; }
-.haus { aspect-ratio: 13 / 10; display: grid; place-items: center; border-radius: 12px; background: var(--grass); }
-.haus svg { width: 92%; height: auto; }
-.haus.miss { background: none; border: 2px dashed var(--rule); color: var(--muted); font: 800 1.1rem var(--display); }
+/* Reiter Garten / Sammelalbum */
+.reiter { display: flex; gap: 8px; background: var(--sheet); border: 2px solid var(--rule); border-radius: 18px; padding: 4px; align-self: flex-start; }
+.reiter button { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 18px; border: 0; border-radius: 14px; background: none; color: var(--muted); font: 800 1.1rem var(--display); cursor: pointer; }
+.reiter button svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.reiter button[aria-selected="true"] { background: var(--btn); color: var(--btn-fg); }
+.reiter .zahl { font: 700 .85rem var(--body); opacity: .85; }
+.reiter button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+#seite-garten, #seite-album { display: flex; flex-direction: column; gap: 16px; }
+
+/* Sammelalbum wie ein Stickeralbum */
+.fortschritt { display: flex; align-items: center; gap: 12px; font: 700 1rem var(--body); color: var(--muted); }
+.fortschritt .balken { flex: 1 1 auto; max-width: 420px; height: 14px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.fortschritt .balken i { display: block; height: 100%; background: var(--leaf); border-radius: 999px; }
+.album { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); background: var(--sheet); border: 2px solid var(--rule); border-radius: 22px; padding: 16px; }
+.album h3 { font: 800 1rem var(--display); color: var(--fg); margin: 0 0 8px; display: flex; justify-content: space-between; gap: 8px; }
+.album h3 .teil-zahl { font: 700 .85rem var(--body); color: var(--muted); }
+.album .haeuser-teil { grid-column: 1 / -1; }
+.sticker-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.sticker-raster.sechs { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 680px; }
+.sticker { aspect-ratio: 13 / 10; display: grid; place-items: center; border-radius: 14px; background: var(--grass); box-shadow: 0 2px 0 var(--grass-2); rotate: -1.5deg; }
+.sticker:nth-child(even) { rotate: 1.5deg; }
+.sticker.klein { aspect-ratio: 1; }
+.sticker svg { width: 88%; height: 88%; }
+.sticker.miss { background: none; box-shadow: none; rotate: 0deg; border: 2px dashed var(--rule); color: var(--muted); font: 800 1.15rem var(--display); }
