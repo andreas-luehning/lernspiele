@@ -3,13 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#f3f9ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lernspiele">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="gemeinsam/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="gemeinsam/icons/apple-touch-icon.png">
 <title>Lernspiele</title>
 <link rel="stylesheet" href="gemeinsam/theme.css">
 <link rel="stylesheet" href="startseite.css">
 <script src="gemeinsam/thema.js"></script>
+<script type="module" src="gemeinsam/app.js"></script>
 </head>
 <body>
 <main class="start">
@@ -21,15 +30,18 @@
     <button class="info-btn" data-thema-knopf type="button" aria-label="Nachtmodus einschalten"></button>
   </header>
 
+  <div class="lernzeit" data-lernzeit-anzeige role="img" aria-label="Lernzeit heute"></div>
+
   <ul class="kacheln">
     <li>
       <a class="kachel" href="zehnerweg/">
         <svg class="bild" viewBox="0 0 200 120" aria-hidden="true">
           <rect class="k-road" x="20" y="88" width="160" height="14" rx="2"/>
+          <!-- Pfeile: die rechte Seite ist die Spiegelung der linken an x = 100 -->
           <path class="k-arr" d="M40 74 Q40 54 54 50"/>
-          <path class="k-arr" d="M84 40 Q90 22 98 22"/>
-          <path class="k-arr" d="M122 22 Q132 22 138 40"/>
-          <path class="k-arr" d="M146 54 Q160 58 160 74"/>
+          <path class="k-arr" d="M62 40 Q68 22 80 22"/>
+          <path class="k-arr" d="M120 22 Q132 22 138 40"/>
+          <path class="k-arr" d="M146 50 Q160 54 160 74"/>
           <rect class="k-start" x="20" y="74" width="40" height="34" rx="7"/>
           <ellipse class="k-oval" cx="100" cy="95" rx="22" ry="16"/>
           <ellipse class="k-oval" cx="70" cy="52" rx="18" ry="13"/>
@@ -43,15 +55,37 @@
       </a>
     </li>
     <li>
+      <a class="kachel" href="garten/">
+        <svg class="bild" viewBox="0 0 200 120" aria-hidden="true">
+          <rect class="k-gras" x="0" y="70" width="200" height="50" rx="10"/>
+          <g transform="translate(18 34) scale(.62)">
+            <path class="k-body" d="M8 86 Q6 76 20 76 L92 76 Q100 76 102 66 L104 50 Q106 36 116 37 Q127 39 125 54 L121 72 Q117 89 96 89 L16 89 Q8 89 8 86Z"/>
+            <path class="k-line" d="M111 41 L105 17 M119 42 L123 19"/>
+            <circle class="k-auge" cx="105" cy="15" r="5.5"/><circle class="k-auge" cx="123" cy="17" r="5.5"/>
+            <circle class="k-haus1" cx="54" cy="52" r="29"/>
+          </g>
+          <g transform="translate(104 50) scale(.48)">
+            <path class="k-body" d="M8 86 Q6 76 20 76 L92 76 Q100 76 102 66 L104 50 Q106 36 116 37 Q127 39 125 54 L121 72 Q117 89 96 89 L16 89 Q8 89 8 86Z"/>
+            <path class="k-line" d="M111 41 L105 17 M119 42 L123 19"/>
+            <circle class="k-auge" cx="105" cy="15" r="5.5"/><circle class="k-auge" cx="123" cy="17" r="5.5"/>
+            <circle class="k-haus2" cx="54" cy="52" r="29"/>
+          </g>
+          <path class="k-blatt" d="M160 104 C159 92 167 83 181 83 C181 97 172 105 160 104Z"/>
+        </svg>
+        <span class="name">Schneckengarten</span>
+        <span class="was">Deine Schnecken ansehen</span>
+      </a>
+    </li>
+    <li>
       <a class="kachel" href="leuchttisch/">
         <svg class="bild" viewBox="0 0 200 120" aria-hidden="true">
           <rect class="k-rahmen" x="10" y="6" width="180" height="108" rx="16"/>
           <rect class="k-tisch" x="18" y="14" width="164" height="92" rx="11"/>
-          <path class="k-st k-rot" d="M52 30 C58 40 64 46 64 52 a12 12 0 1 1 -24 0 C40 46 46 40 52 30 Z"/>
-          <polygon class="k-st k-blau" points="98,34 112,52 98,70 84,52"/>
-          <polygon class="k-st k-gruen" points="140,30 152,30 160,38 160,50 152,58 140,58 132,50 132,38"/>
+          <circle class="k-st k-rot" cx="52" cy="46" r="14"/>
+          <polygon class="k-st k-blau" points="100,28 110,40 112,52 110,64 100,76 90,64 88,52 90,40"/>
+          <polygon class="k-st k-gruen" points="140,30 152,30 160,38 160,54 152,62 140,62 132,54 132,38"/>
           <polygon class="k-st k-lila" points="70,70 82,77 82,91 70,98 58,91 58,77"/>
-          <ellipse class="k-st k-orange" cx="146" cy="84" rx="11" ry="14"/>
+          <rect class="k-st k-orange" x="134" y="74" width="24" height="24" rx="7"/>
         </svg>
         <span class="name">Leuchttisch</span>
         <span class="was">Edelsteine zählen, Amulette sammeln</span>
@@ -59,7 +93,43 @@
     </li>
   </ul>
 
-  <p class="fuss">Alles bleibt auf diesem Gerät. Keine Anmeldung, keine Werbung.</p>
+  <details class="erwachsene">
+    <summary>Für Erwachsene</summary>
+    <div class="zeile">
+      <div><b>Als App installieren</b><small data-install-hinweis>Prüfe …</small></div>
+      <button type="button" class="btn primary" data-installieren-knopf hidden>Installieren</button>
+    </div>
+    <div class="zeile">
+      <div><b>Vollbild</b><small>Im Browser endet das Vollbild beim Wechsel ins Spiel. Dauerhaft im Vollbild läuft es als installierte App.</small></div>
+      <button type="button" class="btn" data-vollbild-knopf hidden>Vollbild</button>
+    </div>
+    <div class="zeile">
+      <div><b>7 nur mit Querstrich</b><small>Wie in der Grundschule gelernt. Eine 7 ohne Querstrich wird als 1 gelesen; so werden Einsen mit Anstrich zuverlässiger erkannt.</small></div>
+      <label class="schalter"><input type="checkbox" data-einstellung="siebenMitQuerstrich"><span>an</span></label>
+    </div>
+    <div class="zeile">
+      <div><b>Lernzeit pro Tag</b><small>Für alle Lernspiele zusammen. Gezählt wird nur echte Übungszeit (eine Runde = 5 Minuten). Danach kann frei weiter geübt werden, aber ohne Belohnung.</small></div>
+      <select class="auswahl" data-einstellung="lernzeitMinuten" aria-label="Lernzeit pro Tag">
+        <option value="15">15 Minuten</option><option value="20">20 Minuten</option><option value="25">25 Minuten</option><option value="30">30 Minuten</option>
+      </select>
+    </div>
+    <div class="zeile">
+      <div><b>Probe-Modus</b><small>Zum Ausprobieren: eigener Probe-Garten, Runden 1 Minute (Lernzeit entsprechend kürzer), „Nächster Tag“ im Garten. Der echte Garten bleibt unberührt.</small></div>
+      <button type="button" class="btn" data-probe-knopf>Probe-Modus starten</button>
+      <button type="button" class="btn" data-probe-zuruecksetzen hidden>Probe zurücksetzen</button>
+    </div>
+    <div class="zeile" data-nur-echt>
+      <div><b>Alles zurücksetzen</b><small>Löscht Garten, Schnecken, Runden und Einstellungen auf diesem Gerät. Nicht rückgängig zu machen.</small></div>
+      <button type="button" class="btn gefahr" data-alles-zuruecksetzen>Zurücksetzen …</button>
+    </div>
+    <div class="zeile diagnose">
+      <div><b>Diagnose</b><small>Bei Problemen mit der Installation bitte abfotografieren.</small></div>
+      <button type="button" class="btn" data-diagnose-knopf>Prüfen</button>
+      <pre data-diagnose-ausgabe hidden></pre>
+    </div>
+  </details>
+
+  <p class="fuss">Alles bleibt auf diesem Gerät. Keine Anmeldung, keine Werbung. Funktioniert als App auch ohne Internet.</p>
 </main>
 </body>
 </html>

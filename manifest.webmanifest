@@ -1,0 +1,20 @@
+{
+  "id": "lernspiele",
+  "name": "Lernspiele",
+  "short_name": "Lernspiele",
+  "description": "Rechnen bis 20: Zehnerweg und Schneckenparade",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#f3f9ff",
+  "theme_color": "#f3f9ff",
+  "icons": [
+    { "src": "gemeinsam/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "gemeinsam/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "gemeinsam/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "gemeinsam/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

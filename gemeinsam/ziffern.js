@@ -2,6 +2,8 @@
 // Netz 784 → 256 (ReLU) → 10 (Softmax), Gewichte int8 + Skalierungsfaktor, siehe werkzeuge/ziffern-modell/.
 // Die Vorverarbeitung entspricht genau dem Prototyp (rasterize, groupStrokes, readNumber).
 
+import { einstellungen } from './einstellungen.js';
+
 let W1, B1, W2, B2, HID = 0;
 let laden = null;
 
@@ -84,10 +86,165 @@ export function groupStrokes(strokes, fieldW) {
   return groups;
 }
 
+/* ---------- Formprüfung 1 / 7 ----------
+   Das Modell kennt die amerikanische 1 (ein senkrechter Strich). In Deutschland lernen Kinder die 1 mit
+   langem Anstrich von links unten; die sieht für das Modell aus wie eine 7 ohne Querstrich. Umgekehrt wird
+   eine schmale 7 mit kurzem Balken manchmal als 1 gelesen. Darum wird nach dem Modell die Form geprüft. */
+
+function punkteVon(strokes) { const pts = []; for (const s of strokes) for (const p of s) pts.push(p); return pts; }
+const median = a => { const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; };
+
+/** Deutsche 1: schmaler Stamm unten, Spitze über dem Stamm, Anstrich fällt nach links ab, keine Schlaufe. */
+export function istDeutscheEins(strokes) {
+  const pts = punkteVon(strokes); if (pts.length < 3) return false;
+  let y0 = Infinity, y1 = -Infinity; for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return false;
+  // Ein Fußstrich ganz unten (manche schreiben die 1 mit Sockel) zählt nicht zum Stamm
+  const ohneFuss = pts.filter(p => p.y < y0 + 0.9 * h);
+  const unten = ohneFuss.filter(p => p.y > y0 + 0.72 * h);                 // unterhalb des Anstrichs
+  if (unten.length < 2) return false;
+  const ux = unten.map(p => p.x);
+  if (Math.max(...ux) - Math.min(...ux) > 0.25 * h) return false;          // unten nur ein schmaler Stamm
+  const stamm = median(ux);
+  const spitze = ohneFuss.reduce((a, p) => (p.y < a.y ? p : a));
+  if (Math.abs(spitze.x - stamm) > 0.18 * h) return false;                  // Spitze sitzt über dem Stamm
+  if (ohneFuss.some(p => p.x > stamm + 0.18 * h && p.y < y0 + 0.9 * h)) return false; // nichts weit rechts (kein Balken)
+  const links = ohneFuss.filter(p => p.x < stamm - 0.1 * h);
+  if (!links.length) return false;                                          // ohne Anstrich: das Modell kann das
+  if (links.some(p => p.y > y0 + 0.7 * h)) return false;                    // Anstrich bleibt oben
+  // Anstrich ist eine Linie, die nach links abfällt: in jedem Abschnitt nur eine Höhe, links tiefer als rechts
+  const xs = links.map(p => p.x), xMin = Math.min(...xs), xMax = stamm - 0.1 * h, n = 4;
+  const fach = Array.from({ length: n }, () => []);
+  for (const p of links) fach[Math.min(n - 1, Math.floor((p.x - xMin) / Math.max(1, xMax - xMin) * n))].push(p.y);
+  let vorher = -Infinity;
+  for (let i = n - 1; i >= 0; i--) {                                        // von rechts (Spitze) nach links
+    if (!fach[i].length) continue;
+    if (Math.max(...fach[i]) - Math.min(...fach[i]) > 0.15 * h) return false; // zwei Höhen = Schlaufe (z. B. 9)
+    const m = fach[i].reduce((a, b) => a + b, 0) / fach[i].length;
+    if (m < vorher - 0.03 * h) return false;
+    vorher = m;
+  }
+  const anfang = links.reduce((a, p) => (p.x < a.x ? p : a));
+  return anfang.y - spitze.y >= 0.12 * h;                                   // Anstrich fällt deutlich ab
+}
+
+/** Querstrich der 7: ein eigener, flacher Strich in der mittleren Höhe (nicht der Fuß einer 1 ganz unten). */
+export function hatQuerstrich(strokes) {
+  if (strokes.length < 2) return false;
+  const pts = punkteVon(strokes);
+  let y0 = Infinity, y1 = -Infinity; for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return false;
+  return strokes.some(s => {
+    if (s.length < 2) return false;
+    let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity; for (const p of s) { a = Math.min(a, p.x); b = Math.max(b, p.x); c = Math.min(c, p.y); d = Math.max(d, p.y); }
+    const my = (c + d) / 2, breit = b - a, hoch = d - c;
+    return breit > 0.08 * h && hoch < 0.2 * h && breit > 1.5 * hoch && my > y0 + 0.25 * h && my < y0 + 0.78 * h;
+  });
+}
+
+/** 7 (ohne die Querstrich-Regel): Querstrich in der Mitte, oder flacher Balken oben. */
+export function istSieben(strokes) {
+  const pts = punkteVon(strokes); if (pts.length < 3) return false;
+  let y0 = Infinity, y1 = -Infinity;
+  for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return false;
+  if (hatQuerstrich(strokes)) return true;
+  // Flacher Balken oben: Punkte im obersten Zehntel reichen weit nach links und rechts
+  const oben = pts.filter(p => p.y <= y0 + 0.1 * h);
+  const ox = oben.map(p => p.x);
+  return oben.length > 1 && Math.max(...ox) - Math.min(...ox) >= 0.18 * h && !istDeutscheEins(strokes);
+}
+
+/**
+ * Deutsche 9: oben eine geschlossene Schlaufe, unten ein Bogen nach links (amerikanisch: gerader Strich).
+ * Mit weitem Bogen hält das Modell sie oft für eine 3. Unterschied: Die 9 läuft oben einmal ganz um die Mitte
+ * der oberen Hälfte herum (gemessen ≥ 0,82 Umläufe), der offene obere Bogen der 3 nur etwa halb (≤ 0,60).
+ */
+export function obenUmlauf(strokes) {
+  const pts = punkteVon(strokes); if (pts.length < 3) return 0;
+  let y0 = Infinity, y1 = -Infinity; for (const p of pts) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+  const h = y1 - y0; if (h < 8) return 0;
+  const oben = pts.filter(p => p.y < y0 + 0.5 * h);
+  let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
+  for (const p of oben) { a = Math.min(a, p.x); b = Math.max(b, p.x); c = Math.min(c, p.y); d = Math.max(d, p.y); }
+  const cx = (a + b) / 2, cy = (c + d) / 2;
+  let best = 0;
+  for (const s of strokes) {
+    let sum = 0;
+    for (let i = 1; i < s.length; i++) {
+      if (s[i].y > y0 + 0.62 * h && s[i - 1].y > y0 + 0.62 * h) continue; // der untere Bogen zählt nicht mit
+      let dd = Math.atan2(s[i].y - cy, s[i].x - cx) - Math.atan2(s[i - 1].y - cy, s[i - 1].x - cx);
+      while (dd > Math.PI) dd -= 2 * Math.PI; while (dd < -Math.PI) dd += 2 * Math.PI;
+      sum += dd;
+    }
+    best = Math.max(best, Math.abs(sum) / (2 * Math.PI));
+  }
+  return best;
+}
+const NEUN_UMLAUF = 0.75;
+
+/**
+ * Wahrscheinlichkeiten des Modells nach der Form korrigieren.
+ * Mit der Regel „7 nur mit Querstrich“ (Standard): 7 ohne Querstrich → 1, 1 mit Querstrich → 7.
+ * @returns {{p: Float32Array|number[], hinweis: string|null}}
+ */
+function formKorrektur(p, strokes, siebenMitQuerstrich) {
+  const top = p.indexOf(Math.max(...p));
+  const zu = z => { const q = p.map(v => v * 0.1); q[z] += 0.9; return q; };
+  if (top === 3 && obenUmlauf(strokes) >= NEUN_UMLAUF) return { p: zu(9), hinweis: null }; // deutsche 9 mit Bogen
+  if (siebenMitQuerstrich) {
+    const quer = hatQuerstrich(strokes);
+    if (top === 7 && !quer) return { p: zu(1), hinweis: 'siebenOhneQuerstrich' };
+    if (top === 1 && quer) return { p: zu(7), hinweis: null };
+    if (top !== 1 && top !== 7 && istDeutscheEins(strokes)) return { p: zu(1), hinweis: null };
+    return { p, hinweis: null };
+  }
+  if (top !== 1 && istDeutscheEins(strokes)) return { p: zu(1), hinweis: null };
+  if (top === 1 && istSieben(strokes)) return { p: zu(7), hinweis: null };
+  return { p, hinweis: null };
+}
+
+/* ---------- Gekritzel ----------
+   Malt ein Kind ins Feld statt eine Zahl zu schreiben, soll die App nicht raten (sonst prüft sie automatisch
+   und es zählt als Fehler). Grenzwerte gemessen an Ziffern 0–20 in voller Feldgröße (tests/ziffern-browser.js):
+   Tinte bis etwa das 5-Fache der Felddiagonale (auch dick nachgezogen), bis 6 Striche, höchstens 2 Zifferngruppen,
+   höchstens 2,7 Umdrehungen in einem Strich (eine 0 ist eine, eine 8 etwa zwei; Knäuel ab 4 Schleifen ≈ 3,9). */
+export const KRITZEL = { tinte: 6, striche: 8, gruppen: 2, drehung: 3.3 };
+
+/** Wie oft dreht sich ein Strich im Kreis (in vollen Umdrehungen)? Vorher geglättet, damit Zittern nicht zählt. */
+export function drehung(strich, schritt) {
+  const r = [strich[0]];
+  for (const p of strich) { const l = r[r.length - 1]; if (Math.hypot(p.x - l.x, p.y - l.y) >= schritt) r.push(p); }
+  let sum = 0;
+  for (let i = 2; i < r.length; i++) {
+    let d = Math.atan2(r[i].y - r[i - 1].y, r[i].x - r[i - 1].x) - Math.atan2(r[i - 1].y - r[i - 2].y, r[i - 1].x - r[i - 2].x);
+    while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+    sum += Math.abs(d);
+  }
+  return sum / (2 * Math.PI);
+}
+
+/** Ist das eher ein Bild als eine Zahl? */
+export function istGekritzel(strokes, fieldW, fieldH) {
+  const real = strokes.filter(s => s.length > 0);
+  if (!real.length) return false;
+  let tinte = 0;
+  for (const s of real) for (let i = 1; i < s.length; i++) tinte += Math.hypot(s[i].x - s[i - 1].x, s[i].y - s[i - 1].y);
+  if (tinte > KRITZEL.tinte * Math.hypot(fieldW, fieldH)) return true;
+  if (real.length > KRITZEL.striche) return true;
+  const schritt = 0.05 * Math.hypot(fieldW, fieldH);
+  if (real.some(s => s.length > 2 && drehung(s, schritt) > KRITZEL.drehung)) return true; // Knäuel, Spirale
+  const gruppen = groupStrokes(real, fieldW).filter(g => {
+    let y0 = 1e9, y1 = -1e9; for (const s of g.strokes) for (const p of s) { y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+    return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;
+  });
+  return gruppen.length > KRITZEL.gruppen;
+}
+
 /**
  * Liest eine Zahl aus den Strichen eines Feldes.
  * @param {{x:number,y:number}[][]} strokes  Striche in Feld-Koordinaten (Pixel)
- * @returns {{value:number, conf:number} | null}
+ * @returns {{value:number, conf:number, hinweis:string|null} | null}  hinweis: 'siebenOhneQuerstrich', wenn eine 7 ohne Querstrich als 1 gelesen wurde
  */
 export function leseZahl(strokes, fieldW, fieldH) {
   if (!modellBereit()) return null;
@@ -100,7 +257,10 @@ export function leseZahl(strokes, fieldW, fieldH) {
     return Math.max(g.b - g.a, y1 - y0) > fieldH * 0.06;
   });
   if (!groups.length) return null;
-  const probs = groups.map(g => predict(rasterize(g.strokes)));
+  const regel = einstellungen().siebenMitQuerstrich;
+  const korr = groups.map(g => formKorrektur(predict(rasterize(g.strokes)), g.strokes, regel));
+  const probs = korr.map(k => k.p);
+  const hinweis = korr.find(k => k.hinweis)?.hinweis || null;
   const pick = (p, allowed) => { let bi = allowed[0]; for (const k of allowed) if (p[k] > p[bi]) bi = k; return bi; };
   const all = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   let digits, conf = 1;
@@ -114,7 +274,7 @@ export function leseZahl(strokes, fieldW, fieldH) {
   } else {
     digits = probs.map(p => pick(p, all)); conf = Math.min(...probs.map((p, i) => p[digits[i]]));
   }
-  return { value: parseInt(digits.join(''), 10), conf };
+  return { value: parseInt(digits.join(''), 10), conf, hinweis };
 }
 
 /** Unter dieser Sicherheit zeigt die App die Zahl mit Fragezeichen. */

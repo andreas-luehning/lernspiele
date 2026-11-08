@@ -103,6 +103,6 @@ Noch nicht im Entwurf: 5-Minuten-Runde und Tageszeit (kommt mit `gemeinsam/runde
 
 ## Offene Fragen an die Lehrkraft
 
-1. **Medienzeit:** Wie werden die 20 Minuten verteilt? Zum Beispiel 4 Runden zu 5 Minuten, frei auf die Spiele verteilt? Darf dasselbe Spiel mehrmals am Tag gespielt werden? (Die Schneckenparade sieht bisher eine Runde am Tag vor.)
+1. **Medienzeit:** Geklärt mit dem Belohnungsmodell (`belohnung-neu`): gemeinsame Lernzeit pro Tag für alle Spiele (Standard 20 Minuten, `gemeinsam/lernzeit.js`), Runden zu 5 Minuten. Offen: Der Leuchttisch ist noch nicht an Runde und Lernzeit angeschlossen; bringt eine fertige Leuchttisch-Runde dann ein Amulett (wie beim Zehnerweg eine Schnecke)?
 2. **Amulett:** Passen 5 Fassungen nach dem Ausprobieren?
 3. **Aussehen:** Gefallen die Steine und das Amulett im Entwurf?

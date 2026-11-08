@@ -1,0 +1,62 @@
+/* Schneckenparade: Paradestreifen, Blatt-Plätze, Uhr, Rückblick, Figuren. */
+
+.sn-body { fill: var(--body-snail); }
+.sn-cheek { fill: var(--cheek); }
+
+/* Streifen */
+.track {
+  position: relative; overflow: hidden; border-radius: 18px; border: 2px solid var(--rule);
+  background: linear-gradient(to bottom, var(--sky) 0 30%, var(--grass) 30% 52%, var(--road) 52% 92%, var(--grass-2) 92%);
+}
+.track::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 71%; height: 5px;
+  background: repeating-linear-gradient(90deg, var(--dash) 0 30px, transparent 30px 62px); opacity: .9;
+}
+.walker { position: absolute; bottom: 9%; width: var(--w, 80px); transition: left 2.4s cubic-bezier(.3,.7,.3,1), width .8s; z-index: 1; }
+.walker svg { display: block; width: 100%; height: auto; overflow: visible; }
+.walker.moving svg { animation: crawl .6s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes crawl { 50% { transform: scaleX(1.07) scaleY(.95); } }
+.bubble {
+  position: absolute; top: 6px; left: 10px; z-index: 30; max-width: min(60%, 520px);
+  background: var(--sheet); border: 2px solid var(--line); border-radius: 16px; padding: 4px 12px;
+  font: 600 1rem/1.25 var(--display); color: var(--fg);
+}
+.bubble:empty { display: none; }
+.bubble.pop { animation: bpop .5s ease; }
+@keyframes bpop { 0% { scale: .7; opacity: 0; } 60% { scale: 1.06; } 100% { scale: 1; opacity: 1; } }
+.flyleaf { position: fixed; z-index: 50; width: 34px; height: 34px; pointer-events: none; transition: left .9s ease-in, top .9s ease-in, opacity .9s ease-in; }
+.flyleaf .lf { fill: var(--leaf); stroke: var(--line); stroke-width: 1.4; }
+
+/* Uhr und Blätter */
+.uhr { display: flex; align-items: center; gap: 8px; font: 800 1.15rem var(--display); font-variant-numeric: tabular-nums; }
+.uhr .sand { width: 70px; height: 12px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.uhr .sand i { display: block; height: 100%; width: 100%; background: var(--star); border-radius: 999px; transition: width .5s linear; }
+.uhr.um { color: var(--muted); }
+.uhr.pause { color: var(--muted); }
+.uhr.pause .sand i { background: var(--muted); }
+.uhr.pause::after { content: "Pause"; font: 700 .8rem var(--body); color: var(--muted); }
+.leaves { display: flex; align-items: center; gap: 4px; }
+.leaves svg { width: 26px; height: 26px; }
+.leaves .lf { fill: var(--leaf-off); stroke: var(--line); stroke-width: 1.4; transition: fill .3s; }
+.leaves .on .lf { fill: var(--leaf); }
+.leaves .on { animation: bpop .5s ease; }
+
+/* Rückblick */
+dialog.rueckblick {
+  border: 2px solid var(--line); border-radius: 24px; background: var(--sheet); color: var(--fg);
+  padding: 20px 24px; max-width: min(560px, calc(100vw - 32px)); text-align: center;
+}
+dialog.rueckblick::backdrop { background: rgb(20 25 50 / .45); }
+dialog.rueckblick h2 { font: 800 1.6rem var(--display); margin: 0 0 8px; }
+dialog.rueckblick p { margin: 8px 0; font-size: 1.1rem; line-height: 1.4; }
+dialog.rueckblick .note { color: var(--muted); }
+dialog.rueckblick .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: flex-end; }
+dialog.rueckblick figure { margin: 0; display: flex; flex-direction: column; align-items: center; font-weight: 700; }
+dialog.rueckblick figure svg { width: 84px; height: auto; }
+dialog.rueckblick .row > svg { width: 64px; height: 64px; }
+dialog.rueckblick .hut-bild { width: 64px; height: 48px; display: grid; place-items: center; background: var(--grass); border-radius: 12px; }
+dialog.rueckblick .hut-bild svg { width: 90%; height: 90%; }
+dialog.rueckblick .knoepfe { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+dialog.rueckblick .btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-width: 170px; box-sizing: border-box; }
+dialog.rueckblick h2, dialog.rueckblick p { margin-left: auto; margin-right: auto; max-width: 34ch; text-wrap: balance; }
+dialog.rueckblick figure figcaption { margin-top: 2px; }
