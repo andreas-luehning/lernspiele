@@ -100,6 +100,13 @@ export function defsEinbauen() {
   const il = svg('radialGradient', { id: 'innenlicht', cx: '0.5', cy: '0.55', r: '0.55' });
   il.append(svg('stop', { offset: '0', 'stop-color': '#ffffff', 'stop-opacity': '0.75' }), svg('stop', { offset: '0.6', 'stop-color': '#ffffff', 'stop-opacity': '0.25' }), svg('stop', { offset: '1', 'stop-color': '#ffffff', 'stop-opacity': '0' }));
   defs.append(il);
+  for (const [id, m] of Object.entries(MATERIAL)) {
+    const r = svg('linearGradient', { id: 'rand-' + id, x1: '0.15', y1: '0', x2: '0.85', y2: '1' });
+    r.append(svg('stop', { offset: '0', 'stop-color': m.hell }), svg('stop', { offset: '0.45', 'stop-color': m.mittel }), svg('stop', { offset: '0.7', 'stop-color': m.hell, 'stop-opacity': '0.9' }), svg('stop', { offset: '1', 'stop-color': m.dunkel }));
+    const t = svg('radialGradient', { id: 'tief-' + id, cx: '0.45', cy: '0.4', r: '0.7' });
+    t.append(svg('stop', { offset: '0', 'stop-color': m.tief1 }), svg('stop', { offset: '1', 'stop-color': m.tief2 }));
+    defs.append(r, t);
+  }
   const f = svg('filter', { id: 'schein', x: '-50%', y: '-50%', width: '200%', height: '200%' });
   f.append(svg('feGaussianBlur', { stdDeviation: '5' }));
   defs.append(f);
@@ -112,12 +119,14 @@ export function fassungsPlatz(i, n) {
   return { x: 27 * Math.cos(a), y: 6 + 27 * Math.sin(a) };
 }
 
-// Materialien der Amulette (eins pro Stufe, siehe aufgaben.js): Rand, Kante, Innenfläche, Linien, Fassungen, Kette
+// Materialien der Amulette (eins pro Stufe, siehe aufgaben.js).
+// hell/mittel/dunkel: Verlauf des polierten Randes; tief1/tief2: vertiefte Innenfläche, auf der die Steine leuchten.
+// perlen: Perlenreihe am Rand (Metall) oder eingeritzte Linie (Ton, glasierte Keramik).
 export const MATERIAL = {
-  ton:    { name: 'Ton',    rand: '#c96a4b', kante: '#7d3520', innen: '#eeb9a2', linie: '#a9583c', fassung: '#e3a287', kette: '#8f5a46' },
-  bronze: { name: 'Bronze', rand: '#e2a76c', kante: '#8a5426', innen: '#f9e5cf', linie: '#c3834a', fassung: '#efd2b2', kette: '#a8703d' },
-  silber: { name: 'Silber', rand: '#dfe5ee', kante: '#7f8ba0', innen: '#f7f9fc', linie: '#aab4c4', fassung: '#e8ecf2', kette: '#9aa5b6' },
-  gold:   { name: 'Gold',   rand: '#ffd56b', kante: '#c98a12', innen: '#fff3cf', linie: '#e7b53c', fassung: '#f1e2b6', kette: '#c9a24a' },
+  ton:    { name: 'Ton',    hell: '#eaa58b', mittel: '#a9503a', dunkel: '#55210f', tief1: '#8f4330', tief2: '#3f160b', perlen: false, glasur: true },
+  bronze: { name: 'Bronze', hell: '#f7cf9f', mittel: '#b8763a', dunkel: '#5a3210', tief1: '#94582a', tief2: '#3e220a', perlen: true },
+  silber: { name: 'Silber', hell: '#ffffff', mittel: '#c4cdd9', dunkel: '#677386', tief1: '#8f9bad', tief2: '#3f4859', perlen: true },
+  gold:   { name: 'Gold',   hell: '#fff4bd', mittel: '#e6b23a', dunkel: '#8d600b', tief1: '#b98522', tief2: '#5c3f05', perlen: true },
 };
 const MITTE = [0, 6];
 const rund = (n, rf) => Array.from({ length: n }, (_, i) => { const t = i / n * 2 * Math.PI - Math.PI / 2, r = rf(t); return [MITTE[0] + r * Math.cos(t), MITTE[1] + r * Math.sin(t)]; });
@@ -132,32 +141,63 @@ export const FORM = {
 };
 const skaliert = (ps, f) => ps.map(([x, y]) => [MITTE[0] + (x - MITTE[0]) * f, MITTE[1] + (y - MITTE[1]) * f]);
 
+/** Punkte in gleichem Abstand entlang eines geschlossenen Umrisses (für die Perlenreihe). */
+function entlang(ps, abstand) {
+  const aus = []; let rest = 0;
+  for (let i = 0; i < ps.length; i++) {
+    const [x1, y1] = ps[i], [x2, y2] = ps[(i + 1) % ps.length], l = Math.hypot(x2 - x1, y2 - y1);
+    let t = rest; while (t < l) { aus.push([x1 + (x2 - x1) * t / l, y1 + (y2 - y1) * t / l]); t += abstand; }
+    rest = t - l;
+  }
+  return aus;
+}
+
 /**
- * Amulett mit n Fassungen; steine = eingesetzte Steine. Größe 120 × 132 Einheiten (viewBox -62 -64 124 132).
+ * Amulett mit n Fassungen; steine = eingesetzte Steine. Größe 124 × 132 Einheiten (viewBox -62 -64 124 132).
  * form, material: das Modell (siehe aufgaben.js MODELLE). neu = Index des gerade eingesetzten Steins (kleine Animation).
  * umriss: nur der graue Umriss (noch nicht gefundenes Modell im Album).
+ * Verläufe kommen aus defsEinbauen().
  */
 export function amulett(steine, n, { form = 'rund', material = 'gold', neu = -1, klein = false, umriss = false } = {}) {
-  const f = FORM[form] || FORM.rund, m = MATERIAL[material] || MATERIAL.gold;
+  const f = FORM[form] || FORM.rund, mat = MATERIAL[material] ? material : 'gold', m = MATERIAL[mat];
   const s = svg('svg', { viewBox: '-62 -64 124 132', class: 'amulett' + (klein ? ' klein' : '') + (umriss ? ' umriss' : ''), 'aria-hidden': 'true' });
   const aussen = f.umriss();
   if (umriss) {
     s.append(svg('polygon', { points: pkt(aussen), fill: 'none', stroke: 'currentColor', 'stroke-width': '3', 'stroke-dasharray': '6 5', 'stroke-linejoin': 'round' }));
     return s;
   }
-  s.append(svg('path', { d: 'M-30 -64 Q0 -30 30 -64', fill: 'none', stroke: m.kette, 'stroke-width': '3', 'stroke-dasharray': '2 4', 'stroke-linecap': 'round' }));
-  s.append(svg('circle', { cx: 0, cy: -47, r: 7, fill: 'none', stroke: m.kante, 'stroke-width': '4' }));
-  s.append(svg('polygon', { points: pkt(aussen), fill: m.rand, stroke: m.kante, 'stroke-width': '3', 'stroke-linejoin': 'round' }));
-  s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.83)), fill: m.innen, stroke: m.linie, 'stroke-width': '2', 'stroke-linejoin': 'round' }));
-  s.append(svg('circle', { cx: 0, cy: 6, r: 8, fill: m.fassung, stroke: m.linie, 'stroke-width': '2' }));
+  const rand = `url(#rand-${mat})`;
+  // Kette und Öse
+  s.append(svg('path', { d: 'M-30 -64 Q0 -30 30 -64', fill: 'none', stroke: m.mittel, 'stroke-width': '3', 'stroke-dasharray': '2.5 3.5', 'stroke-linecap': 'round' }));
+  s.append(svg('circle', { cx: 0, cy: -47, r: 6.5, fill: 'none', stroke: rand, 'stroke-width': '4.5' }));
+  // Polierter Rand mit Lichtkante
+  s.append(svg('polygon', { points: pkt(aussen), fill: rand, stroke: m.dunkel, 'stroke-width': '2.2', 'stroke-linejoin': 'round' }));
+  s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.95)), fill: 'none', stroke: '#ffffff', 'stroke-opacity': '0.45', 'stroke-width': '1.4', 'stroke-linejoin': 'round' }));
+  // Perlenreihe (Metall) oder eingeritzte Linie (Ton)
+  const linie = skaliert(aussen, 0.885);
+  if (m.perlen) for (const [x, y] of entlang(linie, 7.2)) s.append(svg('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 1.9, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.5', 'stroke-opacity': '0.6' }));
+  else s.append(svg('polygon', { points: pkt(linie), fill: 'none', stroke: m.dunkel, 'stroke-width': '1.4', 'stroke-dasharray': '1.5 3.5', 'stroke-linecap': 'round' }));
+  // Vertiefte Innenfläche
+  s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.8)), fill: `url(#tief-${mat})`, stroke: m.dunkel, 'stroke-width': '1.6', 'stroke-linejoin': 'round' }));
+  // Mitte: kleine Rosette aus Metall
+  for (let i = 0; i < 6; i++) { const t = i * Math.PI / 3; s.append(svg('circle', { cx: (4.2 * Math.cos(t)).toFixed(1), cy: (6 + 4.2 * Math.sin(t)).toFixed(1), r: 2.6, fill: rand, stroke: m.dunkel, 'stroke-width': '0.6' })); }
+  s.append(svg('circle', { cx: 0, cy: 6, r: 2.4, fill: m.hell }));
+  // Fassungen: Metallring mit vier Krallen, darin der Stein
   for (let i = 0; i < n; i++) {
     const p = fassungsPlatz(i, n);
-    s.append(svg('circle', { class: 'a-fassung', cx: p.x, cy: p.y, r: 13, fill: m.fassung, stroke: m.linie, 'stroke-width': '2', 'stroke-dasharray': '3 3' }));
+    s.append(svg('circle', { class: 'a-fassung', cx: p.x, cy: p.y, r: 12.5, fill: m.tief2, 'fill-opacity': '0.55' }));
     if (steine[i]) {
-      const g = stein(steine[i], p.x, p.y, 26);
+      const g = stein(steine[i], p.x, p.y, 23);
       if (i === neu) g.firstChild.classList.add('neu'); // inneres <g>: die Animation darf das transform-Attribut nicht ersetzen
       s.append(g);
     }
+    s.append(svg('circle', { cx: p.x, cy: p.y, r: 12.5, fill: 'none', stroke: rand, 'stroke-width': '2.6' }));
+    for (let k = 0; k < 4; k++) {
+      const t = (45 + k * 90) * Math.PI / 180;
+      s.append(svg('circle', { cx: (p.x + 12 * Math.cos(t)).toFixed(1), cy: (p.y + 12 * Math.sin(t)).toFixed(1), r: 2.1, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.6' }));
+    }
   }
+  // Glasur (Ton): breiter Glanz oben links
+  if (m.glasur) s.append(svg('ellipse', { cx: -24, cy: -22, rx: 18, ry: 8, fill: '#ffffff', 'fill-opacity': '0.28', transform: 'rotate(-35 -24 -22)' }));
   return s;
 }

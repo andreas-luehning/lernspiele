@@ -6,7 +6,7 @@
 //
 // Bei jeder Änderung an den Dateien VERSION erhöhen. Neue Dateien in DATEIEN eintragen
 // (tests/app-browser.js prüft, dass nichts fehlt).
-const VERSION = 'v13';
+const VERSION = 'v14';
 const CACHE = 'lernspiele-' + VERSION;
 const DATEIEN = [
   './', 'index.html', 'startseite.css', 'manifest.webmanifest',
