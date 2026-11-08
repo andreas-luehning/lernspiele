@@ -1,16 +1,14 @@
-// Leuchttisch: Steine zeigen, Antwort tippen oder schreiben, „Zeig mir's“, Amulett füllen, Schatzkiste.
+// Leuchttisch: Steine zeigen, Antwort tippen oder schreiben, „Zeig mir's“, Amulett füllen (fertige kommen in die Schatzkammer).
 import { ladeModell } from '../gemeinsam/ziffern.js';
 import { Schreibfeld, alleNeuZeichnen } from '../gemeinsam/schreibfeld.js';
 import { lesen, schreiben } from '../gemeinsam/speicher.js';
-import { Runde, uhrText } from '../gemeinsam/runde.js';
-import { STUFEN, FASSUNGEN, steinGroesse, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen, rundeBeendenLT } from './aufgaben.js';
+import { Runde, uhrText, PROBE } from '../gemeinsam/runde.js';
+import { STANDARD, STUFEN, FASSUNGEN, materialDerStufe, steinGroesse, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen, rundeBeendenLT } from './aufgaben.js';
 import { svg, stein, defsEinbauen, amulett, STEIN_ART } from './steine.js';
 
 const $ = id => document.getElementById(id);
 
 /* ---------- Gespeicherter Zustand ---------- */
-// runde: {} ist nur das Typ-Muster für speicher.js; zustandPruefen macht daraus null oder eine geprüfte Runde
-const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, licht: 'ruhig', fassung: [], amulette: [], runde: {} };
 let zustand = zustandPruefen(lesen('leuchttisch', STANDARD));
 const speichern = () => schreiben('leuchttisch', zustand);
 
@@ -175,17 +173,17 @@ function gruppe(steine, n, farbe) {
   g.append(t); tischSvg.append(g);
 }
 
-/* ---------- Amulett und Schatzkiste ---------- */
+/* ---------- Amulett und Schatzkammer ---------- */
 function schatzZeigen(neu = -1, voll = false) {
   const platz = $('amulett');
   if (voll) {
     // Volles Amulett kurz zeigen, dann leeres neues
     const fertigesAmulett = zustand.amulette[zustand.amulette.length - 1];
-    const s = amulett(fertigesAmulett, FASSUNGEN, { neu: FASSUNGEN - 1 }); s.classList.add('fertig');
-    platz.replaceChildren(s, beschriftung('Fertig! Ab in die Schatzkiste.'));
-    setTimeout(() => { platz.replaceChildren(amulett(zustand.fassung, FASSUNGEN), beschriftung(fassungText())); kisteZeigen(true); }, 1800);
+    const s = amulett(fertigesAmulett.steine, FASSUNGEN, { ...fertigesAmulett, neu: FASSUNGEN - 1 }); s.classList.add('fertig');
+    platz.replaceChildren(s, beschriftung('Fertig! Ab in die Schatzkammer.'));
+    setTimeout(() => { platz.replaceChildren(amulett(zustand.fassung, FASSUNGEN, zustand.modell), beschriftung(fassungText())); kisteZeigen(true); }, 1800);
   } else {
-    platz.replaceChildren(amulett(zustand.fassung, FASSUNGEN, { neu }), beschriftung(fassungText()));
+    platz.replaceChildren(amulett(zustand.fassung, FASSUNGEN, { ...zustand.modell, neu }), beschriftung(fassungText()));
   }
 }
 function fassungText() {
@@ -196,7 +194,7 @@ function beschriftung(t) { const s = document.createElement('span'); s.className
 function kisteZeigen(pop = false) {
   $('kistezahl').textContent = String(zustand.amulette.length);
   const letztes = zustand.amulette[zustand.amulette.length - 1];
-  $('kistebild').replaceChildren(amulett(letztes || [], FASSUNGEN, { klein: true }));
+  $('kistebild').replaceChildren(letztes ? amulett(letztes.steine, FASSUNGEN, { ...letztes, klein: true }) : amulett([], FASSUNGEN, { klein: true }));
   if (pop) { const k = $('kiste'); k.classList.remove('pop'); void k.offsetWidth; k.classList.add('pop'); }
 }
 
@@ -260,7 +258,7 @@ setInterval(() => {
 function stufenZeigen() { document.querySelectorAll('#stufen button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.stufe === zustand.stufe))); }
 document.querySelectorAll('#stufen button').forEach(b => b.addEventListener('click', () => {
   const i = +b.dataset.stufe; if (zeigt || !STUFEN[i]) return;
-  zustand.stufe = i; speichern(); stufenZeigen(); neueSteine();
+  zustand.stufe = i; zustand.modell.material = materialDerStufe(i); speichern(); stufenZeigen(); schatzZeigen(); neueSteine();
 }));
 document.querySelectorAll('#eingabe button').forEach(b => b.addEventListener('click', () => {
   zustand.eingabe = b.dataset.eingabe === 'schreiben' ? 'schreiben' : 'tippen'; speichern(); eingabeZeigen();
@@ -273,6 +271,7 @@ document.querySelectorAll('#licht button').forEach(b => b.addEventListener('clic
   zustand.licht = b.dataset.licht === 'bewegt' ? 'bewegt' : 'ruhig'; speichern(); lichtZeigen();
 }));
 $('b-hilfe').addEventListener('click', () => { aktiv(); zeigMirs(); });
+$('kiste').href = '../schatzkammer/' + (PROBE ? '?probe' : ''); // Probe-Modus bleibt erhalten
 $('b-neu').addEventListener('click', () => { if (zustand.runde?.zeitUm) runde.beenden(); neueSteine(); });
 $('b-info').addEventListener('click', () => { const g = $('grown'); g.hidden = !g.hidden; $('b-info').setAttribute('aria-expanded', String(!g.hidden)); });
 

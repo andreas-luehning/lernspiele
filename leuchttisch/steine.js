@@ -112,20 +112,47 @@ export function fassungsPlatz(i, n) {
   return { x: 27 * Math.cos(a), y: 6 + 27 * Math.sin(a) };
 }
 
+// Materialien der Amulette (eins pro Stufe, siehe aufgaben.js): Rand, Kante, Innenfläche, Linien, Fassungen, Kette
+export const MATERIAL = {
+  ton:    { name: 'Ton',    rand: '#c96a4b', kante: '#7d3520', innen: '#eeb9a2', linie: '#a9583c', fassung: '#e3a287', kette: '#8f5a46' },
+  bronze: { name: 'Bronze', rand: '#e2a76c', kante: '#8a5426', innen: '#f9e5cf', linie: '#c3834a', fassung: '#efd2b2', kette: '#a8703d' },
+  silber: { name: 'Silber', rand: '#dfe5ee', kante: '#7f8ba0', innen: '#f7f9fc', linie: '#aab4c4', fassung: '#e8ecf2', kette: '#9aa5b6' },
+  gold:   { name: 'Gold',   rand: '#ffd56b', kante: '#c98a12', innen: '#fff3cf', linie: '#e7b53c', fassung: '#f1e2b6', kette: '#c9a24a' },
+};
+const MITTE = [0, 6];
+const rund = (n, rf) => Array.from({ length: n }, (_, i) => { const t = i / n * 2 * Math.PI - Math.PI / 2, r = rf(t); return [MITTE[0] + r * Math.cos(t), MITTE[1] + r * Math.sin(t)]; });
+// Umrisse der Formen (Punkte um die Mitte 0/6); die Fassungen liegen auf einem Kreis mit Radius 27 (plus 13) und passen in jede Form
+export const FORM = {
+  rund:     { name: 'Rund',     umriss: () => rund(72, () => 52) },
+  sechseck: { name: 'Sechseck', umriss: () => rund(6, () => 58) },
+  sonne:    { name: 'Sonne',    umriss: () => rund(24, t => (Math.round((t + Math.PI / 2) / (Math.PI / 12)) % 2 ? 50 : 59)) },
+  bluete:   { name: 'Blüte',    umriss: () => rund(96, t => 51 + 6 * Math.cos(6 * (t + Math.PI / 2))) },
+  schild:   { name: 'Schild',   umriss: () => [[-50, -42], [50, -42], [53, -38], [53, 12], [44, 36], [24, 54], [0, 64], [-24, 54], [-44, 36], [-53, 12], [-53, -38]] },
+  kissen:   { name: 'Kissen',   umriss: () => rund(64, t => 50 / Math.pow(Math.pow(Math.abs(Math.cos(t)), 4) + Math.pow(Math.abs(Math.sin(t)), 4), 0.25)) },
+};
+const skaliert = (ps, f) => ps.map(([x, y]) => [MITTE[0] + (x - MITTE[0]) * f, MITTE[1] + (y - MITTE[1]) * f]);
+
 /**
- * Amulett mit n Fassungen; steine = eingesetzte Steine. Größe 120 × 130 Einheiten (viewBox -60 -64 120 130).
- * neu = Index des gerade eingesetzten Steins (bekommt eine kleine Animation).
+ * Amulett mit n Fassungen; steine = eingesetzte Steine. Größe 120 × 132 Einheiten (viewBox -62 -64 124 132).
+ * form, material: das Modell (siehe aufgaben.js MODELLE). neu = Index des gerade eingesetzten Steins (kleine Animation).
+ * umriss: nur der graue Umriss (noch nicht gefundenes Modell im Album).
  */
-export function amulett(steine, n, { neu = -1, klein = false } = {}) {
-  const s = svg('svg', { viewBox: '-60 -64 120 130', class: 'amulett' + (klein ? ' klein' : ''), 'aria-hidden': 'true' });
-  s.append(svg('path', { class: 'a-kette', d: 'M-30 -64 Q0 -30 30 -64' }));
-  s.append(svg('circle', { class: 'a-oese', cx: 0, cy: -46, r: 7 }));
-  s.append(svg('circle', { class: 'a-rand', cx: 0, cy: 6, r: 52 }));
-  s.append(svg('circle', { class: 'a-innen', cx: 0, cy: 6, r: 43 }));
-  s.append(svg('circle', { class: 'a-mitte', cx: 0, cy: 6, r: 8 }));
+export function amulett(steine, n, { form = 'rund', material = 'gold', neu = -1, klein = false, umriss = false } = {}) {
+  const f = FORM[form] || FORM.rund, m = MATERIAL[material] || MATERIAL.gold;
+  const s = svg('svg', { viewBox: '-62 -64 124 132', class: 'amulett' + (klein ? ' klein' : '') + (umriss ? ' umriss' : ''), 'aria-hidden': 'true' });
+  const aussen = f.umriss();
+  if (umriss) {
+    s.append(svg('polygon', { points: pkt(aussen), fill: 'none', stroke: 'currentColor', 'stroke-width': '3', 'stroke-dasharray': '6 5', 'stroke-linejoin': 'round' }));
+    return s;
+  }
+  s.append(svg('path', { d: 'M-30 -64 Q0 -30 30 -64', fill: 'none', stroke: m.kette, 'stroke-width': '3', 'stroke-dasharray': '2 4', 'stroke-linecap': 'round' }));
+  s.append(svg('circle', { cx: 0, cy: -47, r: 7, fill: 'none', stroke: m.kante, 'stroke-width': '4' }));
+  s.append(svg('polygon', { points: pkt(aussen), fill: m.rand, stroke: m.kante, 'stroke-width': '3', 'stroke-linejoin': 'round' }));
+  s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.83)), fill: m.innen, stroke: m.linie, 'stroke-width': '2', 'stroke-linejoin': 'round' }));
+  s.append(svg('circle', { cx: 0, cy: 6, r: 8, fill: m.fassung, stroke: m.linie, 'stroke-width': '2' }));
   for (let i = 0; i < n; i++) {
     const p = fassungsPlatz(i, n);
-    s.append(svg('circle', { class: 'a-fassung', cx: p.x, cy: p.y, r: 13 }));
+    s.append(svg('circle', { class: 'a-fassung', cx: p.x, cy: p.y, r: 13, fill: m.fassung, stroke: m.linie, 'stroke-width': '2', 'stroke-dasharray': '3 3' }));
     if (steine[i]) {
       const g = stein(steine[i], p.x, p.y, 26);
       if (i === neu) g.firstChild.classList.add('neu'); // inneres <g>: die Animation darf das transform-Attribut nicht ersetzen

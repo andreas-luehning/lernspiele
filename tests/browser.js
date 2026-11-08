@@ -175,6 +175,22 @@ const { schreibe } = require('./hilfen.js');
     n0 = await p.$$eval('.tisch .stein', s => s.length); await p.click(`.opt[data-wert="${n0}"]`); await p.waitForTimeout(400);
     chk(await p.$$eval('#amulett .stein', s => s.length) === 0 && /Super/.test(await p.textContent('#hinweis')), 'leuchttisch: freies Üben lobt, gibt aber keinen Stein');
     await p.goto(BASE); await p.evaluate(() => localStorage.removeItem('lernspiele:lernzeit')); await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);
+    // Schatzkammer: zeigt Amulette und Album, ohne fremde Anfragen; manipulierter Speicher
+    {
+      const fremd2 = [], fehler2 = [];
+      p.on('request', r => { if (!r.url().startsWith(BASE)) fremd2.push(r.url()); });
+      p.on('console', m => { if (m.type() === 'error') fehler2.push(m.text()); });
+      await p.goto(BASE); await p.evaluate(() => localStorage.setItem('lernspiele:leuchttisch', JSON.stringify({ version: 1, stufe: 2, fassung: ['rubin', 'topas'],
+        amulette: [{ steine: ['rubin', 'saphir', 'smaragd', 'amethyst', 'citrin'], form: 'sonne', material: 'silber' }, { steine: ['<img src=x onerror=alert(1)>'], form: 'x', material: 'y' }], modell: { form: 'schild', material: 'ton' } })));
+      await p.click('.kachel[href="schatzkammer/"]'); await p.waitForURL(/schatzkammer/); await p.waitForTimeout(300);
+      const sk = await p.evaluate(() => ({ karten: document.querySelectorAll('#amulette .karte').length, album: document.querySelectorAll('#album .karte').length,
+        gefunden: document.querySelectorAll('#album .karte:not(.fehlt)').length, zahl: document.getElementById('album-zahl').textContent,
+        jetzt: document.querySelectorAll('#jetzt .stein').length, img: !!document.querySelector('img'), scroll: document.documentElement.scrollWidth > innerWidth }));
+      chk(sk.karten === 1 && sk.album === 24 && sk.gefunden === 1 && /1 von 24/.test(sk.zahl) && sk.jetzt === 2 && !sk.img && !sk.scroll, 'schatzkammer: Amulette, Album, angefangenes Amulett, bereinigt ' + JSON.stringify(sk));
+      await p.screenshot({ path: `${SHOTS}/schatzkammer.png`, fullPage: true });
+      chk(!fremd2.length && !fehler2.length, 'schatzkammer: keine fremden Anfragen, keine Fehler ' + fremd2.join(' ') + fehler2.join(' | '));
+      await p.goto(BASE); await p.evaluate(() => localStorage.removeItem('lernspiele:leuchttisch')); await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);
+    }
     // Schreiben (Eltern-Einstellung)
     await p.click('#b-info'); await p.click('#eingabe [data-eingabe="schreiben"]'); await p.click('#b-info'); await p.waitForTimeout(800);
     await p.click('#stufen [data-stufe="0"]'); await p.waitForTimeout(300);

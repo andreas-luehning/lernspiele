@@ -4,12 +4,29 @@
 export const STEINE = ['rubin', 'saphir', 'smaragd', 'amethyst', 'citrin', 'topas'];
 export const FASSUNGEN = 5;            // Steine pro Amulett (vorläufig, siehe docs/leuchttisch.md)
 export const MAX_AMULETTE = 2000;      // Obergrenze im Speicher
+// Amulett-Modelle: Form × Material; das Material gehört zur Stufe (siehe docs/leuchttisch.md). Neue Materialien hier ergänzen.
+export const FORMEN = ['rund', 'sechseck', 'sonne', 'bluete', 'schild', 'kissen'];
+export const MATERIALIEN = ['ton', 'bronze', 'silber', 'gold'];
+export const MODELLE = MATERIALIEN.flatMap(material => FORMEN.map(form => ({ form, material })));
+export const modellId = m => m.form + ':' + m.material;
+export const materialDerStufe = stufe => (STUFEN[stufe] || STUFEN[0]).material;
+/** Modelle, die schon in der Sammlung sind (als Menge von "form:material"). */
+export const gefundeneModelle = amulette => new Set(amulette.map(modellId));
+/** Nächstes Modell im Material: bevorzugt eine Form, die darin noch fehlt; sonst eine andere als zuletzt. */
+export function neuesModell(amulette, material = 'ton', r = Math.random) {
+  const da = gefundeneModelle(amulette), letztes = amulette.length ? amulette[amulette.length - 1].form : '';
+  let wahl = FORMEN.filter(f => !da.has(f + ':' + material));
+  if (!wahl.length) wahl = FORMEN.filter(f => f !== letztes);
+  return { form: wahl[Math.floor(r() * wahl.length)], material };
+}
+const modellPruefen = m => (m && FORMEN.includes(m.form) && MATERIALIEN.includes(m.material) ? { form: m.form, material: m.material } : null);
 
 export const STUFEN = [
-  { name: 'Zählen', modus: 'zaehlen', min: 2, max: 6 },
-  { name: 'Zerlegen bis 7', modus: 'zerlegen', min: 5, max: 7 },
-  { name: 'Zerlegen bis 10', modus: 'zerlegen', min: 7, max: 10 },
-  { name: 'Zerlegen bis 20', modus: 'zerlegen', min: 11, max: 20, maxGruppe: 10 },
+  // material: Das Amulett dieser Stufe ist aus diesem Material (schwerere Stufe = edleres Material)
+  { name: 'Zählen', modus: 'zaehlen', min: 2, max: 6, material: 'ton' },
+  { name: 'Zerlegen bis 7', modus: 'zerlegen', min: 5, max: 7, material: 'bronze' },
+  { name: 'Zerlegen bis 10', modus: 'zerlegen', min: 7, max: 10, material: 'silber' },
+  { name: 'Zerlegen bis 20', modus: 'zerlegen', min: 11, max: 20, maxGruppe: 10, material: 'gold' },
 ];
 
 /** Steingröße in Tisch-Einheiten (Tischbreite 1000): bei vielen Steinen kleiner, damit alle Platz haben. */
@@ -91,6 +108,9 @@ export function tipp(a) {
 /** Gespeicherte Steinliste prüfen: nur bekannte Steine, höchstens n. */
 export const steinListe = (x, n) => (Array.isArray(x) ? x.filter(s => STEINE.includes(s)).slice(0, n) : []);
 
+/** Muster für lesen('leuchttisch', …). runde: {} ist nur das Typ-Muster; zustandPruefen macht daraus null oder eine geprüfte Runde. */
+export const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, licht: 'ruhig', fassung: [], amulette: [], runde: {}, modell: {} };
+
 /** Zustand aus dem Speicher prüfen und bereinigen. */
 export function zustandPruefen(z) {
   const aus = { ...z };
@@ -101,8 +121,14 @@ export function zustandPruefen(z) {
   aus.runde = rundePruefen(z.runde);
   aus.walkers = [];                     // gemeinsam/runde.js erwartet das Feld (Begleiter gibt es nur bei den Schnecken)
   aus.fassung = steinListe(z.fassung, FASSUNGEN - 1);
-  aus.amulette = (Array.isArray(z.amulette) ? z.amulette : [])
-    .map(a => steinListe(a, FASSUNGEN)).filter(a => a.length === FASSUNGEN).slice(-MAX_AMULETTE);
+  aus.amulette = (Array.isArray(z.amulette) ? z.amulette : []).map(a => {
+    // Übernahme: frühere Amulette waren nur eine Liste von Steinen → rundes Gold-Amulett
+    if (Array.isArray(a)) return { steine: steinListe(a, FASSUNGEN), form: 'rund', material: 'gold' };
+    const m = a && typeof a === 'object' ? modellPruefen(a) : null;
+    return m ? { steine: steinListe(a.steine, FASSUNGEN), ...m } : null;
+  }).filter(a => a && a.steine.length === FASSUNGEN).slice(-MAX_AMULETTE);
+  aus.modell = modellPruefen(z.modell) || neuesModell(aus.amulette, materialDerStufe(aus.stufe));
+  aus.modell.material = materialDerStufe(aus.stufe);   // das angefangene Amulett hat immer das Material der Stufe
   return aus;
 }
 
@@ -125,17 +151,18 @@ export function rundeBeendenLT(z) {
 }
 
 /**
- * Richtige Aufgabe: Stein in die nächste Fassung. Ist das Amulett voll, kommt es in die Schatzkiste.
+ * Richtige Aufgabe: Stein in die nächste Fassung. Ist das Amulett voll, kommt es in die Schatzkammer, und ein neues Modell beginnt.
  * Verändert den Zustand. Ergebnis: { platz, voll }
  */
-export function steinEinsetzen(z, sorte) {
+export function steinEinsetzen(z, sorte, r = Math.random) {
   if (!STEINE.includes(sorte)) sorte = STEINE[0];
   z.fassung.push(sorte);
   const platz = z.fassung.length - 1;
   if (z.fassung.length >= FASSUNGEN) {
-    z.amulette.push(z.fassung.slice(0, FASSUNGEN));
+    z.amulette.push({ steine: z.fassung.slice(0, FASSUNGEN), ...z.modell });
     if (z.amulette.length > MAX_AMULETTE) z.amulette.shift();
     z.fassung = [];
+    z.modell = neuesModell(z.amulette, materialDerStufe(z.stufe), r);
     return { platz, voll: true };
   }
   return { platz, voll: false };

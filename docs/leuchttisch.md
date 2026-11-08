@@ -46,7 +46,7 @@ Gezeichnet mit Facetten (Licht von links oben), Tafel, Funkeln und einem farbige
 | Stufe 1: Zählen | 2–6 Steine einer Sorte liegen verstreut. „Wie viele Steine sind es?“ |
 | Stufe 2 bis 4: Zerlegen | Zwei lockere Gruppen (links/rechts), 5–7, 7–10 bzw. 11–20 Steine (bis 20: höchstens 10 pro Gruppe, oft mit Zehnerübergang wie 8 + 5; die Steine sind etwas kleiner). „Wie viele sind es zusammen?“ Standard: zwei Sorten; die Eltern können auf eine Sorte umstellen. |
 | Richtig | Der Tisch leuchtet einmal auf, alle Steine funkeln nacheinander. Ein Stein der Aufgabe wandert in die nächste freie Fassung des Amuletts. Kurz stehen lassen, dann kommen von selbst neue Steine. |
-| Amulett voll | Es kommt in die Schatzkiste, ein neues leeres Amulett erscheint. |
+| Amulett voll | Es kommt in die Schatzkammer, ein neues leeres Amulett mit einem **anderen Modell** erscheint (bevorzugt eines, das noch fehlt). Die Steine werden weiter automatisch eingesetzt (Entscheidung 08.11.: kein eigenes Einsetzen, später evtl. Steine umsetzen). |
 | Falsch | Sanftes Wackeln, ein Tipp, beliebig oft probieren. Beim Zerlegen erscheint „a + b = ?“. Nichts geht verloren. |
 | „Zeig mir's“ | Zählen: Die Steine werden nacheinander nummeriert. Zerlegen: Beide Gruppen werden umrandet, mit ihrer Anzahl, dann „a + b = ?“. Das Ergebnis wird nie verraten. |
 | Licht | Standard „Ruhig“: Licht scheint gleichmäßig durch die Steine. Erwachsene können „Bewegt“ einschalten: weiche Lichtflecken wandern sehr langsam unter dem Tisch, etwa alle 2–3 Sekunden funkelt ein Stein. Bei „Zeig mir's“ und nach der richtigen Antwort steht das Licht still. Bei „Bewegung reduzieren“ am Gerät keine Bewegung. |
@@ -55,7 +55,14 @@ Gezeichnet mit Facetten (Licht von links oben), Tafel, Funkeln und einem farbige
 
 Gespeichert unter `lernspiele:leuchttisch`: `{ version: 1, stufe, eingabe: "tippen" | "schreiben", zweiSorten, licht: "ruhig" | "bewegt", fassung: [Steine], amulette: [[Steine], …] }`. Beim Lesen werden nur bekannte Steine übernommen.
 
-Noch nicht im Entwurf: Hauptbelohnung für eine fertige Runde, Amulett-Galerie, Burg, Schatzburg.
+### Amulett-Modelle und Schatzkammer
+
+- **Modell = Form × Material:** Formen rund, Sechseck, Sonne, Blüte, Schild, Kissen. Das **Material zeigt die Stufe**: Zählen = Ton, Zerlegen bis 7 = Bronze, bis 10 = Silber, bis 20 = Gold (24 Modelle). Erweiterbar für neue Stufen oder Varianten (z. B. Kristall, Perlmutt, Platin).
+- Das angefangene Amulett nimmt das Material der Stufe, auf der gerade geübt wird (wechselt die Stufe, wechselt das Material mit). Fertig ist es mit dem Material der Stufe, auf der der letzte Stein kam. Die Form wechselt bei jedem neuen Amulett, bevorzugt eine, die in diesem Material noch fehlt.
+- **Schatzkammer** (`schatzkammer/`, eigene Kachel auf der Startseite, weil sie später vielleicht auch anderen Spielen dient): zeigt das angefangene Amulett, alle fertigen Amulette (neueste zuerst) und ein Album mit allen Modellen; noch nicht gefundene sind als graue Umrisse zu sehen.
+- Gespeichert: `modell: { form, material }` für das angefangene Amulett, `amulette: [{ steine, form, material }]`. Ältere Amulette (nur eine Liste von Steinen) werden als rundes Gold-Amulett übernommen.
+
+Noch nicht im Entwurf: Hauptbelohnung für eine fertige Runde (vorerst nur die Meldung „Geschafft!“), Steine umsetzen, Burg, Schatzburg.
 
 ### Ideen zum Weiterdenken (noch nicht entschieden)
 

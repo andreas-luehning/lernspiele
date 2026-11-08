@@ -6,7 +6,7 @@
 //
 // Bei jeder Änderung an den Dateien VERSION erhöhen. Neue Dateien in DATEIEN eintragen
 // (tests/app-browser.js prüft, dass nichts fehlt).
-const VERSION = 'v12';
+const VERSION = 'v13';
 const CACHE = 'lernspiele-' + VERSION;
 const DATEIEN = [
   './', 'index.html', 'startseite.css', 'manifest.webmanifest',
@@ -20,6 +20,7 @@ const DATEIEN = [
   'zehnerweg/', 'zehnerweg/index.html', 'zehnerweg/zehnerweg.css', 'zehnerweg/zehnerweg.js', 'zehnerweg/aufgaben.js',
   'garten/', 'garten/index.html', 'garten/garten.css', 'garten/garten.js',
   'leuchttisch/', 'leuchttisch/index.html', 'leuchttisch/leuchttisch.css', 'leuchttisch/leuchttisch.js', 'leuchttisch/aufgaben.js', 'leuchttisch/steine.js',
+  'schatzkammer/', 'schatzkammer/index.html', 'schatzkammer/schatzkammer.css', 'schatzkammer/schatzkammer.js',
 ];
 
 self.addEventListener('install', e => {

@@ -49,11 +49,23 @@ chk(JSON.stringify(z.fassung) === '["rubin","topas"]' && z.amulette.length === 1
 const z2 = LT.zustandPruefen({ stufe: 0, eingabe: 'tippen', zweiSorten: true, fassung: [], amulette: [] });
 for (let i = 0; i < LT.FASSUNGEN - 1; i++) chk(!LT.steinEinsetzen(z2, 'saphir').voll, 'lt noch nicht voll');
 const e = LT.steinEinsetzen(z2, 'boese');
-chk(e.voll && z2.fassung.length === 0 && z2.amulette.length === 1 && z2.amulette[0].every(s => LT.STEINE.includes(s)), 'lt amulett voll');
+chk(e.voll && z2.fassung.length === 0 && z2.amulette.length === 1 && z2.amulette[0].steine.every(s => LT.STEINE.includes(s)), 'lt amulett voll');
 chk(LT.rundePruefen({ ende: 'x' }) === null && LT.rundePruefen(null) === null, 'lt runde ungültig');
 const rp = LT.rundePruefen({ ende: 5, tag: '<b>', pause: -3, zeitUm: 'ja', steine: 1e9 });
 chk(rp && rp.tag === '' && rp.pause === null && rp.zeitUm === false && rp.steine === 0, 'lt runde bereinigt');
 const zr = { runde: { ende: 1, steine: 4 } }; chk(LT.rundeBeendenLT(zr).steine === 4 && zr.runde === null, 'lt runde beenden');
+// Modelle: Material nach Stufe, fehlende Formen bevorzugt, alte Amulette übernommen
+chk(LT.MODELLE.length === LT.FORMEN.length * LT.MATERIALIEN.length, 'lt modelle');
+chk(LT.STUFEN.every(s => LT.MATERIALIEN.includes(s.material)), 'lt jede stufe hat ein material');
+{ const am = []; const formen = new Set();
+  for (let i = 0; i < LT.FORMEN.length; i++) { const m = LT.neuesModell(am, 'silber'); chk(m.material === 'silber', 'lt material'); formen.add(m.form); am.push({ steine: [], ...m }); }
+  chk(formen.size === LT.FORMEN.length, 'lt fehlende formen zuerst');
+  const m = LT.neuesModell(am, 'silber'); chk(m.form !== am[am.length - 1].form, 'lt nicht zweimal dasselbe'); }
+const za = LT.zustandPruefen({ stufe: 3, amulette: [['rubin', 'rubin', 'saphir', 'topas', 'citrin'], { steine: ['rubin', 'rubin', 'saphir', 'topas', 'citrin'], form: '<b>', material: 'gold' }, { steine: ['rubin', 'rubin', 'saphir', 'topas', 'citrin'], form: 'sonne', material: 'ton' }], modell: { form: 'schild', material: 'ton' } });
+chk(za.amulette.length === 2 && za.amulette[0].form === 'rund' && za.amulette[0].material === 'gold' && za.amulette[1].form === 'sonne', 'lt alte amulette übernommen, kaputte entfernt');
+chk(za.modell.form === 'schild' && za.modell.material === 'gold', 'lt angefangenes amulett: material der stufe');
+{ const z3 = LT.zustandPruefen({ stufe: 1 }); for (let i = 0; i < LT.FASSUNGEN; i++) LT.steinEinsetzen(z3, 'rubin');
+  chk(z3.amulette.length === 1 && z3.amulette[0].material === 'bronze' && z3.modell.material === 'bronze', 'lt fertiges amulett bronze, neues auch'); }
 console.log('Leuchttisch geprüft');
 console.log(fehler ? fehler + ' Fehler' : 'alles ok');
 process.exit(fehler ? 1 : 0);

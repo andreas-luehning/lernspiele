@@ -41,6 +41,10 @@
 .k-st { stroke-width: 2; stroke-linejoin: round; fill-opacity: .6; }
 .k-rot { fill: #e8193c; stroke: #7d0a20; } .k-blau { fill: #1f6fe5; stroke: #0a347f; } .k-gruen { fill: #14a85a; stroke: #08502c; }
 .k-lila { fill: #8b4fe8; stroke: #43208a; } .k-orange { fill: #ff8a1a; stroke: #9c4300; }
+.k-kette { fill: none; stroke: #c9a24a; stroke-width: 3; stroke-dasharray: 2 4; stroke-linecap: round; }
+.k-oese { fill: none; stroke: #c98a12; stroke-width: 3.5; }
+.k-gold { fill: #ffd56b; stroke: #c98a12; stroke-width: 3; } .k-gold-innen { fill: #fff3cf; stroke: #e7b53c; stroke-width: 2; }
+.k-silber { fill: #dfe5ee; stroke: #7f8ba0; stroke-width: 3; } .k-ton { fill: #d98a5f; stroke: #8c4a2b; stroke-width: 3; }
 .kachel text { font: 800 17px var(--display); fill: var(--fg); }
 
 .erwachsene { margin-top: auto; background: var(--sheet); border: 2px solid var(--rule); border-radius: 18px; padding: 4px 16px; }

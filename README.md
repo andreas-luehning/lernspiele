@@ -46,6 +46,7 @@ Veröffentlicht wird über GitHub Pages vom Branch `main`. Jedes Spiel hat eine 
 | `zehnerweg/` | Spiel 1 |
 | `garten/` | Schneckengarten |
 | `leuchttisch/` | Spiel 2 (Entwurf) |
+| `schatzkammer/` | Amulette vom Leuchttisch |
 | `gemeinsam/` | Gemeinsame Teile: Aussehen, Schriften, Zahlenerkennung, Schreibfeld, Speicher |
 | `docs/` | Regeln der Spiele, Datenschutz und Sicherheit, Ideen und offene Fragen |
 | `tests/` | Automatische Prüfungen (Logik und Browser) |
