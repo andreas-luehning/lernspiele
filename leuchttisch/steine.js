@@ -50,14 +50,19 @@ function facette(ps) {
     : svg('polygon', { points: pkt(ps), fill: '#000000', 'fill-opacity': (0.06 + 0.42 * -h).toFixed(2), stroke: '#ffffff', 'stroke-opacity': '0.18', 'stroke-width': '0.7' });
 }
 
-/** Ein Edelstein als <g>, Mitte (x, y), Größe g (Breite in Einheiten), Drehung in Grad. */
-export function stein(sorte, x, y, g, dreh = 0) {
+/**
+ * Ein Edelstein als <g>, Mitte (x, y), Größe g (Breite in Einheiten), Drehung in Grad.
+ * licht: Der Stein liegt auf dem Leuchttisch; das Licht von unten scheint durch (hellere Mitte, stärkerer Schein).
+ */
+export function stein(sorte, x, y, g, dreh = 0, { licht = false } = {}) {
   const art = STEIN_ART[sorte] || STEIN_ART.rubin, s = g / 84;
   const gr = svg('g', { transform: `translate(${x} ${y}) rotate(${dreh}) scale(${s})`, class: 'stein', 'data-sorte': sorte });
   const k = svg('g', { 'stroke-linejoin': 'round' });
   // Licht scheint durch den Stein auf den Tisch
-  k.append(svg('polygon', { points: pkt(art.umriss.map(([a, b]) => [a * 1.1, b * 1.1])), fill: art.hell, 'fill-opacity': '0.55', filter: 'url(#schein)' }));
-  k.append(svg('polygon', { points: pkt(art.umriss), fill: `url(#verlauf-${sorte in STEIN_ART ? sorte : 'rubin'})`, 'fill-opacity': '0.9' }));
+  const sch = licht ? 1.22 : 1.1;
+  k.append(svg('polygon', { points: pkt(art.umriss.map(([a, b]) => [a * sch, b * sch])), fill: licht ? art.farbe : art.hell, 'fill-opacity': licht ? '0.45' : '0.55', filter: 'url(#schein)' }));
+  k.append(svg('polygon', { points: pkt(art.umriss), fill: `url(#verlauf-${sorte in STEIN_ART ? sorte : 'rubin'})`, 'fill-opacity': licht ? '0.74' : '0.9' }));
+  if (licht) k.append(svg('polygon', { points: pkt(art.umriss), fill: 'url(#innenlicht)' }));
   // Ringe von außen nach innen; s ist relativ zum vorigen Ring.
   // versetzt: Die inneren Ecken liegen zwischen den äußeren, das ergibt Dreiecke wie beim Brillanten.
   let aussen = art.umriss;
@@ -92,8 +97,11 @@ export function defsEinbauen() {
     v.append(svg('stop', { offset: '0', 'stop-color': art.hell }), svg('stop', { offset: '0.5', 'stop-color': art.farbe }), svg('stop', { offset: '1', 'stop-color': art.dunkel }));
     defs.append(v);
   }
+  const il = svg('radialGradient', { id: 'innenlicht', cx: '0.5', cy: '0.55', r: '0.55' });
+  il.append(svg('stop', { offset: '0', 'stop-color': '#ffffff', 'stop-opacity': '0.75' }), svg('stop', { offset: '0.6', 'stop-color': '#ffffff', 'stop-opacity': '0.25' }), svg('stop', { offset: '1', 'stop-color': '#ffffff', 'stop-opacity': '0' }));
+  defs.append(il);
   const f = svg('filter', { id: 'schein', x: '-50%', y: '-50%', width: '200%', height: '200%' });
-  f.append(svg('feGaussianBlur', { stdDeviation: '4' }));
+  f.append(svg('feGaussianBlur', { stdDeviation: '5' }));
   defs.append(f);
   document.body.append(svg('svg', { id: 'stein-defs', class: 'svg-defs', width: '0', height: '0', 'aria-hidden': 'true', focusable: 'false' }, [defs]));
 }

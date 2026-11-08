@@ -25,7 +25,7 @@ function tischMasse() {
 
 function tischZeichnen() {
   tischSvg = svg('svg', { viewBox: `0 0 ${B} ${H}`, class: 'tisch-svg', role: 'img', 'aria-label': `Edelsteine auf dem Leuchttisch` });
-  for (const s of aufgabe.steine) tischSvg.append(stein(s.sorte, s.x, s.y, G, s.dreh));
+  for (const s of aufgabe.steine) tischSvg.append(stein(s.sorte, s.x, s.y, G, s.dreh, { licht: true }));
   tisch.replaceChildren(tischSvg);
 }
 
