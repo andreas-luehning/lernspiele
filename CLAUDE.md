@@ -10,12 +10,12 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 ## Grundsätze
 
 1. **Kurz üben, Medienzeit begrenzen:** Eine Runde dauert 5 Minuten. Erwachsene stellen eine **gemeinsame Lernzeit pro Tag für alle Spiele** ein (15–30 Minuten, Standard 20). Gezählt wird nur echte Übungszeit; die Uhr pausiert, wenn niemand schreibt. Danach bleibt freies Üben ohne Belohnung möglich; die App erinnert freundlich, die Pause bestimmen die Erwachsenen.
-7. **Belohnung fair trennen:** Durchhalten (eine fertige Runde) bringt die Hauptbelohnung, Richtigrechnen bringt Extras. Jede Spielwelt hat ihre eigene Sammlung (Schnecken, später Amulette am Leuchttisch, Numis Freunde); gekoppelt sind die Spiele nur über die gemeinsame Lernzeit.
 2. **Nah am Arbeitsblatt:** Anordnung, Symbole (Herz, Hand, Straße) und Rechenweg wie auf Papier. Die Fotos liegen lokal in `docs/arbeitsblaetter/` (nicht im Git).
 3. **Fehler kosten nichts:** Es gibt Tipps statt Strafen. Nichts Gesammeltes geht verloren.
 4. **Hell und freundlich:** Pastellfarben, große Schreibfelder, Knöpfe mindestens 48 px, wenig Text. Hell ist Standard, Nachtmodus ist umschaltbar. Schriften: Grandstander (Überschriften, Zahlen) und Andika (Fließtext, für Leseanfänger gemacht).
 5. **Für alle Kinder:** Motive neutral halten (Schnecken, Tiere), keine Klischees wie „Autos für Jungen“.
 6. **Datenschutz und Sicherheit:** Alles bleibt auf dem Gerät. Keine Konten, kein Tracking, kein Server, keine Werbung, keine Anfragen an fremde Server (auch keine Schriften oder Bibliotheken von CDNs). Die Zahlenerkennung läuft im Browser. Details und Checkliste: `docs/datenschutz-und-sicherheit.md`.
+7. **Belohnung fair trennen:** Durchhalten (eine fertige Runde) bringt die Hauptbelohnung, Richtigrechnen bringt Extras. Jede Spielwelt hat ihre eigene Sammlung (Schnecken, später Amulette am Leuchttisch, Numis Freunde); gekoppelt sind die Spiele nur über die gemeinsame Lernzeit.
 
 ## Technik
 
