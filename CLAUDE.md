@@ -43,6 +43,8 @@ zehnerweg/              Spiel 1: Zehnerübergang nach Arbeitsblatt
 burgen/                 Spiel 2 (Idee): Leuchttisch-Burgen, schnell zählen
 gegenstaende/           Spiel 3 (Idee): Leuchttisch-Gegenstände, zählen und zerlegen
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
+  leuchttisch.md        Leuchttisch-Spiele: Unterlagen, Abgleich, offene Fragen
+  uebergaben/           Gelieferte Aufträge zu den Leuchttisch-Prototypen (nicht verändern)
 prototypen/             Die Prototypen aus der Ideenphase (nicht verändern, nur als Vorlage)
 werkzeuge/              Trainingsskript für das Ziffern-Modell
 tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Port 8123)
@@ -54,6 +56,7 @@ tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Por
 - **Nächster Schritt:** Schneckenparade (`docs/schneckenparade.md`) mit `runde.js` und `parade.js`.
 - `prototypen/zehnerweg.html` ist ein funktionierender Prototyp in einer Datei (Modell eingebettet). `prototypen/zehnerweg.quelle.html` ist dieselbe Datei mit dem Platzhalter `__MODEL__` statt der Gewichte; die Gewichte liegen in `werkzeuge/ziffern-modell/model.json`.
 - `prototypen/schneckenparade.html` ist eine Probe der Belohnung. Die Aufgaben werden dort per Knopf simuliert.
+- `prototypen/burgen.html` und `prototypen/leuchttisch.html` sind die Leuchttisch-Prototypen (noch mit Numi-Thema, Google Fonts und 4 Antwortknöpfen). Neue Richtung: kein Numi, Amulette auf dem Leuchttisch und als Belohnung. Unverträglichkeiten und offene Fragen: `docs/leuchttisch.md`. Erst klären, dann bauen.
 - Genaue Regeln: `docs/zehnerweg.md`, `docs/schneckenparade.md`. Ideen und offene Fragen: `docs/ideen-und-offene-fragen.md`.
 
 ## Was wir aus dem Prototyp gelernt haben

@@ -2,11 +2,11 @@
 
 ## Weitere Spiele (noch zu beschreiben)
 
-Beide stammen von Leuchttisch-Materialien aus dem Unterricht. Die genaue Beschreibung (Fotos, Ablauf) fehlt noch und soll vor dem Bauen ergänzt werden.
+Beide stammen von Leuchttisch-Materialien aus dem Unterricht. Prototypen, Übergaben und der Abgleich mit diesem Projekt stehen jetzt in `leuchttisch.md` (neue Richtung: Amulette statt Numi). Die folgenden Notizen sind der alte Stand.
 
 ### Burgen (Leuchttisch)
 - Ziel: Mengen schnell erfassen und zählen.
-- Mögliche Umsetzung: Eine Burg (mit Türmen, Fenstern, Fahnen o. Ä.) blitzt kurz auf, das Kind schreibt die Anzahl. Die Zeigedauer passt sich an.
+- Mögliche Umsetzung: Eine Burg (mit Türmen, Fenstern, Fahnen o. Ä.) blitzt kurz auf, das Kind schreibt die Anzahl. Die Zeigedauer passt sich an. *(Überholt: Der Prototyp zeigt die Burg ohne Zeitlimit, siehe `leuchttisch.md`.)*
 - Offen: Was genau wird gezählt? Wie lange ist das Bild sichtbar? Gibt es Stufen?
 
 ### Gegenstände (Leuchttisch)
