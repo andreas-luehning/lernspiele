@@ -2,7 +2,8 @@
 // Streuen und Stufen stammen aus prototypen/leuchttisch.html (addPoints, LEVELS), Numi-Figuren durch Edelsteine ersetzt.
 
 export const STEINE = ['rubin', 'saphir', 'smaragd', 'amethyst', 'citrin', 'topas'];
-export const FASSUNGEN = 5;            // Steine pro Amulett (vorläufig, siehe docs/leuchttisch.md)
+export const FASSUNGEN = 10;           // Steine pro Amulett (5 ging zu schnell, Rückmeldung 08.11.; siehe docs/leuchttisch.md)
+const ALT_FASSUNGEN = 5;               // frühere Amulette hatten 5 Steine und bleiben gültig
 export const MAX_AMULETTE = 2000;      // Obergrenze im Speicher
 // Amulett-Modelle: Form × Material; das Material gehört zur Stufe (siehe docs/leuchttisch.md). Neue Materialien hier ergänzen.
 export const FORMEN = ['rund', 'sechseck', 'sonne', 'bluete', 'schild', 'kissen'];
@@ -139,7 +140,7 @@ export function zustandPruefen(z) {
     if (!m) return null;
     const st = steinListe(a.steine, FASSUNGEN);
     return { steine: st, ...m, stein: m.stein || st[0] };
-  }).filter(a => a && a.steine.length === FASSUNGEN).slice(-MAX_AMULETTE);
+  }).filter(a => a && a.steine.length >= ALT_FASSUNGEN).slice(-MAX_AMULETTE);
   aus.modell = modellPruefen(z.modell) || neuesModell(aus.amulette, materialDerStufe(aus.stufe));
   if (!aus.modell.stein) aus.modell.stein = aus.fassung[0] || STEINE[0];
   aus.modell.material = materialDerStufe(aus.stufe);   // das angefangene Amulett hat immer das Material der Stufe

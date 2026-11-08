@@ -54,7 +54,7 @@ zehnerweg/              Spiel 1: Zehnerübergang nach Arbeitsblatt
 leuchttisch/            Spiel 2 (Entwurf): Edelsteine zählen und zerlegen, Amulette sammeln; später Burg
   index.html, leuchttisch.css, leuchttisch.js (Seite)
   aufgaben.js           Aufgaben, Streuen, Amulett-Regeln (ohne DOM, direkt testbar)
-  steine.js             Edelsteine und Amulett als SVG (Amulett: Rahmen in Materialfarbe, ein großer Stein, füllt sich in 5 Schritten)
+  steine.js             Edelsteine und Amulett als SVG (Amulett: Rahmen in Materialfarbe, ein großer Stein, füllt sich in 10 Schritten)
 schatzkammer/           Amulette ansehen: angefangenes Amulett, fertige Amulette, Album aller Modelle (Form × Material)
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
   leuchttisch.md        Leuchttisch: Regeln, Abgleich mit den Prototypen, offene Fragen

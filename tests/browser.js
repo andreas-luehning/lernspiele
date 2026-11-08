@@ -149,8 +149,8 @@ const { schreibe } = require('./hilfen.js');
     const c3 = await b.newContext({ viewport: { width: 820, height: 1180 } }); const p = await c3.newPage();
     const probleme = []; p.on('pageerror', e => probleme.push(e.message));
     await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);
-    for (let i = 0; i < 5; i++) { const n = await p.$$eval('.tisch .stein', s => s.length); await p.click(`.opt[data-wert="${n}"]`); await p.waitForTimeout(i < 4 ? 2400 : 5200); }
-    chk(await p.textContent('#kistezahl') === '1', 'leuchttisch: 5 richtige = ein Amulett in der Schatzkiste');
+    for (let i = 0; i < 10; i++) { const n = await p.$$eval('.tisch .stein', s => s.length); await p.click(`.opt[data-wert="${n}"]`); await p.waitForTimeout(i < 9 ? 2400 : 5200); }
+    chk(await p.textContent('#kistezahl') === '1', 'leuchttisch: 10 richtige = ein Amulett in der Schatzkammer');
     await p.reload(); await p.waitForTimeout(300);
     chk(await p.textContent('#kistezahl') === '1', 'leuchttisch: Schatzkiste bleibt nach Neuladen');
     await p.evaluate(() => localStorage.setItem('lernspiele:leuchttisch', JSON.stringify({ version: 1, stufe: '<img src=x onerror=alert(1)>', eingabe: 'x', fassung: ['<img src=x>', 'rubin'], amulette: [['a', 'b']] })));
@@ -186,7 +186,7 @@ const { schreibe } = require('./hilfen.js');
       const sk = await p.evaluate(() => ({ karten: document.querySelectorAll('#amulette .karte').length, album: document.querySelectorAll('#album .karte').length,
         gefunden: document.querySelectorAll('#album .karte:not(.fehlt)').length, zahl: document.getElementById('album-zahl').textContent,
         jetzt: +document.querySelector('#jetzt svg').dataset.fuellung, img: !!document.querySelector('img'), scroll: document.documentElement.scrollWidth > innerWidth }));
-      chk(sk.karten === 1 && sk.album === 24 && sk.gefunden === 1 && /1 von 24/.test(sk.zahl) && sk.jetzt === 2 && !sk.img && !sk.scroll, 'schatzkammer: Amulette, Album, angefangenes Amulett, bereinigt ' + JSON.stringify(sk));
+      chk(sk.karten === 1 && sk.album === 24 && sk.gefunden === 1 && /1 von 24 gefunden/.test(sk.zahl) && sk.jetzt === 2 && !sk.img && !sk.scroll, 'schatzkammer: Amulette, Album, angefangenes Amulett, bereinigt ' + JSON.stringify(sk));
       await p.screenshot({ path: `${SHOTS}/schatzkammer.png`, fullPage: true });
       chk(!fremd2.length && !fehler2.length, 'schatzkammer: keine fremden Anfragen, keine Fehler ' + fremd2.join(' ') + fehler2.join(' | '));
       await p.goto(BASE); await p.evaluate(() => localStorage.removeItem('lernspiele:leuchttisch')); await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);

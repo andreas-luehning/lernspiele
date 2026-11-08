@@ -1,4 +1,4 @@
-// Schatzkammer: angefangenes Amulett, alle fertigen Amulette, Album aller Modelle (Form × Metall).
+// Schatzkammer: angefangenes Amulett, alle fertigen Amulette, Sammelalbum aller Modelle (Form × Material).
 // Liest den Leuchttisch-Speicher nur (über speicher.js, geprüft mit zustandPruefen) und verändert nichts.
 import { lesen } from '../gemeinsam/speicher.js';
 import { PROBE } from '../gemeinsam/probe.js';
@@ -26,13 +26,13 @@ const box = $('amulette');
 if (!n) box.append(el('p', 'leer', 'Hier kommen deine fertigen Amulette hin. Jede richtige Antwort am Leuchttisch bringt einen Stein.'));
 for (const a of [...z.amulette].reverse()) {
   const k = el('figure', 'karte');
-  k.append(amulett(a.steine, FASSUNGEN, a), el('figcaption', null, modellName(a)));
+  k.append(amulett(a.steine, a.steine.length, a), el('figcaption', null, modellName(a)));
   box.append(k);
 }
 
 // Album: alle Modelle, gefundene in Farbe, fehlende als Umriss
 const da = gefundeneModelle(z.amulette);
-$('album-zahl').textContent = `${da.size} von ${MODELLE.length} Modellen`;
+$('album-zahl').textContent = `${da.size} von ${MODELLE.length} gefunden`;
 $('album-balken').style.width = (da.size / MODELLE.length * 100) + '%';
 // Eine Reihe pro Material, beschriftet mit der Stufe, aus der es kommt
 const album = $('album');

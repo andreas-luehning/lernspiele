@@ -179,7 +179,7 @@ function schatzZeigen(neu = -1, voll = false) {
   if (voll) {
     // Volles Amulett kurz zeigen, dann leeres neues
     const fertigesAmulett = zustand.amulette[zustand.amulette.length - 1];
-    const s = amulett(fertigesAmulett.steine, FASSUNGEN, { ...fertigesAmulett, neu: FASSUNGEN - 1 }); s.classList.add('fertig');
+    const s = amulett(fertigesAmulett.steine, fertigesAmulett.steine.length, { ...fertigesAmulett, neu: 0 }); s.classList.add('fertig');
     platz.replaceChildren(s, beschriftung('Fertig! Ab in die Schatzkammer.'));
     setTimeout(() => { platz.replaceChildren(amulett(zustand.fassung, FASSUNGEN, zustand.modell), beschriftung(fassungText())); kisteZeigen(true); }, 1800);
   } else {
@@ -194,7 +194,7 @@ function beschriftung(t) { const s = document.createElement('span'); s.className
 function kisteZeigen(pop = false) {
   $('kistezahl').textContent = String(zustand.amulette.length);
   const letztes = zustand.amulette[zustand.amulette.length - 1];
-  $('kistebild').replaceChildren(letztes ? amulett(letztes.steine, FASSUNGEN, { ...letztes, klein: true }) : amulett([], FASSUNGEN, { klein: true }));
+  $('kistebild').replaceChildren(letztes ? amulett(letztes.steine, letztes.steine.length, { ...letztes, klein: true }) : amulett([], FASSUNGEN, { klein: true }));
   if (pop) { const k = $('kiste'); k.classList.remove('pop'); void k.offsetWidth; k.classList.add('pop'); }
 }
 
@@ -273,7 +273,12 @@ document.querySelectorAll('#licht button').forEach(b => b.addEventListener('clic
 $('b-hilfe').addEventListener('click', () => { aktiv(); zeigMirs(); });
 $('kiste').href = '../schatzkammer/' + (PROBE ? '?probe' : ''); // Probe-Modus bleibt erhalten
 $('b-neu').addEventListener('click', () => { if (zustand.runde?.zeitUm) runde.beenden(); neueSteine(); });
-$('b-info').addEventListener('click', () => { const g = $('grown'); g.hidden = !g.hidden; $('b-info').setAttribute('aria-expanded', String(!g.hidden)); });
+$('b-info').addEventListener('click', () => {
+  const g = $('grown'); g.hidden = !g.hidden; $('b-info').setAttribute('aria-expanded', String(!g.hidden));
+  // Kasten direkt unter die Kopfzeile, damit er keine Knöpfe verdeckt (die Kopfzeile ist je nach Breite ein- oder zweizeilig)
+  if (!g.hidden && !matchMedia('(orientation: landscape) and (min-width: 900px)').matches) g.style.top = (document.querySelector('header').getBoundingClientRect().bottom - $('app').getBoundingClientRect().top + 8) + 'px';
+  else g.style.top = '';
+});
 
 // Nach dem Drehen: dieselbe Aufgabe neu verteilen, wenn sich die Form des Tisches deutlich ändert
 let rt = 0;

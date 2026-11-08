@@ -13,7 +13,10 @@
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 header { grid-area: kopf; position: relative; z-index: 6; display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
-.brand { display: flex; flex-direction: column; color: inherit; text-decoration: none; border-radius: 8px; margin-right: auto; }
+.kopf-links { display: flex; align-items: center; gap: 12px; margin-right: auto; }
+.zurueck { flex: 0 0 auto; width: 52px; height: 52px; }
+.zurueck svg { width: 26px; height: 26px; stroke-width: 2.8; }
+.brand { display: flex; flex-direction: column; color: inherit; text-decoration: none; border-radius: 8px; }
 .brand h1 { font: 800 1.6rem/1 var(--display); margin: 0; }
 .brand small { color: var(--muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
 .meta { display: flex; align-items: center; gap: 10px; }
@@ -30,7 +33,7 @@ header { grid-area: kopf; position: relative; z-index: 6; display: flex; align-i
 .kiste.pop .kiste-bild { animation: pop .7s ease; }
 @keyframes pop { 40% { transform: scale(1.5) rotate(-10deg); } }
 
-.grown { position: absolute; z-index: 5; top: 70px; right: max(16px, env(safe-area-inset-right, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); margin-left: auto; max-width: 62ch; }
+.grown { position: absolute; z-index: 8; top: 70px; max-height: calc(100% - 90px); overflow-y: auto; box-sizing: border-box; right: max(16px, env(safe-area-inset-right, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); margin-left: auto; max-width: 62ch; }
 .einst { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 10px 0; font-weight: 700; }
 
 .frage { grid-area: frage; text-align: center; font: 800 clamp(1.3rem, 3.2vw, 1.8rem) var(--display); }
@@ -151,6 +154,7 @@ header { grid-area: kopf; position: relative; z-index: 6; display: flex; align-i
     grid-template-rows: auto auto auto 1fr auto;
     grid-template-areas: "kopf tisch" "frage tisch" "antwort tisch" "schatz tisch" "knoepfe tisch";
     column-gap: 24px; row-gap: 16px; padding-block: 16px;
+    overflow-y: auto;      /* bei großer Systemschrift lieber scrollen als Knöpfe abschneiden */
   }
   header { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 14px; }
   header .seg { justify-content: space-between; }

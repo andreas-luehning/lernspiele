@@ -24,10 +24,13 @@
 <body>
 <div class="app" id="app">
   <header>
-    <a class="brand" href="../" aria-label="Zur Startseite">
-      <h1>Leuchttisch</h1>
-      <small>Steine zählen</small>
-    </a>
+    <div class="kopf-links">
+      <a class="info-btn zurueck" id="b-zurueck" href="../" aria-label="Zurück zur Startseite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+      <a class="brand" href="../" aria-label="Zur Startseite">
+        <h1>Leuchttisch</h1>
+        <small>Steine zählen</small>
+      </a>
+    </div>
     <div class="seg" id="stufen" role="group" aria-label="Stufe">
       <button type="button" data-stufe="0" aria-pressed="true">Zählen</button>
       <button type="button" data-stufe="1" aria-pressed="false">Zerlegen bis 7</button>
@@ -47,7 +50,7 @@
 
   <div class="grown" id="grown" hidden>
     <h2>Für Erwachsene</h2>
-    <p>Edelsteine liegen auf dem Leuchttisch. Das Kind zählt sie (Stufe 1) oder sieht zwei Gruppen und sagt, wie viele es zusammen sind (Stufen 2 bis 4, Teil-Teil-Ganzes; bis 20 mit höchstens 10 Steinen pro Gruppe). Jede richtige Antwort setzt einen Stein in das Amulett. Mit 5 Steinen ist es fertig und kommt in die Schatzkammer; das nächste Amulett hat ein anderes Modell (Form und Metall). Fehler kosten nichts. „Zeig mir's“ zeigt den Weg, aber nie das Ergebnis.</p>
+    <p>Edelsteine liegen auf dem Leuchttisch. Das Kind zählt sie (Stufe 1) oder sieht zwei Gruppen und sagt, wie viele es zusammen sind (Stufen 2 bis 4, Teil-Teil-Ganzes; bis 20 mit höchstens 10 Steinen pro Gruppe). Jede richtige Antwort setzt einen Stein in das Amulett. Mit 10 Steinen ist es fertig und kommt in die Schatzkammer; das nächste hat eine andere Form und einen anderen Stein; das Material zeigt die Stufe (Bronze, Silber, Gold, Kristall). Fehler kosten nichts. „Zeig mir's“ zeigt den Weg, aber nie das Ergebnis.</p>
     <div class="einst">
       <span>Antwort</span>
       <div class="seg" id="eingabe" role="group" aria-label="Antwort">
