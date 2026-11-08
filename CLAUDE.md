@@ -56,7 +56,7 @@ tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Por
 - **Nächster Schritt:** Schneckenparade (`docs/schneckenparade.md`) mit `runde.js` und `parade.js`.
 - `prototypen/zehnerweg.html` ist ein funktionierender Prototyp in einer Datei (Modell eingebettet). `prototypen/zehnerweg.quelle.html` ist dieselbe Datei mit dem Platzhalter `__MODEL__` statt der Gewichte; die Gewichte liegen in `werkzeuge/ziffern-modell/model.json`.
 - `prototypen/schneckenparade.html` ist eine Probe der Belohnung. Die Aufgaben werden dort per Knopf simuliert.
-- `prototypen/burgen.html` und `prototypen/leuchttisch.html` sind die Leuchttisch-Prototypen (noch mit Numi-Thema, Google Fonts und 4 Antwortknöpfen). Neue Richtung: kein Numi, Amulette auf dem Leuchttisch und als Belohnung. Unverträglichkeiten und offene Fragen: `docs/leuchttisch.md`. Erst klären, dann bauen.
+- `prototypen/burgen.html` und `prototypen/leuchttisch.html` sind die Leuchttisch-Prototypen (noch mit Numi-Thema, Google Fonts und 4 Antwortknöpfen). Neue Richtung: kein Numi, ein Spiel „Leuchttisch“ mit Varianten (Steine zählen/zerlegen, Burg, später Zahlenmauer), Edelsteine auf dem Tisch, Amulette als eigenes Belohnungssystem, 5-Minuten-Runde gilt. Unverträglichkeiten und offene Fragen: `docs/leuchttisch.md`. Erst klären, dann bauen.
 - Genaue Regeln: `docs/zehnerweg.md`, `docs/schneckenparade.md`. Ideen und offene Fragen: `docs/ideen-und-offene-fragen.md`.
 
 ## Was wir aus dem Prototyp gelernt haben
