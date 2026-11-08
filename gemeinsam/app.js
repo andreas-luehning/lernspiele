@@ -9,6 +9,7 @@
 import { einstellungen, setzeEinstellung } from './einstellungen.js';
 import { PROBE, probeStarten, probeBeenden } from './probe.js';
 import { alleLoeschen } from './speicher.js';
+import { rundenAnzeige } from './lernzeit.js';
 
 const SW_URL = new URL('../sw.js', import.meta.url);
 const SCOPE = new URL('../', import.meta.url);
@@ -148,6 +149,24 @@ document.addEventListener('change', e => {
   setzeEinstellung({ [k]: wert }); einstellungenAnzeigen();
 });
 
+/* ---------- Lernzeit für Kinder sichtbar: ein Punkt pro 5-Minuten-Runde ---------- */
+function lernzeitAnzeige() {
+  alle('[data-lernzeit-anzeige]').forEach(box => {
+    const { gesamt, fertig } = rundenAnzeige();
+    box.replaceChildren();
+    const sanduhr = document.createElement('span'); sanduhr.className = 'lz-symbol'; sanduhr.textContent = '⏳'; sanduhr.setAttribute('aria-hidden', 'true');
+    box.append(sanduhr);
+    for (let i = 0; i < gesamt; i++) {
+      const p = document.createElement('span');
+      p.className = 'lz-punkt' + (fertig >= i + 1 ? ' fertig' : fertig > i ? ' halb' : '');
+      box.append(p);
+    }
+    const uebrig = Math.max(0, gesamt - Math.ceil(fertig - 0.001));
+    box.setAttribute('aria-label', uebrig ? `Heute noch ${uebrig} ${uebrig === 1 ? 'Runde' : 'Runden'} Lernzeit` : 'Lernzeit für heute geschafft');
+    box.classList.toggle('geschafft', !uebrig);
+  });
+}
+
 /* ---------- Probe-Modus sichtbar machen ---------- */
 function probeAnzeige() {
   document.documentElement.classList.toggle('probe', PROBE);
@@ -161,5 +180,7 @@ function probeAnzeige() {
 }
 
 /* ---------- Start ---------- */
-const start = () => { installAnzeige(); vollbildAnzeige(); einstellungenAnzeigen(); probeAnzeige(); };
+const start = () => { installAnzeige(); vollbildAnzeige(); einstellungenAnzeigen(); probeAnzeige(); lernzeitAnzeige(); };
+document.addEventListener('change', e => { if (e.target.closest && e.target.closest('[data-einstellung]')) lernzeitAnzeige(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) lernzeitAnzeige(); });
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

@@ -41,12 +41,13 @@ gemeinsam/
   schreibfeld.js        Schreibfeld mit robuster Stift-/Finger-Eingabe
   speicher.js           localStorage mit Präfix, Version, try/catch, Bereinigen, Zurücksetzen
   probe.js              Probe-Modus für Erwachsene: eigener Speicher lernspiele:probe:…, bleibt im Tab an
-  einstellungen.js      Einstellungen für Erwachsene (7 mit Querstrich, Runden pro Tag)
-  runde.js              5-Minuten-Runde, mehrere pro Tag, Pause bei Inaktivität
+  einstellungen.js      Einstellungen für Erwachsene (7 mit Querstrich, Lernzeit pro Tag)
+  lernzeit.js           Gemeinsame Lernzeit pro Tag für alle Spiele (zählt nur echte Übungszeit)
+  runde.js              5-Minuten-Runde, Pause bei Inaktivität, meldet Übungszeit an lernzeit.js
   parade-logik.js       Schneckenparade: Regeln, Zustand, Prüfen der Gartendaten (ohne DOM)
   parade-bilder.js      Schnecken, Hüte, Käfer, Deko als SVG
   parade.js, parade.css Paradestreifen, Blatt-Plätze, Rückblick
-garten/                 Schneckengarten mit Reitern: Garten (Tiere, Begleiter wählen) und Sammelalbum (Sticker in Bildern)
+garten/                 Schneckengarten mit Reitern: Garten (Tiere, Begleiter wählen, Hutschachtel) und Sammelalbum (Sticker in Bildern)
 zehnerweg/              Spiel 1: Zehnerübergang nach Arbeitsblatt
   index.html, zehnerweg.css, zehnerweg.js (Seite)
   aufgaben.js           Aufgaben, Tipps, Bewertung (ohne DOM, direkt testbar)
@@ -62,7 +63,7 @@ tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-b
 
 - **Schritt 1 erledigt:** Der Zehnerweg ist aus dem Prototyp in `zehnerweg/` und `gemeinsam/` aufgeteilt, mit Startseite. Verhalten wie im Prototyp (noch mit Sternen). Speicher: `lernspiele:zehnerweg` (Sterne, Spiegeln, Rechenart) und `lernspiele:einstellungen` (Tag/Nacht); alte Prototyp-Werte werden einmalig übernommen.
 - **Schritt 2 (Branch `schneckenparade`):** Die Schneckenparade ersetzt die Sterne: 5-Minuten-Runde, Salatblätter, neue Schnecken, Rückblick, Garten-Seite mit Begleiter-Wahl und Album. Entscheidungen siehe `docs/schneckenparade.md`.
-- **Belohnungstempo:** höchstens 3 neue Schnecken pro Tag, darüber hinaus Salatkorb für morgen, Wachsen einmal pro Tag und Schnecke, Sammelalbum mit 36 Häusern (Simulation siehe `docs/schneckenparade.md`, Abschnitt Tempo).
+- **Belohnungsmodell (Branch `belohnung-neu`):** eine fertige 5-Minuten-Runde = eine Schnecke, 5 Salatblätter = eine Kopfbedeckung in der Hutschachtel (14 Arten, frei aufsetzen), Wachsen einmal pro Tag, Deko alle 5 Übungstage, gemeinsame Lernzeit pro Tag (Standard 20 Min). Tempo-Simulation in `docs/schneckenparade.md`.
 - **Danach:** Leuchttisch-Spiele (Übergabepaket kommt), später Profile für mehrere Kinder, Numi als eigene Welt.
 - `prototypen/zehnerweg.html` ist ein funktionierender Prototyp in einer Datei (Modell eingebettet). `prototypen/zehnerweg.quelle.html` ist dieselbe Datei mit dem Platzhalter `__MODEL__` statt der Gewichte; die Gewichte liegen in `werkzeuge/ziffern-modell/model.json`.
 - `prototypen/schneckenparade.html` ist eine Probe der Belohnung. Die Aufgaben werden dort per Knopf simuliert.

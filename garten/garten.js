@@ -1,16 +1,49 @@
 // Schneckengarten: alle Tiere, Deko, Begleiter wählen, Sammelalbum.
-import { ladeParade, speichereParade, begleiterUmschalten, rundeBeenden, album, describe, heute, SCALE, STAGES, MAX_BEGLEITER } from '../gemeinsam/parade-logik.js';
+import { ladeParade, speichereParade, begleiterUmschalten, album, describe, SCALE, STAGES, MAX_BEGLEITER, HATS, hutAufsetzen, hutAbnehmen, BLAETTER_PRO_HUT } from '../gemeinsam/parade-logik.js';
+import { lernzeitNeu } from '../gemeinsam/lernzeit.js';
+import { hutBild } from '../gemeinsam/parade.js';
 import { snailSVG, decoSVG, hatSVG, bugSVG, svgElement } from '../gemeinsam/parade-bilder.js';
 import { PROBE } from '../gemeinsam/runde.js';
 
 const $ = id => document.getElementById(id);
 const el = (tag, klasse, text) => { const e = document.createElement(tag); if (klasse) e.className = klasse; if (text != null) e.textContent = text; return e; };
 let z = ladeParade();
+let auswahl = null; // gewählte Kopfbedeckung aus der Hutschachtel oder 'ab' (abnehmen)
+window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); // nie mit veraltetem Stand weiter
 
 function hinweis(t) { $('hinweis').textContent = t; }
 function standardHinweis() {
-  hinweis(z.runde ? 'Gerade läuft eine Runde. Begleiter wählst du danach aus.'
+  hinweis(auswahl === 'ab' ? 'Tippe eine Schnecke an, die ihre Kopfbedeckung abnehmen soll.'
+    : auswahl ? `Tippe eine Schnecke an. Sie bekommt: ${HATS[auswahl]}.`
+    : z.runde ? 'Gerade läuft eine Runde. Begleiter wählst du danach aus.'
     : `Tippe bis zu ${MAX_BEGLEITER} Tiere an. Sie laufen in der nächsten Runde mit.`);
+}
+
+/* ---------- Hutschachtel: Kopfbedeckung antippen, dann eine Schnecke ---------- */
+function zeigeHutschachtel() {
+  const box = $('hutschachtel'); box.replaceChildren();
+  const schachtel = el('span', 'hs-schachtel'); schachtel.setAttribute('aria-hidden', 'true');
+  schachtel.append(svgElement('<svg viewBox="0 0 40 32"><path d="M4 12 H36 V28 H4 Z" fill="#c98a4b" stroke="#1d2747" stroke-width="2" stroke-linejoin="round"/><path d="M2 8 H38 V13 H2 Z" fill="#e2b36b" stroke="#1d2747" stroke-width="2" stroke-linejoin="round"/><path d="M14 20 H26" stroke="#1d2747" stroke-width="2" stroke-linecap="round"/></svg>'));
+  box.append(schachtel);
+  const anzahl = {}; for (const h of z.hutschachtel) anzahl[h] = (anzahl[h] || 0) + 1;
+  const arten = Object.keys(HATS).filter(h => anzahl[h]);
+  if (!arten.length) box.append(el('span', 'hs-leer', `Für ${BLAETTER_PRO_HUT} Salatblätter gibt es eine Kopfbedeckung.`));
+  for (const h of arten) {
+    const k = el('button', 'hs-hut'); k.type = 'button';
+    k.append(hutBild(h)); if (anzahl[h] > 1) k.append(el('b', 'hs-zahl', String(anzahl[h])));
+    k.setAttribute('aria-label', HATS[h] + (anzahl[h] > 1 ? `, ${anzahl[h]} Stück` : ''));
+    k.setAttribute('aria-pressed', String(auswahl === h));
+    k.addEventListener('click', () => { auswahl = auswahl === h ? null : h; zeigeHutschachtel(); standardHinweis(); });
+    box.append(k);
+  }
+  if (z.garden.some(s => s.hat)) {
+    const ab = el('button', 'hs-hut hs-ab'); ab.type = 'button';
+    ab.append(svgElement('<svg viewBox="0 0 40 32" aria-hidden="true"><path d="M8 22 L20 6 L32 22 Z" fill="#fff" stroke="#1d2747" stroke-width="2" stroke-linejoin="round"/><path d="M10 26 L30 6" stroke="#e5484d" stroke-width="3.5" stroke-linecap="round"/></svg>'));
+    ab.setAttribute('aria-label', 'Kopfbedeckung abnehmen'); ab.setAttribute('aria-pressed', String(auswahl === 'ab'));
+    ab.addEventListener('click', () => { auswahl = auswahl === 'ab' ? null : 'ab'; zeigeHutschachtel(); standardHinweis(); });
+    box.append(ab);
+  }
+  document.querySelector('.garden-seite, .garten-seite').classList.toggle('hut-modus', !!auswahl);
 }
 
 function zeigeGarten() {
@@ -38,6 +71,7 @@ function zeigeGarten() {
 
 function waehle(s, knopf) {
   z = ladeParade(); // falls in einem anderen Tab gespielt wurde
+  if (auswahl) { hutWaehlen(s, knopf); return; }
   if (z.runde) { hinweis('Gerade läuft eine Runde. Begleiter wählst du danach aus.'); knopf.classList.remove('wackeln'); void knopf.offsetWidth; knopf.classList.add('wackeln'); return; }
   const vorher = z.walkers.includes(s.id);
   if (!begleiterUmschalten(z, s.id)) return;
@@ -57,6 +91,18 @@ function stickerBild(gruppe, key) {
   }
   return decoSVG(key);
 }
+function hutWaehlen(s, knopf) {
+  const wackeln = () => { knopf.classList.remove('wackeln'); void knopf.offsetWidth; knopf.classList.add('wackeln'); };
+  if (s.special === 'kaefer') { hinweis(`${s.name} ist ein Marienkäfer und mag keine Hüte.`); wackeln(); return; }
+  let ok;
+  if (auswahl === 'ab') ok = hutAbnehmen(z, s.id);
+  else ok = hutAufsetzen(z, auswahl, s.id);
+  if (!ok) { wackeln(); return; }
+  const was = auswahl; auswahl = null;
+  speichereParade(z); zeigeGarten(); zeigeHutschachtel();
+  hinweis(was === 'ab' ? `${s.name} hat die Kopfbedeckung zurück in die Schachtel gelegt.` : `${s.name} trägt jetzt: ${HATS[was]}.`);
+}
+
 function zeigeAlbum() {
   const box = $('album'); box.replaceChildren();
   let gesamt = 0, gefunden = 0;
@@ -92,13 +138,14 @@ if (PROBE) {
   const t = $('b-tag'); t.hidden = false;
   t.addEventListener('click', () => {
     z = ladeParade();
-    if (z.runde) rundeBeenden(z, heute());
-    z.lastRoundDay = ''; z.neuHeuteTag = ''; // so tun, als wäre heute noch keine Runde gewesen und keine Schnecke gekommen
-    for (const s of z.garden) s.ausflug = '';
+    // so tun, als wäre ein neuer Tag: Lernzeit wieder voll, Übungstag und Wachsen zählen neu
+    z.lastPracticeDay = ''; for (const s of z.garden) s.ausflug = '';
+    lernzeitNeu();
     speichereParade(z); zeigeGarten(); standardHinweis();
-    hinweis('Probe: Ein neuer Tag beginnt. Die nächste Runde kann starten.');
+    hinweis('Probe: Ein neuer Tag beginnt. Die Lernzeit ist wieder voll.');
   });
 }
 
 standardHinweis();
 zeigeGarten();
+zeigeHutschachtel();

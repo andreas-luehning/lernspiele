@@ -7,6 +7,12 @@
 .start h1 { font: 800 clamp(2rem, 6vw, 3rem) var(--display); margin: 0; line-height: 1; }
 .start .sub { margin: 6px 0 0; color: var(--muted); font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; }
 
+.lernzeit { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+.lernzeit .lz-symbol { font-size: 1.3rem; }
+.lz-punkt { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--leaf); background: var(--sheet); }
+.lz-punkt.halb { background: linear-gradient(90deg, var(--leaf) 50%, var(--sheet) 50%); }
+.lz-punkt.fertig { background: var(--leaf); }
+.lernzeit.geschafft .lz-punkt { border-color: var(--muted); background: var(--muted); }
 .kacheln { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
 .kachel {
   display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 20px; text-decoration: none; color: var(--fg);

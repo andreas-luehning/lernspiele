@@ -40,17 +40,16 @@ Die Lernspiele sind Medienzeit. Erwachsene stellen unter „Für Erwachsene“ d
 
 **Fällt weg** gegenüber der vorigen Fassung: Runden pro Tag (ersetzt durch Lernzeit), Tageslimit von 3 Schnecken, Salatkorb, „Hut nur bei 3 Blättern ohne Fehler“, Hut-Anzeige im Zehnerweg.
 
-## Tempo (grob geschätzt, wird beim Bauen simuliert)
+## Tempo (simuliert mit den echten Regeln, Mittel aus 5 Läufen)
 
-Bei 20 Minuten Lernzeit, nur Zehnerweg, etwa 5 richtige Aufgaben pro Runde:
+| Lernzeit im Zehnerweg | Tiere nach 1 / 4 Wochen | alle 36 Häuser | alle 14 Kopfbedeckungen | ganzes Album (59) |
+|---|---|---|---|---|
+| 15 Min (3 Runden, 4 richtige je Runde) | 26 / 95 | Tag 22 | Tag 11 | Tag 30 |
+| 20 Min (4 Runden, 5 richtige je Runde) | 33 / 126 | Tag 18 | Tag 8 | Tag 30 |
+| 20 Min, davon nur 2 Runden Zehnerweg | 18 / 64 | Tag 35 | Tag 14 | Tag 35 |
+| 30 Min (6 Runden, 6 richtige je Runde) | 49 / 187 | Tag 14 | Tag 5 | Tag 30 |
 
-| | pro Tag | bis komplett |
-|---|---|---|
-| Neue Schnecken | 4 (eine pro Runde) | 36 Häuser nach etwa 3–4 Wochen |
-| Kopfbedeckungen | etwa 4 (alle 5 Blätter) | 14 Arten nach etwa 3–4 Wochen |
-| Deko | alle 5 Übungstage (nicht am Stück) | 6 Stücke nach 30 Übungstagen |
-
-Spielt das Kind auch andere Spiele, kommen entsprechend weniger Schnecken; dafür wächst dort die eigene Sammlung (z. B. Amulette am Leuchttisch).
+Das Album ist nach etwa einem Monat voll, die Deko (alle 5 Übungstage) bestimmt das Ende. Kopfbedeckungen und Schnecken kommen reichlich; nach dem Sammeln bleibt das Anziehen und Wachsenlassen. Wird der Garten zu voll, ist eine spätere Idee: begrenzte Plätze und ein Schneckenhotel für die übrigen. Spielt das Kind auch andere Spiele, kommen entsprechend weniger Schnecken; dafür wächst dort die eigene Sammlung.
 
 ## Sammelalbum
 

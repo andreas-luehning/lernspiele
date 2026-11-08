@@ -30,6 +30,8 @@
     <button class="info-btn" data-thema-knopf type="button" aria-label="Nachtmodus einschalten"></button>
   </header>
 
+  <div class="lernzeit" data-lernzeit-anzeige role="img" aria-label="Lernzeit heute"></div>
+
   <ul class="kacheln">
     <li>
       <a class="kachel" href="zehnerweg/">
@@ -91,13 +93,13 @@
       <label class="schalter"><input type="checkbox" data-einstellung="siebenMitQuerstrich"><span>an</span></label>
     </div>
     <div class="zeile">
-      <div><b>Runden pro Tag</b><small>Eine Runde dauert 5 Minuten. Die Uhr hält an, wenn niemand schreibt.</small></div>
-      <select class="auswahl" data-einstellung="rundenProTag" aria-label="Runden pro Tag">
-        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="0">unbegrenzt</option>
+      <div><b>Lernzeit pro Tag</b><small>Für alle Lernspiele zusammen. Gezählt wird nur echte Übungszeit (eine Runde = 5 Minuten). Danach kann frei weiter geübt werden, aber ohne Belohnung.</small></div>
+      <select class="auswahl" data-einstellung="lernzeitMinuten" aria-label="Lernzeit pro Tag">
+        <option value="15">15 Minuten</option><option value="20">20 Minuten</option><option value="25">25 Minuten</option><option value="30">30 Minuten</option>
       </select>
     </div>
     <div class="zeile">
-      <div><b>Probe-Modus</b><small>Zum Ausprobieren: eigener Probe-Garten, Runden 1 Minute, „Nächster Tag“ im Garten. Der echte Garten bleibt unberührt.</small></div>
+      <div><b>Probe-Modus</b><small>Zum Ausprobieren: eigener Probe-Garten, Runden 1 Minute (Lernzeit entsprechend kürzer), „Nächster Tag“ im Garten. Der echte Garten bleibt unberührt.</small></div>
       <button type="button" class="btn" data-probe-knopf>Probe-Modus starten</button>
       <button type="button" class="btn" data-probe-zuruecksetzen hidden>Probe zurücksetzen</button>
     </div>

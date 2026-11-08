@@ -36,11 +36,11 @@ Im Probe-Modus speichert alles unter `lernspiele:probe:…`, getrennt vom Garten
 
 ### Einstellungen
 
-`lernspiele:spiel` speichert nur, ob die Regel „7 nur mit Querstrich“ an ist (wahr/falsch) und wie viele Runden es pro Tag gibt (Zahl aus einer festen Liste), geprüft über `speicher.js`.
+`lernspiele:spiel` speichert nur, ob die Regel „7 nur mit Querstrich“ an ist (wahr/falsch) und die Lernzeit pro Tag (Zahl aus einer festen Liste). `lernspiele:lernzeit` speichert nur das Datum und die heute geübten Millisekunden, nicht wann oder was geübt wurde. geprüft über `speicher.js`.
 
 ### Welche Daten die Schneckenparade speichert
 
-Nur Spielstand: Schnecken (Farbe, Muster, Hut, Ausflüge, Datum, in welchem Spiel verdient), gewählte Begleiter, Blätter, Übungstage und die laufende Runde. Die Schneckennamen kommen aus einer festen Liste, nicht vom Kind. Es gibt keine Uhrzeiten einzelner Aufgaben, keine Fehlerlisten und nichts über das Kind selbst. Der Probe-Modus (`?probe`) ändert nur die Rundendauer und zeigt den Knopf „Nächster Tag“; er gibt keinen Zugriff auf weitere Daten.
+Nur Spielstand: Schnecken (Farbe, Muster, Kopfbedeckung, Ausflüge, Datum, in welchem Spiel verdient), gewählte Begleiter, Blätter, Hutschachtel (welche Kopfbedeckungen), gefundene Kopfbedeckungen, Übungstage und die laufende Runde. Die Schneckennamen kommen aus einer festen Liste, nicht vom Kind. Es gibt keine Uhrzeiten einzelner Aufgaben, keine Fehlerlisten und nichts über das Kind selbst. Der Probe-Modus (`?probe`) ändert nur die Rundendauer und zeigt den Knopf „Nächster Tag“; er gibt keinen Zugriff auf weitere Daten.
 
 ## Grenzen von GitHub Pages
 

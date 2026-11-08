@@ -1,10 +1,12 @@
-// Browser-Prüfung der Schneckenparade im Probe-Modus: ganze Runde, Rückblick, Garten, nächster Tag.
+// Browser-Prüfung der Schneckenparade im Probe-Modus: Blätter → Kopfbedeckung, Runde → Schnecke, Rückblick,
+// Pause, gemeinsame Lernzeit, Hutschachtel im Garten, Sammelalbum, getrennter Probe-Speicher.
 // Aufruf: python3 -m http.server 8123 (im Projektordner), dann: node tests/parade-browser.js
 const { chromium } = require('playwright');
 const path = require('path'); const fs = require('fs');
-const { loese } = require('./hilfen.js');
+const { loese, schreibe } = require('./hilfen.js');
 const BASE = process.env.BASE || 'http://localhost:8123/';
 const SHOTS = path.join(__dirname, '..', 'screenshots'); fs.mkdirSync(SHOTS, { recursive: true });
+const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
 (async () => {
   const b = await chromium.launch();
@@ -17,118 +19,99 @@ const SHOTS = path.join(__dirname, '..', 'screenshots'); fs.mkdirSync(SHOTS, { r
   page.on('request', r => { if (!r.url().startsWith(BASE)) fremd.push(r.url()); });
   await page.addInitScript(() => document.addEventListener('securitypolicyviolation', e => console.error('CSP: ' + e.violatedDirective + ' ' + e.blockedURI)));
   const parade = () => page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:probe:parade') || 'null'));
+  const lernzeit = () => page.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:probe:lernzeit') || 'null'));
   const bubble = () => page.textContent('#track .bubble');
+  // Spielstand ändern: erst die Spielseite verlassen, damit sie den Stand nicht überschreibt
+  const aendere = async (fn, arg) => { await page.goto(BASE); await page.waitForTimeout(200); await page.evaluate(fn, arg); };
 
-  // Erst wie früher: eine Runde pro Tag
-  await page.goto(BASE); await page.evaluate(() => localStorage.setItem('lernspiele:probe:spiel', JSON.stringify({ version: 1, siebenMitQuerstrich: true, rundenProTag: 1 })));
   await page.goto(BASE + 'zehnerweg/?probe'); await page.waitForTimeout(800);
   chk(/Schreib los/.test(await bubble()), 'Vor der Runde: „Schreib los, dann startet die Parade!“');
   chk(await page.textContent('#uhrzeit') === '1:00', 'Probe-Modus: Runde dauert 1 Minute');
-  chk(await page.locator('#track .walker').count() === 3, 'Drei Begleiter stehen auf der Straße');
+  chk(await page.locator('#track .walker').count() === 3 && await page.locator('#leaves .slot').count() === 5, 'Drei Begleiter, fünf Blatt-Plätze');
 
-  // Drei Aufgaben lösen → neue Schnecke
-  for (let i = 0; i < 3; i++) {
-    const ok = await loese(page);
-    chk(ok, `Aufgabe ${i + 1} gelöst`);
-    await page.waitForTimeout(1000);
-    if (i < 2) await page.click('#b-next');
-  }
+  // Fünf richtige Aufgaben → eine Kopfbedeckung in der Hutschachtel, aber keine Schnecke
+  for (let i = 0; i < 5; i++) { chk(await loese(page), `Aufgabe ${i + 1} gelöst`); await page.waitForTimeout(900); if (i < 4) await page.click('#b-next'); }
   let z = await parade();
-  chk(z.runde && z.garden.length === 4 && z.leaves === 0, 'Nach 3 Blättern: neue Schnecke im Garten, Blätter wieder bei 0');
-  chk(z.garden[3].hat !== null, 'Ohne Fehler: neue Schnecke trägt einen Hut');
-  chk(await page.locator('#track .walker').count() === 4 && /kriecht zur Parade/.test(await bubble()), 'Neue Schnecke kriecht in die Parade');
-  await page.waitForTimeout(1500);
-  await page.screenshot({ path: path.join(SHOTS, 'parade-neue-schnecke.png') });
+  chk(z.runde && z.hutschachtel.length === 1 && z.leaves === 0 && z.garden.length === 3, '5 Blätter: eine Kopfbedeckung in der Hutschachtel, noch keine neue Schnecke');
+  chk(/Hutschachtel/.test(await bubble()), 'Hinweis auf die Hutschachtel im Garten');
+  await page.screenshot({ path: path.join(SHOTS, 'parade-hut.png') });
 
-  // Falsche Antwort: einmal pro Aufgabe, Hut fällt weg
+  // Falsche Antwort: freundlich, nichts geht verloren
   await page.click('#b-next'); await page.waitForTimeout(300);
-  const { schreibe } = require('./hilfen.js');
   await schreibe(page, '#f-part1', 7); await page.waitForTimeout(800);
-  await page.click('#b-check'); await page.click('#b-check'); await page.waitForTimeout(300);
-  z = await parade();
-  chk(z.cleanLeaves === false && await page.locator('#leaves .hatmark.off').count() === 1, 'Fehler: Hut-Anzeige wird blass');
-  chk(/Macht nichts/.test(await bubble()), 'Fehler: freundliche Nachricht, nichts geht verloren');
+  await page.click('#b-check'); await page.waitForTimeout(300);
+  chk(/Macht nichts/.test(await bubble()), 'Fehler: freundliche Nachricht');
 
-  // Neu laden: Runde läuft weiter
-  const restVor = await page.textContent('#uhrzeit');
-  await page.reload(); await page.waitForTimeout(800);
-  chk((await parade()).runde && /Pause/.test(await bubble()), `Nach Neuladen ist die Runde noch da, mit Pause (${restVor} → ${await page.textContent('#uhrzeit')})`);
-
-  // Zeit um (vorspulen): angefangene Aufgabe darf fertig werden
-  await page.evaluate(() => { const z = JSON.parse(localStorage.getItem('lernspiele:probe:parade')); z.runde.ende = Date.now() - 100; z.runde.pause = null; localStorage.setItem('lernspiele:probe:parade', JSON.stringify(z)); });
-  await page.reload(); await page.waitForTimeout(1000);
-  chk(/Zeit ist um/.test(await bubble()) && (await parade()).runde.zeitUm, 'Zeit um: Hinweis, Aufgabe darf fertig werden');
-  const ok = await loese(page);
-  chk(ok, 'Angefangene Aufgabe nach Ablauf gelöst');
+  // Zeit um → angefangene Aufgabe fertig → neue Schnecke, Rückblick
+  await aendere(() => { const z = JSON.parse(localStorage.getItem('lernspiele:probe:parade')); z.runde.ende = Date.now() - 100; z.runde.pause = null; z.runde.zeitUm = false; localStorage.setItem('lernspiele:probe:parade', JSON.stringify(z)); });
+  await page.goto(BASE + 'zehnerweg/'); await page.waitForTimeout(1000);
+  chk(/Zeit ist um/.test(await bubble()), 'Zeit um: angefangene Aufgabe darf fertig werden');
+  chk(await loese(page), 'Letzte Aufgabe gelöst');
   await page.waitForTimeout(5500);
-  chk(await page.locator('dialog.rueckblick[open]').count() === 1, 'Rückblick erscheint nach der Runde');
-  const text = await page.textContent('dialog.rueckblick');
-  chk(/Für heute geschafft/.test(text) && /neue/.test(text), 'Rückblick: „Für heute geschafft!“ mit neuen Tieren');
+  chk(await page.locator('dialog.rueckblick[open]').count() === 1, 'Rückblick erscheint');
+  const rb = await page.textContent('dialog.rueckblick');
+  chk(/Runde geschafft/.test(rb) && /neue Schnecke/.test(rb) && /Noch eine Runde/.test(rb), 'Rückblick: „Runde geschafft!“, neue Schnecke, „Noch eine Runde“');
+  chk(await page.locator('dialog.rueckblick .hut-bild').count() === 1, 'Rückblick zeigt die Kopfbedeckung dieser Runde');
   await page.screenshot({ path: path.join(SHOTS, 'parade-rueckblick.png') });
   z = await parade();
-  chk(!z.runde && z.practiceDays === 1 && z.garden.filter(s => s.runs === 1).length === 3, 'Runde beendet: 1 Übungstag, Begleiter haben einen Ausflug');
-
-  // Weiter üben ohne Blätter
-  await page.click('dialog.rueckblick button'); await page.click('#b-next'); await page.waitForTimeout(300);
-  const blattVor = (await parade()).leaves;
-  await loese(page); await page.waitForTimeout(1000);
-  chk((await parade()).leaves === blattVor && !(await parade()).runde, 'Nach der Runde: weiter üben ohne Blätter, keine neue Runde');
-  chk(await page.textContent('#uhrzeit') === '0:00', 'Uhr zeigt 0:00');
-
-  // Garten
-  await page.click('#b-garten'); await page.waitForURL(/garten\/\?probe/); await page.waitForTimeout(400);
-  const n = (await parade()).garden.length;
-  chk(await page.locator('.g-snail').count() === n, `Garten zeigt alle ${n} Tiere`);
-  chk(await page.locator('.g-snail.walks').count() === 3, 'Drei Begleiter markiert');
-  const ohne = page.locator('.g-snail:not(.walks)').first(); const name = await ohne.locator('span').first().textContent();
-  await ohne.click(); await page.waitForTimeout(200);
-  chk(await page.locator('.g-snail.walks').count() === 3 && (await page.textContent('#hinweis')).includes(name), `Neuer Begleiter ${name} gewählt, weiterhin höchstens 3`);
-  chk(await page.locator('#seite-album').isHidden(), 'Garten-Reiter ist vorne, Album verborgen');
-  await page.click('#r-album'); await page.waitForTimeout(200);
-  chk(await page.locator('#seite-garten').isHidden() && await page.locator('#r-album[aria-selected=true]').count() === 1 && page.url().endsWith('#album'), 'Reiter „Sammelalbum“ wechselt die Ansicht');
-  chk(/von 53 entdeckt/.test(await page.textContent('#album-zahl')) && await page.locator('.sticker').count() === 53, 'Sammelalbum: 53 Felder, Fortschritt angezeigt');
-  chk(await page.locator('.sticker:not(.miss) svg').count() === await page.locator('.sticker:not(.miss)').count() && await page.locator('.sticker.miss').first().textContent() === '?', 'Gefundenes als Bild, Fehlendes als „?“');
-  await page.reload(); await page.waitForTimeout(300);
-  chk(await page.locator('#seite-album').isVisible(), 'Mit #album öffnet sich gleich das Album');
-  await page.click('#r-garten'); await page.waitForTimeout(200);
-  await page.screenshot({ path: path.join(SHOTS, 'garten-ipad-hoch.png'), fullPage: true });
-
-  // Nächster Tag (Probe)
-  await page.click('#b-tag'); await page.click('#b-spiel'); await page.waitForURL(/zehnerweg/); await page.waitForTimeout(800);
-  chk(/Schreib los/.test(await bubble()) && await page.textContent('#uhrzeit') === '1:00', 'Nächster Tag: neue Runde möglich');
-  chk((await page.locator('#track .walker').count()) === 3, 'Gewählte Begleiter stehen bereit');
+  chk(!z.runde && z.garden.length === 4 && z.garden[3].hat === null && z.practiceDays === 1, 'Runde fertig: genau eine neue Schnecke ohne Kopfbedeckung, ein Übungstag');
+  const lz = await lernzeit();
+  chk(lz && lz.tag === heute() && lz.ms > 1000 && lz.ms <= 61000, `Lernzeit gezählt (${Math.round((lz || {}).ms / 1000)} s von höchstens 60 s)`);
 
   // Pause, wenn die App verlassen wird; der nächste Strich setzt fort
-  await page.goto(BASE + 'zehnerweg/?probe'); await page.waitForTimeout(800);
+  await page.click('dialog.rueckblick button');
   await schreibe(page, '#f-ten', 10); await page.waitForTimeout(400);
-  chk(!!(await parade()).runde, 'Erster Strich startet die Runde');
+  chk(!!(await parade()).runde, 'Nächster Strich startet die nächste Runde');
   await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
-  const angehalten = await page.textContent('#uhrzeit'); await page.waitForTimeout(2200);
-  chk((await parade()).runde.pause != null && await page.textContent('#uhrzeit') === angehalten && await page.locator('#uhr.pause').count() === 1, `App verlassen: Uhr steht (${angehalten})`);
+  const angehalten = await page.textContent('#uhrzeit'); const lzAngehalten = (await lernzeit()).ms;
+  await page.waitForTimeout(2200);
+  chk((await parade()).runde.pause != null && await page.textContent('#uhrzeit') === angehalten && (await lernzeit()).ms === lzAngehalten, `App verlassen: Uhr und Lernzeit stehen (${angehalten})`);
   await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
   await schreibe(page, '#f-part1', 1); await page.waitForTimeout(1600);
-  chk((await parade()).runde.pause === null && await page.textContent('#uhrzeit') !== angehalten, 'Nächster Strich: Uhr läuft weiter');
+  chk((await parade()).runde.pause === null && (await lernzeit()).ms > lzAngehalten, 'Nächster Strich: Uhr und Lernzeit laufen weiter');
 
-  // Mehrere Runden am Tag: „Noch eine Runde“
-  await page.goto(BASE); await page.waitForTimeout(300); // Spielseite verlassen, damit sie den Stand nicht mehr überschreibt
-  await page.evaluate(() => { localStorage.setItem('lernspiele:probe:spiel', JSON.stringify({ version: 1, siebenMitQuerstrich: true, rundenProTag: 3 })); const z = JSON.parse(localStorage.getItem('lernspiele:probe:parade')); z.runde.ende = Date.now() - 100; z.runde.zeitUm = true; z.runde.pause = null; localStorage.setItem('lernspiele:probe:parade', JSON.stringify(z)); });
-  await page.goto(BASE + 'zehnerweg/?probe'); await page.waitForTimeout(800); await page.click('#b-next'); await page.waitForTimeout(3200);
-  const rb = await page.textContent('dialog.rueckblick');
-  chk(/Runde geschafft/.test(rb) && /noch 2 Runden/.test(rb) && /Noch eine Runde/.test(rb), 'Rückblick: „Runde geschafft!“, noch 2 Runden, Knopf „Noch eine Runde“');
-  await page.click('dialog.rueckblick button'); await schreibe(page, '#f-ten', 10); await page.waitForTimeout(500);
-  chk(!!(await parade()).runde && await page.textContent('#uhrzeit') !== '0:00', 'Nächster Strich startet die zweite Runde');
+  // Lernzeit um: freies Üben ohne Belohnung, freundlicher Hinweis
+  await aendere(() => { localStorage.setItem('lernspiele:probe:lernzeit', JSON.stringify({ version: 1, tag: new Date().toLocaleDateString('sv'), ms: 4 * 60 * 1000 })); const z = JSON.parse(localStorage.getItem('lernspiele:probe:parade')); z.runde = null; localStorage.setItem('lernspiele:probe:parade', JSON.stringify(z)); });
+  await page.reload(); await page.waitForTimeout(300);
+  chk(await page.locator('[data-lernzeit-anzeige].geschafft').count() === 1, 'Startseite: Lernzeit-Punkte zeigen „geschafft“');
+  await page.goto(BASE + 'zehnerweg/'); await page.waitForTimeout(800);
+  chk(/Lernzeit für heute ist um/.test(await bubble()) && await page.textContent('#uhrzeit') === '0:00', 'Lernzeit um: Hinweis „Schau doch mal in deinen Garten!“');
+  const blattVor = (await parade()).leaves;
+  chk(await loese(page), 'Freies Üben: Aufgabe lösen geht weiter'); await page.waitForTimeout(1000);
+  z = await parade();
+  chk(!z.runde && z.leaves === blattVor && /Super gerechnet/.test(await bubble()), 'Freies Üben: Lob, aber keine Runde und keine Blätter');
 
-  // Probe-Modus beenden: danach echter Speicher und kein „Nächster Tag“-Knopf
+  // Garten: Hutschachtel und Sammelalbum
+  await page.click('#b-garten'); await page.waitForURL(/garten/); await page.waitForTimeout(400);
+  chk(await page.locator('.hs-hut:not(.hs-ab)').count() === 1, 'Hutschachtel zeigt die Kopfbedeckung');
+  await page.locator('.hs-hut:not(.hs-ab)').first().click();
+  chk(/Tippe eine Schnecke an/.test(await page.textContent('#hinweis')), 'Kopfbedeckung gewählt: „Tippe eine Schnecke an“');
+  const name = await page.locator('.g-snail span').first().textContent();
+  await page.locator('.g-snail').first().click(); await page.waitForTimeout(200);
+  z = await parade();
+  chk(z.hutschachtel.length === 0 && z.garden.some(s => s.name === name && s.hat) && (await page.textContent('#hinweis')).includes(name), `${name} trägt jetzt die Kopfbedeckung, Schachtel leer`);
+  await page.screenshot({ path: path.join(SHOTS, 'garten-hutschachtel.png') });
+  await page.click('.hs-ab'); await page.locator('.g-snail').first().click(); await page.waitForTimeout(200);
+  chk((await parade()).hutschachtel.length === 1, 'Abnehmen: Kopfbedeckung wieder in der Schachtel');
+  await page.click('#r-album'); await page.waitForTimeout(200);
+  chk(await page.locator('.sticker').count() === 59 && /von 59 entdeckt/.test(await page.textContent('#album-zahl')), 'Sammelalbum: 59 Felder');
+  chk(await page.locator('.haeuser-teil ~ .seite-teil .sticker:not(.miss)').first().locator('svg').count() === 1, 'Gefundene Kopfbedeckung im Album als Bild');
+  await page.click('#r-garten');
+
+  // Nächster Tag (Probe): Lernzeit wieder voll
+  await page.click('#b-tag'); await page.waitForTimeout(200);
+  await page.click('#b-spiel'); await page.waitForURL(/zehnerweg/); await page.waitForTimeout(800);
+  chk(/Schreib los/.test(await bubble()) && await page.textContent('#uhrzeit') === '1:00', 'Nächster Tag: Lernzeit wieder voll, neue Runde möglich');
+
+  // Probe-Modus beenden: echter Speicher unberührt
   await page.goto(BASE); await page.click('.erwachsene summary'); await page.click('[data-probe-knopf]'); await page.waitForTimeout(500);
   chk(!(await page.evaluate(() => document.documentElement.classList.contains('probe'))), 'Probe beendet: kein Probe-Rahmen mehr');
-  chk(await page.evaluate(() => localStorage.getItem('lernspiele:parade') === null), 'Im Probe-Modus wurde der echte Garten nicht angelegt');
+  chk(await page.evaluate(() => localStorage.getItem('lernspiele:parade') === null && localStorage.getItem('lernspiele:lernzeit') === null), 'Im Probe-Modus wurden weder echter Garten noch echte Lernzeit angelegt');
   await page.goto(BASE + 'garten/'); await page.waitForTimeout(300);
-  chk(await page.locator('#b-tag').isHidden(), 'Ohne ?probe kein „Nächster Tag“-Knopf');
-  // Garten im Querformat und dunkel
+  chk(await page.locator('#b-tag').isHidden(), 'Ohne Probe kein „Nächster Tag“-Knopf');
   await page.setViewportSize({ width: 1280, height: 800 }); await page.click('[data-thema-knopf]'); await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(SHOTS, 'garten-android-quer-dunkel.png') });
   chk(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'Garten ohne Querscrollen');
-  await page.goto(BASE); await page.waitForTimeout(300); await page.screenshot({ path: path.join(SHOTS, 'start-mit-garten.png') });
 
   chk(!probleme.length, 'Keine Fehler/CSP-Verstöße ' + probleme.join(' | '));
   chk(!fremd.length, 'Keine Anfragen an fremde Server ' + fremd.join(' '));

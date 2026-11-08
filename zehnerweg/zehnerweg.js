@@ -5,7 +5,7 @@ import { lesen, schreiben, vorhanden, altLesen } from '../gemeinsam/speicher.js'
 import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgaben.js';
 import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
 import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
-import { richtig, falsch, parade, describe, limitErreicht } from '../gemeinsam/parade-logik.js';
+import { richtig, falsch, parade, HATS, BLAETTER_PRO_HUT } from '../gemeinsam/parade-logik.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
 const STANDARD = { gespiegelt: false, modus: 'plus' };
@@ -205,37 +205,32 @@ function check() {
 const streifen = new ParadeStreifen($('track'));
 const blaetter = $('leaves');
 let runde = null;
-const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : 'Für heute geschafft. Du kannst weiter üben.');
+const LERNZEIT_UM = 'Deine Lernzeit für heute ist um. Schau doch mal in deinen Garten! Du kannst auch frei weiter üben.';
+const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : LERNZEIT_UM);
 function zeigeParade(animiert) { streifen.zeige(parade(runde.z), animiert); zeigeBlaetter(blaetter, runde.z); }
 function paradeStarten() {
   const was = runde.aktivitaet(); // startet eine Runde oder setzt nach einer Pause fort
-  if (was === 'neu') {
-    zeigeParade(true);
-    const n = runde.z.runde.ausKorb.filter(id => runde.z.garden.find(s => s.id === id)?.special !== 'kaefer').length;
-    streifen.sag(n ? `Aus deinem Salatkorb ${n === 1 ? 'ist eine Schnecke' : 'sind ' + n + ' Schnecken'} geschlüpft!` : 'Los geht’s! Die Parade läuft.');
-  }
+  if (was === 'neu') { zeigeParade(true); streifen.sag('Los geht’s! Halte 5 Minuten durch, dann kommt eine neue Schnecke.'); }
   else if (was === 'weiter') streifen.sag('Weiter geht’s!');
 }
 function paradeRichtig() {
-  if (!runde.laeuft || task.belohnt) { if (!runde.laeuft && !runde.heuteMoeglich) streifen.sag('Super gerechnet!'); return; }
+  if (!runde.laeuft || task.belohnt) { if (!runde.laeuft) streifen.sag('Super gerechnet!'); return; } // freies Üben: Lob, keine Belohnung
   task.belohnt = true;
   const erg = richtig(runde.z); runde.speichern();
-  const slot = blaetter.querySelectorAll('.slot')[Math.min(2, Math.max(0, runde.z.leaves - 1))];
-  streifen.blattFliegt(FIELDS.goal.el, erg.neu ? blaetter.querySelectorAll('.slot')[2] : slot);
+  const slots = blaetter.querySelectorAll('.slot');
+  streifen.blattFliegt(FIELDS.goal.el, slots[erg.hut ? slots.length - 1 : Math.max(0, runde.z.leaves - 1)]);
   setTimeout(() => {
     zeigeParade(true);
-    if (erg.neu) streifen.sag(`${describe(erg.neu)} kriecht zur Parade!${erg.kaefer ? ' Ein Marienkäfer kommt als Gast mit!' : ''}`);
-    else if (erg.korb) streifen.sag('Ein Korb voll Salat! Heute sind genug Schnecken gekommen. Morgen schlüpft eine neue.');
-    else if (erg.korbVoll) streifen.sag('Super gerechnet! Der Salatkorb ist voll. Morgen geht es weiter.');
-    else streifen.sag(['Mmh, Salat!', 'Ein Salatblatt für die Parade!', 'Lecker, noch ein Blatt!'][runde.z.leaves % 3] + ` Noch ${3 - runde.z.leaves}, dann ${limitErreicht(runde.z) ? 'kommt Salat in den Korb' : 'kommt eine neue Schnecke'}.`);
+    if (erg.hut) streifen.sag(`Fünf Blätter! Neu in deiner Hutschachtel im Garten: ${HATS[erg.hut]}.`);
+    else { const noch = BLAETTER_PRO_HUT - runde.z.leaves; streifen.sag(['Mmh, Salat!', 'Ein Salatblatt!', 'Lecker, noch ein Blatt!'][runde.z.leaves % 3] + ` Noch ${noch}, dann gibt es eine Kopfbedeckung.`); }
   }, 800);
   setTimeout(() => runde.aufgabeFertig(), 2200);
 }
 function paradeFalsch() {
   if (!runde.laeuft || task.fehlerGezaehlt || task.belohnt) return;
   task.fehlerGezaehlt = true; // zählt nur einmal pro Aufgabe
-  falsch(runde.z); runde.speichern(); zeigeBlaetter(blaetter, runde.z);
-  streifen.sag('Macht nichts, niemand geht weg. Schau dir den Tipp an.');
+  falsch(runde.z);
+  streifen.sag('Macht nichts. Schau dir den Tipp an.');
 }
 const gartenUrl = '../garten/' + (PROBE ? '?probe' : '');
 $('b-garten').href = gartenUrl;

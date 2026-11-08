@@ -33,6 +33,12 @@ export function hatSVG(h) {
     case 'party': return g(`<path d="M-12 1 L0 -30 L12 1Z" fill="#7cc8ff" ${S}/><circle cx="-3" cy="-9" r="2.2" fill="#ffd447"/><circle cx="4" cy="-16" r="2.2" fill="#ff6f9b"/><circle cx="0" cy="-3" r="2.2" fill="#fff"/><circle cx="0" cy="-31" r="4" fill="#ffd447" ${S}/>`);
     case 'schleife': return g(`<path d="M0 -8 L-18 -18 L-18 2 Z M0 -8 L18 -18 L18 2Z" fill="#ff6f9b" ${S}/><circle cx="0" cy="-8" r="5" fill="#ff9ec4" ${S}/>`);
     case 'koch': return g(`<rect x="-11" y="-12" width="22" height="13" fill="#fff" ${S}/><circle cx="-9" cy="-16" r="8" fill="#fff" ${S}/><circle cx="9" cy="-16" r="8" fill="#fff" ${S}/><circle cx="0" cy="-21" r="9" fill="#fff" ${S}/><rect x="-10" y="-11" width="20" height="10" fill="#fff"/>`);
+    case 'bommel': return g(`<path d="M-16 1 Q-16 -21 0 -21 Q16 -21 16 1Z" fill="#4cc26a" ${S}/><path d="M-8 -19 L-8 -4 M0 -21 L0 -4 M8 -19 L8 -4" stroke="#3aa65a" stroke-width="2"/><rect x="-18" y="-5" width="36" height="7" rx="3" fill="#fff" ${S}/><circle cx="0" cy="-24" r="5.5" fill="#fff" ${S}/>`);
+    case 'sonne': return g(`<ellipse cx="0" cy="-1" rx="27" ry="6" fill="#f2c189" ${S}/><path d="M-12 -2 Q-12 -17 0 -17 Q12 -17 12 -2Z" fill="#f2c189" ${S}/><rect x="-12" y="-7" width="24" height="4" fill="#ff6f9b"/><circle cx="9" cy="-6" r="3" fill="#ffd447" ${S}/>`);
+    case 'zauber': return g(`<ellipse cx="0" cy="0" rx="20" ry="4" fill="#6b5bd6" ${S}/><path d="M-13 -1 L5 -33 L13 -1Z" fill="#6b5bd6" ${S}/><path d="${STAR}" transform="translate(3 -15) scale(.75)" fill="#ffd447"/><circle cx="-4" cy="-6" r="1.6" fill="#ffd447"/>`);
+    case 'kapitaen': return g(`<path d="M-15 -2 Q-16 -19 0 -19 Q16 -19 15 -2Z" fill="#fff" ${S}/><rect x="-15" y="-6" width="30" height="5" fill="#2a2f45"/><path d="M-4 0 Q8 4 19 -1 L18 2 Q8 7 -4 3Z" fill="#2a2f45" ${S}/><path d="M0 -15 L0 -9 M-3 -12 L3 -12 M-3 -9 Q0 -7 3 -9" stroke="#ffcc33" stroke-width="1.6" fill="none" stroke-linecap="round"/>`);
+    case 'kopfhoerer': return g(`<path d="M-18 4 Q-19 -23 0 -23 Q19 -23 18 4" fill="none" stroke="#1d2747" stroke-width="4" stroke-linecap="round"/><rect x="-25" y="-4" width="11" height="15" rx="5" fill="#ff6f9b" ${S}/><rect x="14" y="-4" width="11" height="15" rx="5" fill="#ff6f9b" ${S}/>`);
+    case 'cowboy': return g(`<path d="M-27 -2 Q-22 5 0 4 Q22 5 27 -2 Q24 6 0 8 Q-24 6 -27 -2Z" fill="#a66b3a" ${S}/><path d="M-13 2 Q-15 -18 -6 -17 Q0 -12 6 -17 Q15 -18 13 2Z" fill="#c98a4b" ${S}/><rect x="-13" y="-4" width="26" height="3" fill="#7a4a24"/>`);
   }
   return '';
 }
@@ -88,8 +94,6 @@ export function decoSVG(d) {
   return '';
 }
 
-/** Kleiner Hut für die Hut-Anzeige neben den Blättern. */
-export const HUT_ANZEIGE = `<svg class="hatmark" viewBox="25 -8 58 36" aria-hidden="true">${hatSVG('zylinder')}</svg>`;
 
 /** SVG-Text als Element erzeugen (statt innerHTML auf bestehenden Elementen mit Text). */
 export function svgElement(text) {

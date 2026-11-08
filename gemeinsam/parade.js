@@ -1,10 +1,11 @@
 // Schneckenparade: Anzeige in den Spielen (Paradestreifen, Blatt-Plätze, Uhr, Rückblick).
 // Namen und Texte immer mit textContent, SVG nur aus parade-bilder.js.
 
-import { SCALE, STAGES, DECO, describe } from './parade-logik.js';
-import { snailSVG, decoSVG, LEAF, HUT_ANZEIGE, svgElement } from './parade-bilder.js';
+import { SCALE, STAGES, DECO, describe, BLAETTER_PRO_HUT } from './parade-logik.js';
+import { snailSVG, decoSVG, hatSVG, LEAF, svgElement } from './parade-bilder.js';
 
-const KORB = '<svg viewBox="0 0 32 28" aria-hidden="true"><path d="M9 10 Q16 0 23 10" fill="none" stroke="#1d2747" stroke-width="2.2"/><path class="lf" d="M8 11 C8 5 14 2 19 3 C19 8 15 11 8 11Z"/><path d="M3 10 H29 L26 25 H6 Z" fill="#e2b36b" stroke="#1d2747" stroke-width="2" stroke-linejoin="round"/><path d="M8 15 H24 M9 20 H23" stroke="#1d2747" stroke-width="1.4" opacity=".5"/></svg>';
+/** Kopfbedeckung als kleines Bild (Ausschnitt um den Hut). */
+export const hutBild = h => svgElement(`<svg viewBox="26 -10 56 40" aria-hidden="true">${hatSVG(h)}</svg>`);
 
 const el = (tag, klasse, text) => { const e = document.createElement(tag); if (klasse) e.className = klasse; if (text != null) e.textContent = text; return e; };
 
@@ -71,48 +72,44 @@ export class ParadeStreifen {
   }
 }
 
-/** Drei Blatt-Plätze und die Hut-Anzeige. */
+/** Fünf Blatt-Plätze: Sind alle voll, kommt eine Kopfbedeckung in die Hutschachtel. */
 export function zeigeBlaetter(box, z) {
-  if (!box.childElementCount) {
-    for (let i = 0; i < 3; i++) { const s = el('span', 'slot'); s.append(svgElement(LEAF)); box.append(s); }
-    box.append(svgElement(HUT_ANZEIGE));
+  if (box.querySelectorAll('.slot').length !== BLAETTER_PRO_HUT) {
+    box.replaceChildren();
+    for (let i = 0; i < BLAETTER_PRO_HUT; i++) { const s = el('span', 'slot'); s.append(svgElement(LEAF)); box.append(s); }
   }
-  [...box.querySelectorAll('.slot')].forEach((s, i) => {
-    const an = i < z.leaves;
-    if (an && !s.classList.contains('on')) { s.classList.add('on'); }
-    else if (!an) s.classList.remove('on');
-  });
-  box.querySelector('.hatmark').classList.toggle('off', !z.cleanLeaves);
-  // Salatkorb: Schnecken, die morgen schlüpfen
-  let korb = box.querySelector('.korb');
-  if (z.korb.length && !korb) { korb = el('span', 'korb'); korb.append(svgElement(KORB), el('b')); box.append(korb); }
-  if (korb) { korb.hidden = !z.korb.length; korb.querySelector('b').textContent = String(z.korb.length); }
-  box.setAttribute('aria-label', `${z.leaves} von 3 Salatblättern${z.cleanLeaves ? ', nächste Schnecke mit Hut' : ''}${z.korb.length ? `, im Salatkorb ${z.korb.length} für morgen` : ''}`);
+  [...box.querySelectorAll('.slot')].forEach((s, i) => s.classList.toggle('on', i < z.leaves));
+  box.setAttribute('aria-label', `${z.leaves} von ${BLAETTER_PRO_HUT} Salatblättern bis zur nächsten Kopfbedeckung`);
 }
 
 /** Rückblick nach der Runde als Dialog. */
-export function rueckblick({ neu, gewachsen, deko, nochRunden = 0, korb = 0 }, { gartenUrl }) {
+export function rueckblick({ neu, gewachsen, deko, huete = [], lernzeitUm = false }, { gartenUrl }) {
   const d = el('dialog', 'rueckblick');
-  d.append(el('h2', null, nochRunden > 0 ? 'Runde geschafft!' : 'Für heute geschafft!'));
+  d.append(el('h2', null, 'Runde geschafft!'));
   const n = neu.length;
-  d.append(el('p', null, n ? (n === 1 ? 'Ein neues Tier ist in den Garten gezogen.' : `${n} neue Tiere sind in den Garten gezogen.`) : 'Heute ist niemand Neues dazugekommen, aber deine Begleiter waren dabei.'));
+  d.append(el('p', null, n === 1 ? 'Für deine 5 Minuten kommt eine neue Schnecke in den Garten.' : `Für deine 5 Minuten kommen ${n} neue Tiere in den Garten.`));
   if (n) {
     const row = el('div', 'row');
     for (const t of neu) { const f = el('figure'); f.append(svgElement(snailSVG(t)), el('figcaption', null, t.name)); f.setAttribute('aria-label', describe(t)); row.append(f); }
     d.append(row);
+  }
+  if (huete.length) {
+    const row = el('div', 'row huete');
+    for (const h of huete) { const f = el('span', 'hut-bild'); f.append(hutBild(h)); row.append(f); }
+    d.append(row);
+    d.append(el('p', null, huete.length === 1 ? 'Für deinen Salat gibt es eine Kopfbedeckung. Sie liegt in der Hutschachtel im Garten.' : `Für deinen Salat gibt es ${huete.length} Kopfbedeckungen. Sie liegen in der Hutschachtel im Garten.`));
   }
   if (gewachsen.length) {
     d.append(el('p', null, 'Gewachsen: ' + gewachsen.map(s => `${s.name} ist jetzt ${s.stage >= 3 ? 'eine Glitzerschnecke' : STAGES[s.stage]}`).join(', ') + '.'));
   }
   if (deko) {
     const row = el('div', 'row'); row.append(svgElement(decoSVG(deko))); d.append(row);
-    d.append(el('p', null, `Für 5 Übungstage gibt es neu im Garten: ${DECO[deko]}.`));
+    d.append(el('p', null, `Neu im Garten: ${DECO[deko]}.`));
   }
-  if (korb) d.append(el('p', null, korb === 1 ? 'Im Salatkorb wartet eine Schnecke auf morgen.' : `Im Salatkorb warten ${korb} Schnecken auf morgen.`));
-  d.append(el('p', 'note', nochRunden === Infinity ? 'Willst du noch eine Runde? Schreib einfach weiter.' : nochRunden > 0 ? `Heute geht noch ${nochRunden === 1 ? 'eine Runde' : nochRunden + ' Runden'}. Schreib einfach weiter.` : 'Morgen geht die Parade weiter.'));
+  d.append(el('p', 'note', lernzeitUm ? 'Deine Lernzeit für heute ist um. Schau doch mal in deinen Garten!' : 'Willst du noch eine Runde? Schreib einfach weiter.'));
   const knoepfe = el('div', 'knoepfe');
   const garten = el('a', 'btn primary', 'Zum Garten'); garten.href = gartenUrl;
-  const weiter = el('button', 'btn', nochRunden > 0 ? 'Noch eine Runde' : 'Weiter üben'); weiter.type = 'button';
+  const weiter = el('button', 'btn', lernzeitUm ? 'Weiter üben' : 'Noch eine Runde'); weiter.type = 'button';
   weiter.addEventListener('click', () => { d.close(); d.remove(); });
   knoepfe.append(garten, weiter); d.append(knoepfe);
   document.body.append(d);
