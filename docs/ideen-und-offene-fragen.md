@@ -14,7 +14,7 @@ Beide stammen von Leuchttisch-Materialien aus dem Unterricht. Die genaue Beschre
 - Mögliche Umsetzung: Gegenstände liegen auf einer leuchtenden Fläche; das Kind zählt, dann teilt es sie in zwei Gruppen (Schreibfelder wie bei den kleinen Kreisen im Zehnerweg).
 - Offen: Welche Gegenstände? Wird nur gezählt oder auch verschoben?
 
-Beide Spiele nutzen dieselbe Zahlenerkennung, dieselbe 5-Minuten-Runde und dieselbe Schneckenparade.
+Beide Spiele nutzen dieselbe Zahlenerkennung, dieselbe 5-Minuten-Runde und dieselbe gemeinsame Lernzeit pro Tag. Als Belohnung bekommt der Leuchttisch eine **eigene Sammlung: Amulette** (statt Schnecken), damit die Welten getrennt und übersichtlich bleiben.
 
 ## Ideen für alle Spiele
 
