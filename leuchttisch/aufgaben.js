@@ -121,7 +121,7 @@ export function tipp(a) {
 export const steinListe = (x, n) => (Array.isArray(x) ? x.filter(s => STEINE.includes(s)).slice(0, n) : []);
 
 /** Muster für lesen('leuchttisch', …). runde: {} ist nur das Typ-Muster; zustandPruefen macht daraus null oder eine geprüfte Runde. */
-export const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, licht: 'ruhig', fassung: [], amulette: [], runde: {}, modell: {} };
+export const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, licht: 'ruhig', seite: 'rechts', fassung: [], amulette: [], runde: {}, modell: {} };
 
 /** Zustand aus dem Speicher prüfen und bereinigen. */
 export function zustandPruefen(z) {
@@ -130,6 +130,7 @@ export function zustandPruefen(z) {
   aus.eingabe = z.eingabe === 'schreiben' ? 'schreiben' : 'tippen';
   aus.zweiSorten = z.zweiSorten !== false;
   aus.licht = z.licht === 'bewegt' ? 'bewegt' : 'ruhig';
+  aus.seite = z.seite === 'links' ? 'links' : 'rechts';
   aus.runde = rundePruefen(z.runde);
   aus.walkers = [];                     // gemeinsam/runde.js erwartet das Feld (Begleiter gibt es nur bei den Schnecken)
   aus.fassung = steinListe(z.fassung, FASSUNGEN - 1);

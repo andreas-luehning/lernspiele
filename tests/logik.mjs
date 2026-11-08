@@ -44,7 +44,7 @@ for (let st = 0; st < LT.STUFEN.length; st++) {
   }
 }
 const z = LT.zustandPruefen({ stufe: 9, eingabe: '<b>', zweiSorten: 'ja', fassung: ['rubin', 'gold', '__proto__', 'topas'], amulette: [['rubin'], ['rubin', 'saphir', 'smaragd', 'amethyst', 'topas'], 'x'] });
-chk(z.stufe === 0 && z.eingabe === 'tippen' && z.zweiSorten === true && z.licht === 'ruhig', 'lt zustand werte');
+chk(z.stufe === 0 && z.eingabe === 'tippen' && z.zweiSorten === true && z.licht === 'ruhig' && z.seite === 'rechts', 'lt zustand werte');
 chk(JSON.stringify(z.fassung) === '["rubin","topas"]' && z.amulette.length === 1, 'lt zustand steine bereinigt');
 const z2 = LT.zustandPruefen({ stufe: 0, eingabe: 'tippen', zweiSorten: true, fassung: [], amulette: [] });
 for (let i = 0; i < LT.FASSUNGEN - 1; i++) chk(!LT.steinEinsetzen(z2, 'saphir').voll, 'lt noch nicht voll');

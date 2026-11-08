@@ -1,5 +1,14 @@
 # Ideen und offene Fragen
 
+## Fahrplan (Stand 08.11.2026, von der Lehrkraft)
+
+1. **Aktuelle Fassung testen** (Zehnerweg mit Schneckenparade, Leuchttisch, Schatzkammer; Branch `leuchttisch-mit-belohnung`) und als Pull Request nach `main` übernehmen. Danach nur noch kleine Fehler.
+2. **Numi einbauen:** Die Numi-App ist fertig und soll als eigene Welt dazukommen (eigene Sammlung, gemeinsame Lernzeit, siehe Grundsatz 7).
+3. **Burgen** als Variante im Leuchttisch (Vorlage `prototypen/burgen.html`).
+4. **Zehnerweg, höhere Stufe:** Zehnerübergang mit größeren Zahlen, z. B. 70 + 8, 55 + 7 (über den nächsten Zehner).
+5. **Zahlenmauern auf dem Leuchttisch:** Die Steine liegen als Zahlenmauer auf dem Tisch, das Kind beschriftet die Mauer direkt auf dem Leuchttisch (Schreibfelder in den Mauersteinen).
+
+
 ## Weitere Spiele (noch zu beschreiben)
 
 Beide stammen von Leuchttisch-Materialien aus dem Unterricht. Prototypen, Übergaben und der Abgleich mit diesem Projekt stehen jetzt in `leuchttisch.md` (neue Richtung: Amulette statt Numi). Die folgenden Notizen sind der alte Stand.

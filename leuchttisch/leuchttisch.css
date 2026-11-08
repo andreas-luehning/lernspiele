@@ -171,6 +171,12 @@ header { grid-area: kopf; position: relative; z-index: 6; display: flex; align-i
   .actions { flex-direction: column; }
   .actions .btn { width: 100%; }
   .grown { top: 16px; left: 400px; margin-left: 0; }
+  /* Leiste rechts (Standard, für Rechtshänder): Tisch links, Antworten und Schreibfeld rechts */
+  .app.leiste-rechts {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+    grid-template-areas: "tisch kopf" "tisch frage" "tisch antwort" "tisch schatz" "tisch knoepfe";
+  }
+  .app.leiste-rechts .grown { left: max(16px, env(safe-area-inset-left, 0px)); right: 400px; margin-left: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

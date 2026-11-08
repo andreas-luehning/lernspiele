@@ -241,6 +241,11 @@ function jubeln() {
   });
 }
 /** Bewegtes Licht (Einstellung für Erwachsene): weiche Lichtflecken unter dem Tisch, ab und zu funkelt ein Stein. */
+/** Leiste im Querformat links oder rechts (Einstellung für Erwachsene, Standard rechts für Rechtshänder). */
+function seiteZeigen() {
+  $('app').classList.toggle('leiste-rechts', zustand.seite === 'rechts');
+  document.querySelectorAll('#seite button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.seite === zustand.seite)));
+}
 function lichtZeigen() {
   tisch.classList.toggle('bewegt', zustand.licht === 'bewegt');
   document.querySelectorAll('#licht button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.licht === zustand.licht)));
@@ -270,6 +275,9 @@ document.querySelectorAll('#sorten button').forEach(b => b.addEventListener('cli
 document.querySelectorAll('#licht button').forEach(b => b.addEventListener('click', () => {
   zustand.licht = b.dataset.licht === 'bewegt' ? 'bewegt' : 'ruhig'; speichern(); lichtZeigen();
 }));
+document.querySelectorAll('#seite button').forEach(b => b.addEventListener('click', () => {
+  zustand.seite = b.dataset.seite === 'links' ? 'links' : 'rechts'; speichern(); seiteZeigen();
+}));
 $('b-hilfe').addEventListener('click', () => { aktiv(); zeigMirs(); });
 $('kiste').href = '../schatzkammer/' + (PROBE ? '?probe' : ''); // Probe-Modus bleibt erhalten
 $('b-neu').addEventListener('click', () => { if (zustand.runde?.zeitUm) runde.beenden(); neueSteine(); });
@@ -295,6 +303,6 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 
 /* ---------- Start ---------- */
 defsEinbauen();
-stufenZeigen(); sortenZeigen(); lichtZeigen(); schatzZeigen(); kisteZeigen();
+stufenZeigen(); sortenZeigen(); lichtZeigen(); seiteZeigen(); schatzZeigen(); kisteZeigen();
 runde.tick();
 requestAnimationFrame(() => { neueSteine(); eingabeZeigen(); });
