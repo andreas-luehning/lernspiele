@@ -28,14 +28,16 @@ Die Prototypen und Übergaben bleiben unverändert, so wie sie geliefert wurden.
 
 ### Edelsteine
 
-| Stein | Farbe | Form |
+| Stein | Farbe | Schliff |
 |---|---|---|
-| Rubin | Rot | Tropfen |
-| Saphir | Blau | Raute |
-| Smaragd | Grün | Achteck |
+| Rubin | Rot | rund (Brillant) |
+| Saphir | Blau | spitzes Oval (Navette) |
+| Smaragd | Grün | Rechteck mit abgeschrägten Ecken (Smaragdschliff) |
 | Amethyst | Lila | Sechseck |
-| Bernstein | Orange | Oval |
+| Citrin | Orange | Kissen (Quadrat mit runden Ecken) |
 | Topas | Gelb | Dreieck |
+
+Gezeichnet mit Facetten (Licht von links oben), Tafel, Funkeln und einem farbigen Lichtschein auf dem Tisch. Die erste Fassung (durchscheinendes Acryl, Rubin als Tropfen) wirkte nicht edel genug.
 
 ### Regeln für den ersten Entwurf (Steine zählen und zerlegen)
 
@@ -55,7 +57,7 @@ Noch nicht im Entwurf: 5-Minuten-Runde und Tageszeit (kommt mit `gemeinsam/runde
 
 ### Ideen zum Weiterdenken (noch nicht entschieden)
 
-**Edelsteine:** 6 Sorten, jede mit eigener Form und Farbe, damit man sie auch ohne Farbsehen unterscheidet. Zum Beispiel Rubin (rot, Tropfen), Saphir (blau, Raute), Smaragd (grün, Achteck), Amethyst (lila, Sechseck), Bernstein (orange, Oval), Mondstein (hellblau, Kreis).
+**Edelsteine:** 6 Sorten, jede mit eigener Form und Farbe, damit man sie auch ohne Farbsehen unterscheidet (siehe Tabelle oben).
 
 **Varianten im Spiel Leuchttisch:**
 

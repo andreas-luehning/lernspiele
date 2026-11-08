@@ -1,7 +1,7 @@
 // Leuchttisch: Aufgaben, Streuen der Steine, Antwort-Knöpfe, Amulett-Regeln. Ohne DOM, direkt testbar.
 // Streuen und Stufen stammen aus prototypen/leuchttisch.html (addPoints, LEVELS), Numi-Figuren durch Edelsteine ersetzt.
 
-export const STEINE = ['rubin', 'saphir', 'smaragd', 'amethyst', 'bernstein', 'topas'];
+export const STEINE = ['rubin', 'saphir', 'smaragd', 'amethyst', 'citrin', 'topas'];
 export const FASSUNGEN = 5;            // Steine pro Amulett (vorläufig, siehe docs/leuchttisch.md)
 export const MAX_AMULETTE = 2000;      // Obergrenze im Speicher
 

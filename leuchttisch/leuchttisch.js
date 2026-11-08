@@ -3,7 +3,7 @@ import { ladeModell } from '../gemeinsam/ziffern.js';
 import { Schreibfeld, alleNeuZeichnen } from '../gemeinsam/schreibfeld.js';
 import { lesen, schreiben } from '../gemeinsam/speicher.js';
 import { STUFEN, FASSUNGEN, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen } from './aufgaben.js';
-import { svg, stein, glowDefs, amulett, STEIN_ART } from './steine.js';
+import { svg, stein, defsEinbauen, amulett, STEIN_ART } from './steine.js';
 
 const $ = id => document.getElementById(id);
 
@@ -25,7 +25,6 @@ function tischMasse() {
 
 function tischZeichnen() {
   tischSvg = svg('svg', { viewBox: `0 0 ${B} ${H}`, class: 'tisch-svg', role: 'img', 'aria-label': `Edelsteine auf dem Leuchttisch` });
-  tischSvg.append(glowDefs());
   for (const s of aufgabe.steine) tischSvg.append(stein(s.sorte, s.x, s.y, G, s.dreh));
   tisch.replaceChildren(tischSvg);
 }
@@ -220,5 +219,6 @@ new ResizeObserver(() => {
 new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 /* ---------- Start ---------- */
+defsEinbauen();
 stufenZeigen(); sortenZeigen(); schatzZeigen(); kisteZeigen();
 requestAnimationFrame(() => { neueSteine(); eingabeZeigen(); });

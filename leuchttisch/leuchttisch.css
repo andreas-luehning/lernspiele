@@ -28,6 +28,8 @@ header { grid-area: kopf; display: flex; align-items: center; gap: 12px 16px; fl
 
 .frage { grid-area: frage; text-align: center; font: 800 clamp(1.3rem, 3.2vw, 1.8rem) var(--display); }
 
+.svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
 /* Leuchttisch */
 .tisch-rahmen {
   grid-area: tisch; min-height: 0; display: flex;
