@@ -50,11 +50,12 @@ Gezeichnet mit Facetten (Licht von links oben), Tafel, Funkeln und einem farbige
 | Falsch | Sanftes Wackeln, ein Tipp, beliebig oft probieren. Beim Zerlegen erscheint „a + b = ?“. Nichts geht verloren. |
 | „Zeig mir's“ | Zählen: Die Steine werden nacheinander nummeriert. Zerlegen: Beide Gruppen werden umrandet, mit ihrer Anzahl, dann „a + b = ?“. Das Ergebnis wird nie verraten. |
 | Licht | Standard „Ruhig“: Licht scheint gleichmäßig durch die Steine. Erwachsene können „Bewegt“ einschalten: weiche Lichtflecken wandern sehr langsam unter dem Tisch, etwa alle 2–3 Sekunden funkelt ein Stein. Bei „Zeig mir's“ und nach der richtigen Antwort steht das Licht still. Bei „Bewegung reduzieren“ am Gerät keine Bewegung. |
+| Runde und Lernzeit | Dieselbe 5-Minuten-Runde und gemeinsame Lernzeit wie beim Zehnerweg (`gemeinsam/runde.js`, eigener Speicher in `lernspiele:leuchttisch`, keine Schnecke). Die erste Antwort startet die Uhr; eine Minute ohne Antippen oder Schreiben ist Pause. Ist die Zeit um, darf die angefangene Aufgabe fertig werden. Steine gibt es nur während einer Runde. Ist die Lernzeit für heute um: freies Üben mit Lob, ohne Steine. Am Ende: „Geschafft! 5 Minuten geübt. N Steine für dein Amulett.“ |
 | Angefangenes Amulett | Bleibt gespeichert, auch über Nacht (wie die Salatblätter). |
 
 Gespeichert unter `lernspiele:leuchttisch`: `{ version: 1, stufe, eingabe: "tippen" | "schreiben", zweiSorten, licht: "ruhig" | "bewegt", fassung: [Steine], amulette: [[Steine], …] }`. Beim Lesen werden nur bekannte Steine übernommen.
 
-Noch nicht im Entwurf: 5-Minuten-Runde und Tageszeit (kommt mit `gemeinsam/runde.js`), Burg, Schatzburg.
+Noch nicht im Entwurf: Hauptbelohnung für eine fertige Runde, Amulett-Galerie, Burg, Schatzburg.
 
 ### Ideen zum Weiterdenken (noch nicht entschieden)
 

@@ -2,13 +2,15 @@
 import { ladeModell } from '../gemeinsam/ziffern.js';
 import { Schreibfeld, alleNeuZeichnen } from '../gemeinsam/schreibfeld.js';
 import { lesen, schreiben } from '../gemeinsam/speicher.js';
-import { STUFEN, FASSUNGEN, steinGroesse, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen } from './aufgaben.js';
+import { Runde, uhrText } from '../gemeinsam/runde.js';
+import { STUFEN, FASSUNGEN, steinGroesse, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen, rundeBeendenLT } from './aufgaben.js';
 import { svg, stein, defsEinbauen, amulett, STEIN_ART } from './steine.js';
 
 const $ = id => document.getElementById(id);
 
 /* ---------- Gespeicherter Zustand ---------- */
-const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, licht: 'ruhig', fassung: [], amulette: [] };
+// runde: {} ist nur das Typ-Muster für speicher.js; zustandPruefen macht daraus null oder eine geprüfte Runde
+const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, licht: 'ruhig', fassung: [], amulette: [], runde: {} };
 let zustand = zustandPruefen(lesen('leuchttisch', STANDARD));
 const speichern = () => schreiben('leuchttisch', zustand);
 
@@ -40,7 +42,8 @@ function neueSteine() {
   tisch.classList.remove('jubel');
   tischZeichnen();
   $('frage').textContent = aufgabe.modus === 'zaehlen' ? 'Wie viele Steine sind es?' : 'Wie viele sind es zusammen?';
-  zeigeHinweis(zustand.eingabe === 'schreiben' ? 'Schreib die Zahl in das Feld.' : 'Tipp auf die richtige Zahl.');
+  if (rundenNachricht) { zeigeHinweis(rundenNachricht, 'good'); rundenNachricht = ''; }
+  else zeigeHinweis(startText());
   optionenZeigen();
   feld?.freigeben(); feld?.el.classList.remove('ok', 'no');
 }
@@ -51,7 +54,7 @@ function optionenZeigen() {
   box.replaceChildren(...antworten(aufgabe.gesamt).map(z => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'opt'; b.textContent = String(z); b.dataset.wert = String(z);
-    b.addEventListener('click', () => pruefen(z, b));
+    b.addEventListener('click', () => { aktiv(); pruefen(z, b); });
     return b;
   }));
 }
@@ -63,7 +66,7 @@ function schreibfeldBereit() {
   feld = new Schreibfeld($('schreiben'), {
     id: 'antwort', kind: 'box',
     onErkannt: f => { if (f.value != null && !f.wartet) pruefen(f.value, null); },
-    onStart: () => { $('grown').hidden = true; $('b-info').setAttribute('aria-expanded', 'false'); },
+    onStart: () => { $('grown').hidden = true; $('b-info').setAttribute('aria-expanded', 'false'); aktiv(); },
   });
   requestAnimationFrame(() => feld.groesseAnpassen());
 }
@@ -86,18 +89,22 @@ function eingabeZeigen() {
 function pruefen(wert, knopf) {
   if (geloest || zeigt || !aufgabe) return;
   const a = aufgabe;
+  a.versucht = true;
   if (wert === a.gesamt) {
     geloest = true;
     knopf?.classList.add('richtig'); feld?.el.classList.add('ok');
-    const sorte = a.sorteL;
-    const { platz, voll } = steinEinsetzen(zustand, sorte);
-    speichern();
+    let voll = false;
+    if (runde.laeuft) {                         // Steine gibt es nur in einer Runde, danach ist freies Üben
+      const e = steinEinsetzen(zustand, a.sorteL); voll = e.voll;
+      zustand.runde.steine = (zustand.runde.steine || 0) + 1;
+      speichern();
+      schatzZeigen(voll ? -1 : e.platz, voll);
+    }
     if (a.modus === 'zerlegen') zeigeRechnung(a, true, `Super! ${a.links} + ${a.rechts} = ${a.gesamt}.`, 'good');
     else zeigeHinweis(`Super! Es sind ${a.gesamt} Steine.`, 'good');
-    schatzZeigen(voll ? -1 : platz, voll);
     jubeln();
     const nr = rundeNr;
-    setTimeout(() => { if (nr === rundeNr) neueSteine(); }, voll ? 3200 : 2200);
+    setTimeout(() => { if (nr !== rundeNr) return; runde.aufgabeFertig(); neueSteine(); }, voll ? 3200 : 2200);
   } else {
     if (knopf) { knopf.classList.remove('falsch'); void knopf.offsetWidth; knopf.classList.add('falsch'); setTimeout(() => knopf.classList.remove('falsch'), 700); }
     let text = tipp(a);
@@ -193,6 +200,39 @@ function kisteZeigen(pop = false) {
   if (pop) { const k = $('kiste'); k.classList.remove('pop'); void k.offsetWidth; k.classList.add('pop'); }
 }
 
+/* ---------- Runde und Lernzeit ---------- */
+// Dieselbe 5-Minuten-Runde und Lernzeit wie beim Zehnerweg (gemeinsam/runde.js), aber mit eigenem Speicher:
+// Eine fertige Leuchttisch-Runde bringt keine Schnecke. Steine gibt es nur, solange eine Runde läuft.
+const LERNZEIT_UM = 'Deine Lernzeit für heute ist um. Du kannst frei weiter üben.';
+let rundenNachricht = '';
+function startText() {
+  if (!runde.laeuft && !runde.heuteMoeglich) return LERNZEIT_UM;
+  return zustand.eingabe === 'schreiben' ? 'Schreib die Zahl in das Feld.' : 'Tipp auf die richtige Zahl.';
+}
+function aktiv() {
+  if (runde.aktivitaet() === 'weiter') zeigeHinweis('Weiter geht’s!');
+}
+const runde = new Runde({
+  speicher: { laden: () => zustand, speichern: () => speichern(), beenden: z => rundeBeendenLT(z) },
+  onTick: (rest, dauer, pause) => {
+    $('uhrzeit').textContent = uhrText(rest);
+    $('sand').style.width = (rest / dauer * 100) + '%';
+    $('uhr').classList.toggle('um', rest <= 0);
+    $('uhr').classList.toggle('pause', !!pause);
+  },
+  onPause: () => zeigeHinweis('Pause. Tipp weiter, dann läuft die Uhr wieder.'),
+  onZeitUm: () => {
+    // Nur eine angefangene Aufgabe darf fertig werden
+    if (aufgabe && aufgabe.versucht && !geloest) zeigeHinweis('Die Zeit ist um! Mach diese Aufgabe noch fertig.');
+    else runde.beenden();
+  },
+  onEnde: erg => {
+    const n = erg.steine;
+    rundenNachricht = `Geschafft! 5 Minuten geübt. ${n === 1 ? 'Ein Stein' : n + ' Steine'} für dein Amulett.` + (erg.lernzeitUm ? ' ' + LERNZEIT_UM : '');
+    if (!geloest) { zeigeHinweis(rundenNachricht, 'good'); rundenNachricht = ''; }
+  },
+});
+
 /* ---------- Licht ---------- */
 const wenigBewegung = window.matchMedia?.('(prefers-reduced-motion: reduce)');
 /** Richtige Antwort: Der Tisch leuchtet einmal auf, alle Steine funkeln nacheinander. */
@@ -232,8 +272,8 @@ document.querySelectorAll('#sorten button').forEach(b => b.addEventListener('cli
 document.querySelectorAll('#licht button').forEach(b => b.addEventListener('click', () => {
   zustand.licht = b.dataset.licht === 'bewegt' ? 'bewegt' : 'ruhig'; speichern(); lichtZeigen();
 }));
-$('b-hilfe').addEventListener('click', zeigMirs);
-$('b-neu').addEventListener('click', neueSteine);
+$('b-hilfe').addEventListener('click', () => { aktiv(); zeigMirs(); });
+$('b-neu').addEventListener('click', () => { if (zustand.runde?.zeitUm) runde.beenden(); neueSteine(); });
 $('b-info').addEventListener('click', () => { const g = $('grown'); g.hidden = !g.hidden; $('b-info').setAttribute('aria-expanded', String(!g.hidden)); });
 
 // Nach dem Drehen: dieselbe Aufgabe neu verteilen, wenn sich die Form des Tisches deutlich ändert
@@ -252,4 +292,5 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 /* ---------- Start ---------- */
 defsEinbauen();
 stufenZeigen(); sortenZeigen(); lichtZeigen(); schatzZeigen(); kisteZeigen();
+runde.tick();
 requestAnimationFrame(() => { neueSteine(); eingabeZeigen(); });

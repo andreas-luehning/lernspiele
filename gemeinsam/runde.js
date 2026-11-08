@@ -13,16 +13,21 @@ import { PROBE } from './probe.js';
 export { PROBE };
 // Probe-Modus (siehe probe.js): Runde 1 Minute, Nachspiel 30 s, Pause nach 20 s, Lernzeit fünfmal kürzer.
 const RUHE_MS = PROBE ? 20 * 1000 : 60 * 1000; // so lange ohne Strich, dann Pause
+const PARADE_SPEICHER = { laden: ladeParade, speichern: speichereParade, beenden: rundeBeenden };
 
 export class Runde {
   /**
-   * @param {{onTick?:(rest:number, dauer:number, pause:boolean)=>void, onZeitUm?:()=>void, onEnde?:(ergebnis:object)=>void, onPause?:()=>void}} opt
+   * @param {{onTick?:(rest:number, dauer:number, pause:boolean)=>void, onZeitUm?:()=>void, onEnde?:(ergebnis:object)=>void, onPause?:()=>void,
+   *   speicher?:{laden:()=>object, speichern:(z:object)=>void, beenden:(z:object, tag:string)=>object}}} opt
+   * speicher: Wo der Rundenstand liegt und was am Ende passiert. Standard ist die Schneckenparade (eine Schnecke pro Runde).
+   * Andere Spielwelten (z. B. der Leuchttisch) geben ihren eigenen Speicher mit; die Lernzeit ist für alle dieselbe.
    */
-  constructor({ onTick, onZeitUm, onEnde, onPause } = {}) {
+  constructor({ onTick, onZeitUm, onEnde, onPause, speicher = PARADE_SPEICHER } = {}) {
+    this.sp = speicher;
     this.dauer = PROBE ? 60 * 1000 : RUNDE_MS;
     this.nachspiel = PROBE ? 30 * 1000 : NACHSPIEL_MS;
     this.onTick = onTick || (() => {}); this.onZeitUm = onZeitUm || (() => {}); this.onEnde = onEnde || (() => {}); this.onPause = onPause || (() => {});
-    this.z = ladeParade();
+    this.z = this.sp.laden();
     this.letzteAktivitaet = Date.now();
     this.gezaehltBis = Date.now(); // bis wann die Übungszeit schon zur Lernzeit gerechnet ist
     this.timer = setInterval(() => this.tick(), 500);
@@ -33,7 +38,7 @@ export class Runde {
     window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
   }
 
-  speichern() { speichereParade(this.z); }
+  speichern() { this.sp.speichern(this.z); }
   get laeuft() { return !!this.z.runde; }
   get pausiert() { return pausiert(this.z); }
   /** Kann eine neue Runde beginnen (heute noch Lernzeit übrig)? */
@@ -88,7 +93,7 @@ export class Runde {
   beenden() {
     if (!this.z.runde) return;
     this.zaehlen();
-    const ergebnis = rundeBeenden(this.z, heute());
+    const ergebnis = this.sp.beenden(this.z, heute());
     this.speichern();
     ergebnis.lernzeitUm = lernzeitUm();
     this.onTick(this.rest, this.dauer, false);

@@ -50,6 +50,10 @@ const z2 = LT.zustandPruefen({ stufe: 0, eingabe: 'tippen', zweiSorten: true, fa
 for (let i = 0; i < LT.FASSUNGEN - 1; i++) chk(!LT.steinEinsetzen(z2, 'saphir').voll, 'lt noch nicht voll');
 const e = LT.steinEinsetzen(z2, 'boese');
 chk(e.voll && z2.fassung.length === 0 && z2.amulette.length === 1 && z2.amulette[0].every(s => LT.STEINE.includes(s)), 'lt amulett voll');
+chk(LT.rundePruefen({ ende: 'x' }) === null && LT.rundePruefen(null) === null, 'lt runde ungültig');
+const rp = LT.rundePruefen({ ende: 5, tag: '<b>', pause: -3, zeitUm: 'ja', steine: 1e9 });
+chk(rp && rp.tag === '' && rp.pause === null && rp.zeitUm === false && rp.steine === 0, 'lt runde bereinigt');
+const zr = { runde: { ende: 1, steine: 4 } }; chk(LT.rundeBeendenLT(zr).steine === 4 && zr.runde === null, 'lt runde beenden');
 console.log('Leuchttisch geprüft');
 console.log(fehler ? fehler + ' Fehler' : 'alles ok');
 process.exit(fehler ? 1 : 0);

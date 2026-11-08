@@ -159,6 +159,22 @@ const { schreibe } = require('./hilfen.js');
     chk(st.k === '0' && st.f === 1 && !st.img, 'leuchttisch: manipulierter Speicher wird bereinigt ' + JSON.stringify(st));
     await p.evaluate(() => localStorage.setItem('lernspiele:leuchttisch', '{kaputt')); await p.reload(); await p.waitForTimeout(300);
     chk(await p.$$eval('.tisch .stein', s => s.length) >= 2, 'leuchttisch: kaputter Speicher, Spiel startet trotzdem');
+    // Runde und Lernzeit: erste Antwort startet die Uhr; ist die Lernzeit um, gibt es keine Steine (freies Üben)
+    await p.evaluate(() => { localStorage.removeItem('lernspiele:leuchttisch'); localStorage.removeItem('lernspiele:lernzeit'); });
+    await p.reload(); await p.waitForTimeout(300);
+    const uhrVor = await p.textContent('#uhrzeit');
+    let n0 = await p.$$eval('.tisch .stein', s => s.length); await p.click(`.opt[data-wert="${n0}"]`); await p.waitForTimeout(1600);
+    const r1 = await p.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:leuchttisch')).runde);
+    chk(uhrVor === '5:00' && r1 && r1.steine === 1 && await p.textContent('#uhrzeit') !== '5:00', 'leuchttisch: erste Antwort startet die 5-Minuten-Runde, Stein zählt');
+    await p.goto(BASE); // erst die Seite verlassen: beim Verlassen speichert der Leuchttisch seine Runde
+    await p.evaluate(() => { const d = new Date(), t = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      localStorage.setItem('lernspiele:lernzeit', JSON.stringify({ version: 1, tag: t, ms: 60 * 60 * 1000 }));
+      const z = JSON.parse(localStorage.getItem('lernspiele:leuchttisch')); z.runde = null; z.fassung = []; localStorage.setItem('lernspiele:leuchttisch', JSON.stringify(z)); });
+    await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);
+    chk(/Lernzeit/.test(await p.textContent('#hinweis')), 'leuchttisch: Lernzeit um wird angezeigt');
+    n0 = await p.$$eval('.tisch .stein', s => s.length); await p.click(`.opt[data-wert="${n0}"]`); await p.waitForTimeout(400);
+    chk(await p.$$eval('#amulett .stein', s => s.length) === 0 && /Super/.test(await p.textContent('#hinweis')), 'leuchttisch: freies Üben lobt, gibt aber keinen Stein');
+    await p.goto(BASE); await p.evaluate(() => localStorage.removeItem('lernspiele:lernzeit')); await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);
     // Schreiben (Eltern-Einstellung)
     await p.click('#b-info'); await p.click('#eingabe [data-eingabe="schreiben"]'); await p.click('#b-info'); await p.waitForTimeout(800);
     await p.click('#stufen [data-stufe="0"]'); await p.waitForTimeout(300);

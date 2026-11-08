@@ -98,10 +98,30 @@ export function zustandPruefen(z) {
   aus.eingabe = z.eingabe === 'schreiben' ? 'schreiben' : 'tippen';
   aus.zweiSorten = z.zweiSorten !== false;
   aus.licht = z.licht === 'bewegt' ? 'bewegt' : 'ruhig';
+  aus.runde = rundePruefen(z.runde);
+  aus.walkers = [];                     // gemeinsam/runde.js erwartet das Feld (Begleiter gibt es nur bei den Schnecken)
   aus.fassung = steinListe(z.fassung, FASSUNGEN - 1);
   aus.amulette = (Array.isArray(z.amulette) ? z.amulette : [])
     .map(a => steinListe(a, FASSUNGEN)).filter(a => a.length === FASSUNGEN).slice(-MAX_AMULETTE);
   return aus;
+}
+
+const TAG = /^\d{4}-\d{2}-\d{2}$/;
+/** Gespeicherte Runde prüfen: null oder { ende, tag, pause, zeitUm, steine }. */
+export function rundePruefen(r) {
+  if (!r || typeof r !== 'object' || !Number.isFinite(r.ende)) return null;
+  return {
+    ende: r.ende, tag: typeof r.tag === 'string' && TAG.test(r.tag) ? r.tag : '',
+    pause: Number.isFinite(r.pause) && r.pause >= 0 && r.pause <= 24 * 3600 * 1000 ? r.pause : null,
+    zeitUm: r.zeitUm === true,
+    steine: Number.isInteger(r.steine) && r.steine >= 0 && r.steine <= 1000 ? r.steine : 0,
+  };
+}
+/** Runde fertig (für gemeinsam/runde.js). Ergebnis: { steine } dieser Runde. */
+export function rundeBeendenLT(z) {
+  const steine = z.runde ? z.runde.steine || 0 : 0;
+  z.runde = null;
+  return { steine };
 }
 
 /**
