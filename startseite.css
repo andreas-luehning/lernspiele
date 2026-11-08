@@ -22,6 +22,11 @@
 .k-oval { fill: var(--oval); stroke: var(--line); stroke-width: 1.6; }
 .k-start, .k-ten, .k-goal { stroke: var(--line); stroke-width: 1.6; }
 .k-start { fill: var(--f-start); } .k-ten { fill: var(--f-ten); } .k-goal { fill: var(--f-goal); }
+.k-rahmen { fill: #232848; }
+.k-tisch { fill: #cbd8ec; }
+.k-st { stroke-width: 2; stroke-linejoin: round; fill-opacity: .45; }
+.k-rot { fill: #ff3d5a; stroke: #ff3d5a; } .k-blau { fill: #2e9bff; stroke: #2e9bff; } .k-gruen { fill: #18b868; stroke: #18b868; }
+.k-lila { fill: #8b5cf6; stroke: #8b5cf6; } .k-orange { fill: #ff8a1a; stroke: #ff8a1a; }
 .kachel text { font: 800 17px var(--display); fill: var(--fg); }
 
 .fuss { margin-top: auto; color: var(--muted); font-size: .95rem; }

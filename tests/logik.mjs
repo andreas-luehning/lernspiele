@@ -1,5 +1,6 @@
-// Prüft die Aufgabenlogik des Zehnerwegs ohne Browser. Aufruf: node tests/logik.mjs
+// Prüft die Aufgabenlogik von Zehnerweg und Leuchttisch ohne Browser. Aufruf: node tests/logik.mjs
 import { neueAufgabe, bewerten, tipp, ORDER } from '../zehnerweg/aufgaben.js';
+import * as LT from '../leuchttisch/aufgaben.js';
 let fehler = 0; const chk = (c, m) => { if (!c) { fehler++; console.log('FEHLER', m); } };
 for (const modus of ['plus', 'minus', 'mix']) {
   let vor = null; const ops = new Set();
@@ -20,5 +21,34 @@ let r = bewerten(t, { part1: t.ans.part1, ten: 10, part2: null, goal: 99 });
 chk(r.falsch[0] === 'goal' && r.leer[0] === 'part2' && !r.fertig, 'bewerten teil');
 r = bewerten(t, { ...t.ans }); chk(r.fertig, 'bewerten fertig');
 console.log('Beispiel', t.a, '+', t.b, '→', tipp(t, 'part1'));
+
+// Leuchttisch: Anzahl stimmt immer, Gruppen getrennt, Antworten, Amulett-Regeln, Speicher bereinigen
+for (let st = 0; st < LT.STUFEN.length; st++) {
+  const S = LT.STUFEN[st];
+  for (let i = 0; i < 1500; i++) {
+    const zwei = i % 2 === 0;
+    const H = [420, 700, 1050, 1500][i % 4];
+    const a = LT.verteilen(LT.neueAufgabe(st, { zweiSorten: zwei }), 1000, H, 125);
+    chk(a.gesamt >= S.min && a.gesamt <= S.max, `lt stufe ${st} gesamt ${a.gesamt}`);
+    chk(a.steine.length === a.gesamt, 'lt anzahl steine');
+    chk(a.steine.every(p => p.x >= 0 && p.x <= 1000 && p.y >= 0 && p.y <= H && LT.STEINE.includes(p.sorte)), 'lt steine im tisch');
+    if (a.modus === 'zerlegen') {
+      chk(a.links + a.rechts === a.gesamt && a.links >= 2 && a.rechts >= 2 && a.links <= 6 && a.rechts <= 6, `lt zerlegung ${a.links}+${a.rechts}`);
+      chk(a.steine.filter(p => p.gruppe === 0).every(p => p.x < 460) && a.steine.filter(p => p.gruppe === 1).every(p => p.x > 540), 'lt gruppen getrennt');
+      chk(zwei ? a.sorteL !== a.sorteR : a.sorteL === a.sorteR, 'lt sorten');
+    }
+    const o = LT.antworten(a.gesamt);
+    chk(o.length === 4 && new Set(o).size === 4 && o.includes(a.gesamt) && o.every(z => z >= 1), 'lt antworten ' + o);
+    chk(!LT.tipp(a).includes(String(a.gesamt)), 'lt tipp verrät nichts');
+  }
+}
+const z = LT.zustandPruefen({ stufe: 9, eingabe: '<b>', zweiSorten: 'ja', fassung: ['rubin', 'gold', '__proto__', 'topas'], amulette: [['rubin'], ['rubin', 'saphir', 'smaragd', 'amethyst', 'topas'], 'x'] });
+chk(z.stufe === 0 && z.eingabe === 'tippen' && z.zweiSorten === true, 'lt zustand werte');
+chk(JSON.stringify(z.fassung) === '["rubin","topas"]' && z.amulette.length === 1, 'lt zustand steine bereinigt');
+const z2 = LT.zustandPruefen({ stufe: 0, eingabe: 'tippen', zweiSorten: true, fassung: [], amulette: [] });
+for (let i = 0; i < LT.FASSUNGEN - 1; i++) chk(!LT.steinEinsetzen(z2, 'saphir').voll, 'lt noch nicht voll');
+const e = LT.steinEinsetzen(z2, 'boese');
+chk(e.voll && z2.fassung.length === 0 && z2.amulette.length === 1 && z2.amulette[0].every(s => LT.STEINE.includes(s)), 'lt amulett voll');
+console.log('Leuchttisch geprüft');
 console.log(fehler ? fehler + ' Fehler' : 'alles ok');
 process.exit(fehler ? 1 : 0);

@@ -13,17 +13,45 @@ Stand: 08.11.2026. **Noch nichts gebaut.** Diese Datei sammelt die Unterlagen, g
 
 Die Prototypen und Übergaben bleiben unverändert, so wie sie geliefert wurden. Sie sind die Vorlage. Die beiden Spiele entsprechen den Ideen „Burgen“ und „Gegenstände“ in `ideen-und-offene-fragen.md`.
 
-## Neue Richtung (Brainstorming läuft, Stand 08.11.2026)
+## Neue Richtung (Stand 08.11.2026)
 
-### Was schon feststeht
+### Was feststeht
 
 - **Das Numi-Thema fällt weg.** Keine Numi-Figuren, keine Namen wie Numi, Blubbi, Wuschel; kein Bezug zur Numi-App und ihrem Speicher.
-- **Ein Spiel „Leuchttisch“** mit mehreren Varianten statt zwei getrennter Spiele. Burgen sind eine Variante, später kommen weitere dazu (z. B. Zahlenmauern).
-- **Edelsteine statt Kringel, Blasen, Fussel.** Verschiedene Sorten liegen auf dem Leuchttisch. Der Acryl-Look der Prototypen passt gut dazu, weil Edelsteine durchscheinen.
-- **Amulette sind die Belohnung, ein eigenes System** (nicht die Schneckenparade). Aus gesammelten Edelsteinen werden Amulette.
-- **Antwort je nach Gerät:** schreiben (Stift, Zahlenerkennung wie beim Zehnerweg) oder tippen (Zahlenknöpfe).
-- **Die 5-Minuten-Runde und das Thema Medienzeit gelten auch hier.**
-- **Vorbild Amulett** ist nur die Stimmung (ein magisches Amulett, das Steine sammelt). Keine Figuren, Namen oder Bilder aus Filmen und Serien; Amulette und Steine zeichnen wir selbst. Motiv neutral halten (Schatz, Forscher, Zauber), nicht als „Prinzessinnen-Thema“ (Grundsatz 5).
+- **Ein Spiel „Leuchttisch“** (Ordner `leuchttisch/`) mit mehreren Varianten statt zwei getrennter Spiele. Reihenfolge: **erst Steine zählen und zerlegen, dann die Burg**, später weitere (z. B. Zahlenmauer).
+- **Edelsteine statt Kringel, Blasen, Fussel.** Sechs Sorten, jede mit eigener Farbe **und** eigener Form. Es gibt kein Vorbild aus dem Unterricht; wir zeichnen sie selbst.
+- **Amulette sind die Belohnung des Leuchttischs, ein eigenes System.** Die Schnecken bleiben beim Zehnerweg.
+- **Ein Amulett hat vorläufig 5 Fassungen.** Jede richtige Aufgabe setzt einen Stein ein. Ein Amulett soll in einer Runde erreichbar sein; die Zahl wird nach dem Ausprobieren angepasst.
+- **Antwort: tippen oder schreiben, die Eltern stellen es ein** (im Bereich für Erwachsene). Schreiben nutzt dieselbe Zahlenerkennung wie der Zehnerweg.
+- **Medienzeit:** Eine Runde dauert 5 Minuten. Zusammen etwa **20 Minuten am Tag für alle Spiele**.
+- **Vorbild Amulett** ist nur die Stimmung (ein magisches Amulett, das Steine sammelt). Keine Figuren, Namen oder Bilder aus Filmen und Serien. Motiv neutral halten (Schatz, Zauber, Forschen), nicht als „Prinzessinnen-Thema“ (Grundsatz 5).
+
+### Edelsteine
+
+| Stein | Farbe | Form |
+|---|---|---|
+| Rubin | Rot | Tropfen |
+| Saphir | Blau | Raute |
+| Smaragd | Grün | Achteck |
+| Amethyst | Lila | Sechseck |
+| Bernstein | Orange | Oval |
+| Topas | Gelb | Dreieck |
+
+### Regeln für den ersten Entwurf (Steine zählen und zerlegen)
+
+| Wann | Was passiert |
+|---|---|
+| Stufe 1: Zählen | 2–6 Steine einer Sorte liegen verstreut. „Wie viele Steine sind es?“ |
+| Stufe 2 und 3: Zerlegen | Zwei lockere Gruppen (links/rechts), 5–7 bzw. 7–10 Steine. „Wie viele sind es zusammen?“ Standard: zwei Sorten; die Eltern können auf eine Sorte umstellen. |
+| Richtig | Ein Stein der Aufgabe wandert in die nächste freie Fassung des Amuletts. Kurz stehen lassen, dann kommen von selbst neue Steine. |
+| Amulett voll | Es kommt in die Schatzkiste, ein neues leeres Amulett erscheint. |
+| Falsch | Sanftes Wackeln, ein Tipp, beliebig oft probieren. Beim Zerlegen erscheint „a + b = ?“. Nichts geht verloren. |
+| „Zeig mir's“ | Zählen: Die Steine werden nacheinander nummeriert. Zerlegen: Beide Gruppen werden umrandet, mit ihrer Anzahl, dann „a + b = ?“. Das Ergebnis wird nie verraten. |
+| Angefangenes Amulett | Bleibt gespeichert, auch über Nacht (wie die Salatblätter). |
+
+Gespeichert unter `lernspiele:leuchttisch`: `{ version: 1, stufe, eingabe: "tippen" | "schreiben", zweiSorten, fassung: [Steine], amulette: [[Steine], …] }`. Beim Lesen werden nur bekannte Steine übernommen.
+
+Noch nicht im Entwurf: 5-Minuten-Runde und Tageszeit (kommt mit `gemeinsam/runde.js`), Burg, Schatzburg.
 
 ### Ideen zum Weiterdenken (noch nicht entschieden)
 
@@ -72,11 +100,6 @@ Die Prototypen und Übergaben bleiben unverändert, so wie sie geliefert wurden.
 
 ## Offene Fragen an die Lehrkraft
 
-1. **Medienzeit:** 5 Minuten pro Spiel oder 5 Minuten am Tag für alle Spiele zusammen?
-2. **Schnecken und Amulette:** Schnecken beim Zehnerweg, Amulette beim Leuchttisch? Oder sollen Amulette die Schnecken ganz ersetzen?
-3. **Edelsteine:** Passen die 6 Sorten? Gibt es echte Steine aus dem Unterricht als Vorbild?
-4. **Amulett:** Wie viele Steine braucht ein Amulett? Bleibt es bei einem Stein pro richtiger Aufgabe?
-5. **Schreiben oder tippen:** Automatisch erkennen (Stift berührt das Tablet) oder als Einstellung für die Eltern?
-6. **Reihenfolge:** Mit welcher Variante fangen wir an? Vorschlag: erst „Steine zählen und zerlegen“ (Wurftisch-Prototyp), dann die Burg.
-
-Nächster Schritt nach den Antworten: ein kleiner Entwurf (HTML-Mockup) zum Anschauen, noch ohne fertiges Spiel.
+1. **Medienzeit:** Wie werden die 20 Minuten verteilt? Zum Beispiel 4 Runden zu 5 Minuten, frei auf die Spiele verteilt? Darf dasselbe Spiel mehrmals am Tag gespielt werden? (Die Schneckenparade sieht bisher eine Runde am Tag vor.)
+2. **Amulett:** Passen 5 Fassungen nach dem Ausprobieren?
+3. **Aussehen:** Gefallen die Steine und das Amulett im Entwurf?

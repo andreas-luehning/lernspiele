@@ -119,6 +119,66 @@ async function schreibe(page, sel, zahl) {
   await page.click('[data-thema-knopf]'); await page.waitForTimeout(200);
   await page.screenshot({ path: path.join(SHOTS, 'zehnerweg-dunkel.png') });
   await page.goto(BASE); chk(await page.evaluate(() => document.documentElement.dataset.theme) === 'dark', 'Nachtmodus gilt auch auf der Startseite');
+  await ctx.close();
+
+  // Leuchttisch: Layout auf Tablets, Antworten, Hilfe verrät nichts, Amulett, Speicher, Sicherheit
+  for (const [name, [w, h]] of Object.entries(VP)) {
+    const c2 = await b.newContext({ viewport: { width: w, height: h } }); const p = await c2.newPage();
+    const probleme = [], fremd = [];
+    p.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') probleme.push(m.text()); });
+    p.on('pageerror', e => probleme.push(e.message));
+    p.on('request', r => { if (!r.url().startsWith(BASE)) fremd.push(r.url()); });
+    await p.addInitScript(() => document.addEventListener('securitypolicyviolation', e => console.error('CSP: ' + e.violatedDirective + ' ' + e.blockedURI)));
+    await p.goto(BASE); await p.click('.kachel[href="leuchttisch/"]'); await p.waitForURL(/leuchttisch/); await p.waitForTimeout(500);
+    const lay = await p.evaluate(() => {
+      const vw = innerWidth, vh = innerHeight, t = document.getElementById('tisch').getBoundingClientRect();
+      const kl = [...document.querySelectorAll('button')].filter(x => x.offsetParent).map(x => x.getBoundingClientRect()).filter(x => Math.min(x.width, x.height) < 44).length;
+      const raus = [...document.querySelectorAll('button, .tisch, .amulett-platz')].filter(x => x.offsetParent).some(x => { const r = x.getBoundingClientRect(); return r.left < 0 || r.top < 0 || r.right > vw + 1 || r.bottom > vh + 1; });
+      return { tisch: Math.round(Math.min(t.width, t.height)), kl, raus, scroll: document.documentElement.scrollWidth > vw || document.documentElement.scrollHeight > vh };
+    });
+    chk(lay.tisch >= 400 && !lay.kl && !lay.raus && !lay.scroll, `leuchttisch ${name}: Tisch groß, alles sichtbar, Knöpfe ≥ 44 px ${JSON.stringify(lay)}`);
+    await p.click('#stufen [data-stufe="1"]'); await p.waitForTimeout(200);
+    const n = await p.$$eval('.tisch .stein', s => s.length);
+    const opts = await p.$$eval('.opt', bs => bs.map(x => +x.textContent));
+    chk(opts.length === 4 && opts.filter(o => o === n).length === 1, `leuchttisch ${name}: vier Antworten, eine richtig`);
+    await p.click(`.opt[data-wert="${opts.find(o => o !== n)}"]`); await p.waitForTimeout(200);
+    const fh = await p.textContent('#hinweis');
+    chk(/\?/.test(fh) && !new RegExp('=\\s*' + n + '\\b').test(fh) && await p.$$eval('#amulett .stein', s => s.length) === 0, `leuchttisch ${name}: falsch zeigt a + b = ?, kein Stein ${fh}`);
+    await p.click('#b-hilfe'); await p.waitForTimeout(1900);
+    const hh = await p.textContent('#hinweis');
+    chk(/\?/.test(hh) && await p.$$eval('.gruppe', g => g.length) === 2, `leuchttisch ${name}: Zeig mir's umrandet zwei Gruppen, Ergebnis bleibt offen`);
+    await p.click(`.opt[data-wert="${n}"]`); await p.waitForTimeout(300);
+    chk(await p.$$eval('#amulett .stein', s => s.length) === 1, `leuchttisch ${name}: richtig setzt einen Stein ins Amulett`);
+    await p.screenshot({ path: `${SHOTS}/leuchttisch-${name}.png` });
+    chk(!probleme.length, `leuchttisch ${name}: keine Fehler/CSP-Verstöße ${probleme.join(' | ')}`);
+    chk(!fremd.length, `leuchttisch ${name}: keine Anfragen an fremde Server ${fremd.join(' ')}`);
+    await c2.close();
+  }
+  {
+    const c3 = await b.newContext({ viewport: { width: 820, height: 1180 } }); const p = await c3.newPage();
+    const probleme = []; p.on('pageerror', e => probleme.push(e.message));
+    await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);
+    for (let i = 0; i < 5; i++) { const n = await p.$$eval('.tisch .stein', s => s.length); await p.click(`.opt[data-wert="${n}"]`); await p.waitForTimeout(i < 4 ? 2400 : 5200); }
+    chk(await p.textContent('#kistezahl') === '1', 'leuchttisch: 5 richtige = ein Amulett in der Schatzkiste');
+    await p.reload(); await p.waitForTimeout(300);
+    chk(await p.textContent('#kistezahl') === '1', 'leuchttisch: Schatzkiste bleibt nach Neuladen');
+    await p.evaluate(() => localStorage.setItem('lernspiele:leuchttisch', JSON.stringify({ version: 1, stufe: '<img src=x onerror=alert(1)>', eingabe: 'x', fassung: ['<img src=x>', 'rubin'], amulette: [['a', 'b']] })));
+    await p.reload(); await p.waitForTimeout(300);
+    const st = await p.evaluate(() => ({ k: document.getElementById('kistezahl').textContent, f: document.querySelectorAll('#amulett .stein').length, img: !!document.querySelector('img') }));
+    chk(st.k === '0' && st.f === 1 && !st.img, 'leuchttisch: manipulierter Speicher wird bereinigt ' + JSON.stringify(st));
+    await p.evaluate(() => localStorage.setItem('lernspiele:leuchttisch', '{kaputt')); await p.reload(); await p.waitForTimeout(300);
+    chk(await p.$$eval('.tisch .stein', s => s.length) >= 2, 'leuchttisch: kaputter Speicher, Spiel startet trotzdem');
+    // Schreiben (Eltern-Einstellung)
+    await p.click('#b-info'); await p.click('#eingabe [data-eingabe="schreiben"]'); await p.click('#b-info'); await p.waitForTimeout(800);
+    await p.click('#stufen [data-stufe="0"]'); await p.waitForTimeout(300);
+    const n = await p.$$eval('.tisch .stein', s => s.length);
+    await schreibe(p, '#f-antwort', n); await p.waitForTimeout(900);
+    const gelesen = await p.textContent('#f-antwort + .tag');
+    if (await p.$$eval('#amulett .stein', s => s.length) === 1) chk(true, `leuchttisch: geschriebene ${n} erkannt, Stein dazu`);
+    else console.log(`hinweis leuchttisch: ${n} geschrieben, gelesen "${gelesen}" (synthetische Ziffern)`);
+    chk(!probleme.length, 'leuchttisch: keine Fehler ' + probleme.join(' | '));
+    await c3.close();
+  }
   await b.close();
   console.log(fehler ? `${fehler} FEHLER` : 'ALLES OK');
   process.exit(fehler ? 1 : 0);

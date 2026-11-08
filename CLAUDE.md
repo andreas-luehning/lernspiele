@@ -9,7 +9,7 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 
 ## Grundsätze
 
-1. **Kurz üben:** Eine Runde dauert 5 Minuten, eine Runde pro Tag. Danach ist Schluss, ohne schlechtes Gewissen.
+1. **Kurz üben:** Eine Runde dauert 5 Minuten. Zusammen etwa 20 Minuten Medienzeit am Tag für alle Spiele (Aufteilung noch offen, siehe `docs/leuchttisch.md`). Danach ist Schluss, ohne schlechtes Gewissen.
 2. **Nah am Arbeitsblatt:** Anordnung, Symbole (Herz, Hand, Straße) und Rechenweg wie auf Papier. Die Fotos liegen lokal in `docs/arbeitsblaetter/` (nicht im Git).
 3. **Fehler kosten nichts:** Es gibt Tipps statt Strafen. Nichts Gesammeltes geht verloren.
 4. **Hell und freundlich:** Pastellfarben, große Schreibfelder, Knöpfe mindestens 48 px, wenig Text. Hell ist Standard, Nachtmodus ist umschaltbar. Schriften: Grandstander (Überschriften, Zahlen) und Andika (Fließtext, für Leseanfänger gemacht).
@@ -40,8 +40,10 @@ gemeinsam/
 zehnerweg/              Spiel 1: Zehnerübergang nach Arbeitsblatt
   index.html, zehnerweg.css, zehnerweg.js (Seite)
   aufgaben.js           Aufgaben, Tipps, Bewertung (ohne DOM, direkt testbar)
-burgen/                 Spiel 2 (Idee): Leuchttisch-Burgen, schnell zählen
-gegenstaende/           Spiel 3 (Idee): Leuchttisch-Gegenstände, zählen und zerlegen
+leuchttisch/            Spiel 2 (Entwurf): Edelsteine zählen und zerlegen, Amulette sammeln; später Burg
+  index.html, leuchttisch.css, leuchttisch.js (Seite)
+  aufgaben.js           Aufgaben, Streuen, Amulett-Regeln (ohne DOM, direkt testbar)
+  steine.js             Edelsteine und Amulett als SVG
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
   leuchttisch.md        Leuchttisch-Spiele: Unterlagen, Abgleich, offene Fragen
   uebergaben/           Gelieferte Aufträge zu den Leuchttisch-Prototypen (nicht verändern)
@@ -56,7 +58,7 @@ tests/                  logik.mjs (Node), browser.js (Playwright, Server auf Por
 - **Nächster Schritt:** Schneckenparade (`docs/schneckenparade.md`) mit `runde.js` und `parade.js`.
 - `prototypen/zehnerweg.html` ist ein funktionierender Prototyp in einer Datei (Modell eingebettet). `prototypen/zehnerweg.quelle.html` ist dieselbe Datei mit dem Platzhalter `__MODEL__` statt der Gewichte; die Gewichte liegen in `werkzeuge/ziffern-modell/model.json`.
 - `prototypen/schneckenparade.html` ist eine Probe der Belohnung. Die Aufgaben werden dort per Knopf simuliert.
-- `prototypen/burgen.html` und `prototypen/leuchttisch.html` sind die Leuchttisch-Prototypen (noch mit Numi-Thema, Google Fonts und 4 Antwortknöpfen). Neue Richtung: kein Numi, ein Spiel „Leuchttisch“ mit Varianten (Steine zählen/zerlegen, Burg, später Zahlenmauer), Edelsteine auf dem Tisch, Amulette als eigenes Belohnungssystem, 5-Minuten-Runde gilt. Unverträglichkeiten und offene Fragen: `docs/leuchttisch.md`. Erst klären, dann bauen.
+- `prototypen/burgen.html` und `prototypen/leuchttisch.html` sind die Leuchttisch-Prototypen (noch mit Numi-Thema, Google Fonts und 4 Antwortknöpfen). Daraus wird das Spiel `leuchttisch/` (kein Numi): Edelsteine zählen und zerlegen, Amulette als eigene Belohnung (Schnecken bleiben beim Zehnerweg), später die Burg. Regeln und offene Fragen: `docs/leuchttisch.md`. Erster Entwurf steht, noch ohne 5-Minuten-Runde.
 - Genaue Regeln: `docs/zehnerweg.md`, `docs/schneckenparade.md`. Ideen und offene Fragen: `docs/ideen-und-offene-fragen.md`.
 
 ## Was wir aus dem Prototyp gelernt haben

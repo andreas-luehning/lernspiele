@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Leuchttisch</title>
+<link rel="stylesheet" href="../gemeinsam/theme.css">
+<link rel="stylesheet" href="leuchttisch.css">
+<script src="../gemeinsam/thema.js"></script>
+<script type="module" src="leuchttisch.js"></script>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <a class="brand" href="../" aria-label="Zur Startseite">
+      <h1>Leuchttisch</h1>
+      <small>Steine zählen</small>
+    </a>
+    <div class="seg" id="stufen" role="group" aria-label="Stufe">
+      <button type="button" data-stufe="0" aria-pressed="true">Zählen</button>
+      <button type="button" data-stufe="1" aria-pressed="false">Zerlegen bis 7</button>
+      <button type="button" data-stufe="2" aria-pressed="false">bis 10</button>
+    </div>
+    <div class="meta">
+      <div class="kiste" id="kiste" aria-label="Amulette in der Schatzkiste">
+        <span class="kiste-bild" id="kistebild"></span>
+        <span id="kistezahl">0</span>
+      </div>
+      <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
+      <button type="button" class="info-btn" id="b-info" aria-expanded="false" aria-controls="grown" aria-label="Infos und Einstellungen für Erwachsene">?</button>
+    </div>
+  </header>
+
+  <div class="grown" id="grown" hidden>
+    <h2>Für Erwachsene</h2>
+    <p>Edelsteine liegen auf dem Leuchttisch. Das Kind zählt sie (Stufe 1) oder sieht zwei Gruppen und sagt, wie viele es zusammen sind (Stufen 2 und 3, Teil-Teil-Ganzes). Jede richtige Antwort setzt einen Stein in das Amulett. Mit 5 Steinen ist es fertig und kommt in die Schatzkiste. Fehler kosten nichts. „Zeig mir's“ zeigt den Weg, aber nie das Ergebnis.</p>
+    <div class="einst">
+      <span>Antwort</span>
+      <div class="seg" id="eingabe" role="group" aria-label="Antwort">
+        <button type="button" data-eingabe="tippen" aria-pressed="true">Tippen</button>
+        <button type="button" data-eingabe="schreiben" aria-pressed="false">Schreiben</button>
+      </div>
+    </div>
+    <div class="einst">
+      <span>Beim Zerlegen</span>
+      <div class="seg" id="sorten" role="group" aria-label="Sorten beim Zerlegen">
+        <button type="button" data-zwei="ja" aria-pressed="true">Zwei Sorten</button>
+        <button type="button" data-zwei="nein" aria-pressed="false">Eine Sorte</button>
+      </div>
+    </div>
+    <p>Beim Schreiben läuft die Zahlenerkennung auf dem Gerät, es wird nichts übertragen oder gespeichert. Entwurf: Die 5-Minuten-Runde fehlt noch.</p>
+  </div>
+
+  <div class="frage" id="frage" aria-live="polite">Wie viele Steine sind es?</div>
+
+  <div class="tisch-rahmen" id="rahmen">
+    <div class="tisch" id="tisch"></div>
+  </div>
+
+  <div class="antwort">
+    <div class="optionen" id="optionen"></div>
+    <div class="schreib-box" id="schreiben" hidden></div>
+  </div>
+
+  <div class="schatz">
+    <div class="amulett-platz" id="amulett"></div>
+    <div class="hinweis" id="hinweis" aria-live="polite"></div>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn" id="b-hilfe">Zeig mir's</button>
+    <button type="button" class="btn primary" id="b-neu">Neue Steine</button>
+  </div>
+</div>
+</body>
+</html>

@@ -8,7 +8,7 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 |---|---|---|
 | **Zehnerweg** | Zehnerübergang, Plus und Minus bis 20, Rechenweg über die 10 | spielbar: `zehnerweg/` (noch mit Sternen statt Schnecken) |
 | **Schneckenparade** | Gemeinsame Belohnung für alle Spiele: Salatblätter sammeln, Schnecken bekommen | als Nächstes; Probe: `prototypen/schneckenparade.html` |
-| Burgen, Gegenstände | Leuchttisch-Spiele: zählen und zerlegen, mit Amuletten | Prototypen in `prototypen/`, Abgleich in `docs/leuchttisch.md` |
+| **Leuchttisch** | Edelsteine zählen und zerlegen, Amulette sammeln; später Burg und Zahlenmauer | erster Entwurf: `leuchttisch/` (noch ohne 5-Minuten-Runde), Regeln: `docs/leuchttisch.md` |
 
 ## Ausprobieren
 
@@ -35,6 +35,7 @@ Veröffentlicht wird über GitHub Pages vom Branch `main`. Jedes Spiel hat eine 
 |---|---|
 | `index.html` | Startseite mit allen Spielen |
 | `zehnerweg/` | Spiel 1 |
+| `leuchttisch/` | Spiel 2 (Entwurf) |
 | `gemeinsam/` | Gemeinsame Teile: Aussehen, Schriften, Zahlenerkennung, Schreibfeld, Speicher |
 | `docs/` | Regeln der Spiele, Datenschutz und Sicherheit, Ideen und offene Fragen |
 | `tests/` | Automatische Prüfungen (Logik und Browser) |

@@ -1,0 +1,142 @@
+/* Leuchttisch: Kopfzeile, Frage, Leuchttisch mit Edelsteinen, Antworten, Amulett, Hinweis, Knöpfe.
+   Hochformat: alles untereinander. Breite Bildschirme im Querformat: Tisch rechts, alles andere links.
+   Der Tisch selbst hat in Tag und Nacht dieselben gedämpften Farben (aus prototypen/leuchttisch.html). */
+
+.app {
+  max-width: 1280px; margin: 0 auto; height: 100%; overflow: hidden; position: relative; box-sizing: border-box;
+  display: grid; gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "kopf" "frage" "tisch" "antwort" "schatz" "knoepfe";
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header { grid-area: kopf; display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
+.brand { display: flex; flex-direction: column; color: inherit; text-decoration: none; border-radius: 8px; margin-right: auto; }
+.brand h1 { font: 800 1.6rem/1 var(--display); margin: 0; }
+.brand small { color: var(--muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+.meta { display: flex; align-items: center; gap: 10px; }
+
+.kiste { display: flex; align-items: center; gap: 4px; font: 800 1.2rem var(--display); font-variant-numeric: tabular-nums; }
+.kiste-bild .amulett { width: 40px; height: 44px; display: block; }
+.kiste.pop .kiste-bild { animation: pop .7s ease; }
+@keyframes pop { 40% { transform: scale(1.5) rotate(-10deg); } }
+
+.grown { position: absolute; z-index: 5; top: 70px; right: max(16px, env(safe-area-inset-right, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); margin-left: auto; max-width: 62ch; }
+.einst { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 10px 0; font-weight: 700; }
+
+.frage { grid-area: frage; text-align: center; font: 800 clamp(1.3rem, 3.2vw, 1.8rem) var(--display); }
+
+/* Leuchttisch */
+.tisch-rahmen {
+  grid-area: tisch; min-height: 0; display: flex;
+  background: linear-gradient(180deg, #232848, #181c36); border-radius: 26px; padding: 12px;
+  box-shadow: inset 0 6px 18px rgb(0 0 0 / .45), 0 8px 0 var(--rule);
+}
+.tisch {
+  flex: 1; min-height: 0; position: relative; overflow: hidden; border-radius: 18px;
+  background: radial-gradient(90% 90% at 50% 42%, #dbe3f1 0%, #cbd8ec 48%, #b2c4e4 80%, #9bafd6 100%);
+  box-shadow: 0 0 14px 2px rgb(150 180 230 / .30), inset 0 0 16px rgb(110 140 200 / .28);
+}
+.tisch-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.plakette circle { fill: #fff; stroke-width: 4; }
+.plakette, .gruppe { animation: auf .25s ease both; }
+.plakette text, .gruppe text { font: 800 24px var(--display); }
+.gruppe rect { fill-opacity: .12; stroke-width: 4; stroke-dasharray: 14 10; }
+.gruppe .g-zahl { fill: #fff; stroke-width: 4; }
+.gruppe text { font-size: 30px; }
+@keyframes auf { from { opacity: 0; } }
+
+/* Antworten */
+.antwort { grid-area: antwort; display: flex; justify-content: center; }
+.optionen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 560px; }
+.opt {
+  font: 800 2rem var(--display); color: var(--fg); background: var(--sheet); cursor: pointer;
+  border: 2px solid var(--rule); border-radius: 20px; min-height: 72px; box-shadow: 0 5px 0 var(--rule);
+}
+.opt:active { translate: 0 3px; box-shadow: 0 2px 0 var(--rule); }
+.opt.richtig { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+.opt.falsch { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); animation: wackeln .4s; }
+.opt:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+@keyframes wackeln { 25% { translate: -6px 0; } 50% { translate: 6px 0; } 75% { translate: -3px 0; } }
+
+.schreib-box { position: relative; width: min(100%, 300px); height: 150px; margin-bottom: 30px; }
+.field {
+  position: absolute; inset: 0; box-sizing: border-box; background: var(--sheet);
+  border: 3px solid var(--line); border-radius: 20px; touch-action: none; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.field .given { display: none; }
+.field.ok { border-color: var(--good); box-shadow: 0 0 0 4px var(--good-bg); }
+.field.no { border-color: var(--bad); box-shadow: 0 0 0 4px var(--bad-bg); animation: wackeln .35s; }
+.tag {
+  position: absolute; left: 50%; top: 100%; transform: translate(-50%, 6px); z-index: 2;
+  display: flex; align-items: center; gap: 2px; white-space: nowrap;
+  font: 700 .85rem var(--body); color: var(--muted); background: var(--sheet);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 0 0 0 10px;
+}
+.tag.unsure { border-style: dashed; color: var(--bad); }
+.tag .clr { width: 36px; height: 32px; border: 0; background: none; color: var(--muted); font: 700 1.1rem/1 var(--body); cursor: pointer; border-radius: 999px; }
+
+/* Amulett und Hinweis */
+.schatz { grid-area: schatz; display: flex; align-items: center; gap: 16px; min-height: 120px; }
+.amulett-platz { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: none; width: 130px; }
+.amulett-platz .amulett { width: 100px; height: 108px; display: block; }
+.a-text { font: 700 .9rem var(--body); color: var(--muted); text-align: center; line-height: 1.25; }
+.a-kette { fill: none; stroke: #c9a24a; stroke-width: 3; stroke-dasharray: 2 4; stroke-linecap: round; }
+.a-oese { fill: none; stroke: #c98a12; stroke-width: 4; }
+.a-rand { fill: #ffd56b; stroke: #c98a12; stroke-width: 3; }
+.a-innen { fill: #fff3cf; stroke: #e7b53c; stroke-width: 2; }
+.a-mitte { fill: #ffe39a; stroke: #e7b53c; stroke-width: 2; }
+.a-fassung { fill: #f1e2b6; stroke: #d7a838; stroke-width: 2; stroke-dasharray: 3 3; }
+.amulett .neu { animation: einsetzen .6s ease both; transform-box: fill-box; transform-origin: center; }
+@keyframes einsetzen { from { transform: scale(2.2); opacity: 0; } 70% { transform: scale(.9); opacity: 1; } }
+.amulett.fertig { animation: leuchten 1.6s ease; }
+@keyframes leuchten { 50% { filter: drop-shadow(0 0 10px #ffd56b); transform: scale(1.08); } }
+
+.hinweis { flex: 1; min-width: 0; color: var(--muted); font-size: 1.1rem; }
+.hinweis p { margin: 0 0 6px; }
+.hinweis.good { color: var(--good); font-weight: 700; }
+.hinweis.bad { color: var(--bad); font-weight: 700; }
+.rechnung { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip {
+  font: 800 1.4rem var(--display); color: #fff; min-width: 46px; height: 46px; padding: 0 6px; box-sizing: border-box;
+  border-radius: 12px; display: inline-grid; place-items: center; box-shadow: 0 4px 0 rgb(0 0 0 / .15);
+}
+.chip.frage-chip { background: #b8a9e0; }
+.chip.ergebnis { background: var(--good); animation: auf .3s ease both; }
+.plus { font: 800 1.4rem var(--display); color: var(--muted); }
+
+.actions { grid-area: knoepfe; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.actions .btn { min-width: 170px; }
+.btn:disabled { opacity: .5; cursor: default; }
+
+/* Querformat auf breiten Bildschirmen: Tisch rechts, volle Höhe */
+@media (orientation: landscape) and (min-width: 900px) {
+  .app {
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-areas: "kopf tisch" "frage tisch" "antwort tisch" "schatz tisch" "knoepfe tisch";
+    column-gap: 24px; row-gap: 16px; padding-block: 16px;
+  }
+  header { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 14px; }
+  header .seg { justify-content: space-between; }
+  .meta { justify-content: space-between; }
+  .tisch-rahmen { grid-row: 1 / -1; }
+  .optionen { grid-template-columns: repeat(2, 1fr); }
+  .schatz { align-items: center; gap: 10px; }
+  .amulett-platz { width: 110px; }
+  .amulett-platz .amulett { width: 90px; height: 97px; }
+  .hinweis { font-size: 1.02rem; }
+  .chip { min-width: 40px; height: 40px; font-size: 1.2rem; }
+  .opt { min-height: 64px; }
+  .actions { flex-direction: column; }
+  .actions .btn { width: 100%; }
+  .grown { top: 16px; left: 400px; margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
