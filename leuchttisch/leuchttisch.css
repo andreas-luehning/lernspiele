@@ -121,8 +121,9 @@ header { grid-area: kopf; position: relative; z-index: 6; display: flex; align-i
 .amulett-platz { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: none; width: 130px; }
 .amulett-platz .amulett { width: 100px; height: 108px; display: block; }
 .a-text { font: 700 .9rem var(--body); color: var(--muted); text-align: center; line-height: 1.25; }
+.amulett .a-kontur { stroke: var(--line); }
 .amulett .neu { animation: einsetzen .6s ease both; transform-box: fill-box; transform-origin: center; }
-@keyframes einsetzen { from { transform: scale(2.2); opacity: 0; } 70% { transform: scale(.9); opacity: 1; } }
+@keyframes einsetzen { 0% { transform: scale(1); } 40% { transform: scale(1.14); } 100% { transform: scale(1); } }
 .amulett.fertig { animation: leuchten 1.6s ease; }
 @keyframes leuchten { 50% { filter: drop-shadow(0 0 10px #ffd56b); transform: scale(1.08); } }
 

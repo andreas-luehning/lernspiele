@@ -21,6 +21,7 @@
 
 .raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
 .karte { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; background: var(--sheet); border: 2px solid var(--rule); border-radius: 20px; padding: 10px 6px 8px; }
+.amulett .a-kontur { stroke: var(--line); }
 .karte .amulett { width: 96px; height: 102px; display: block; }
 .karte figcaption { font: 700 .85rem var(--body); color: var(--muted); text-align: center; }
 .karte.fehlt { background: transparent; border-style: dashed; color: color-mix(in srgb, var(--muted) 55%, transparent); }
