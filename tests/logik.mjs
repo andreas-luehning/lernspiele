@@ -61,11 +61,11 @@ chk(LT.STUFEN.every(s => LT.MATERIALIEN.includes(s.material)), 'lt jede stufe ha
   for (let i = 0; i < LT.FORMEN.length; i++) { const m = LT.neuesModell(am, 'silber'); chk(m.material === 'silber', 'lt material'); formen.add(m.form); am.push({ steine: [], ...m }); }
   chk(formen.size === LT.FORMEN.length, 'lt fehlende formen zuerst');
   const m = LT.neuesModell(am, 'silber'); chk(m.form !== am[am.length - 1].form, 'lt nicht zweimal dasselbe'); }
-const za = LT.zustandPruefen({ stufe: 3, amulette: [['rubin', 'rubin', 'saphir', 'topas', 'citrin'], { steine: ['rubin', 'rubin', 'saphir', 'topas', 'citrin'], form: '<b>', material: 'gold' }, { steine: ['rubin', 'rubin', 'saphir', 'topas', 'citrin'], form: 'sonne', material: 'ton' }], modell: { form: 'schild', material: 'ton' } });
-chk(za.amulette.length === 2 && za.amulette[0].form === 'rund' && za.amulette[0].material === 'gold' && za.amulette[1].form === 'sonne', 'lt alte amulette übernommen, kaputte entfernt');
-chk(za.modell.form === 'schild' && za.modell.material === 'gold', 'lt angefangenes amulett: material der stufe');
+const za = LT.zustandPruefen({ stufe: 3, amulette: [['rubin', 'rubin', 'saphir', 'topas', 'citrin'], { steine: ['rubin', 'rubin', 'saphir', 'topas', 'citrin'], form: '<b>', material: 'gold' }, { steine: ['rubin', 'rubin', 'saphir', 'topas', 'citrin'], form: 'sonne', material: 'ton' }], modell: { form: 'schild', material: 'gold' } });
+chk(za.amulette.length === 2 && za.amulette[0].form === 'rund' && za.amulette[0].material === 'gold' && za.amulette[1].form === 'sonne' && za.amulette[1].material === 'bronze', 'lt alte amulette übernommen (ton → bronze), kaputte entfernt');
+chk(za.modell.form === 'schild' && za.modell.material === 'kristall', 'lt angefangenes amulett: material der stufe');
 { const z3 = LT.zustandPruefen({ stufe: 1 }); for (let i = 0; i < LT.FASSUNGEN; i++) LT.steinEinsetzen(z3, 'rubin');
-  chk(z3.amulette.length === 1 && z3.amulette[0].material === 'bronze' && z3.modell.material === 'bronze', 'lt fertiges amulett bronze, neues auch'); }
+  chk(z3.amulette.length === 1 && z3.amulette[0].material === 'silber' && z3.modell.material === 'silber', 'lt fertiges amulett silber (stufe 2), neues auch'); }
 console.log('Leuchttisch geprüft');
 console.log(fehler ? fehler + ' Fehler' : 'alles ok');
 process.exit(fehler ? 1 : 0);

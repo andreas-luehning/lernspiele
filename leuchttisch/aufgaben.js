@@ -6,27 +6,33 @@ export const FASSUNGEN = 5;            // Steine pro Amulett (vorläufig, siehe 
 export const MAX_AMULETTE = 2000;      // Obergrenze im Speicher
 // Amulett-Modelle: Form × Material; das Material gehört zur Stufe (siehe docs/leuchttisch.md). Neue Materialien hier ergänzen.
 export const FORMEN = ['rund', 'sechseck', 'sonne', 'bluete', 'schild', 'kissen'];
-export const MATERIALIEN = ['ton', 'bronze', 'silber', 'gold'];
+export const MATERIALIEN = ['bronze', 'silber', 'gold', 'kristall'];
 export const MODELLE = MATERIALIEN.flatMap(material => FORMEN.map(form => ({ form, material })));
 export const modellId = m => m.form + ':' + m.material;
 export const materialDerStufe = stufe => (STUFEN[stufe] || STUFEN[0]).material;
 /** Modelle, die schon in der Sammlung sind (als Menge von "form:material"). */
 export const gefundeneModelle = amulette => new Set(amulette.map(modellId));
 /** Nächstes Modell im Material: bevorzugt eine Form, die darin noch fehlt; sonst eine andere als zuletzt. */
-export function neuesModell(amulette, material = 'ton', r = Math.random) {
+export function neuesModell(amulette, material = 'bronze', r = Math.random) {
   const da = gefundeneModelle(amulette), letztes = amulette.length ? amulette[amulette.length - 1].form : '';
   let wahl = FORMEN.filter(f => !da.has(f + ':' + material));
   if (!wahl.length) wahl = FORMEN.filter(f => f !== letztes);
   return { form: wahl[Math.floor(r() * wahl.length)], material };
 }
-const modellPruefen = m => (m && FORMEN.includes(m.form) && MATERIALIEN.includes(m.material) ? { form: m.form, material: m.material } : null);
+// Übernahme: Ton gibt es nicht mehr (Entscheidung 08.11.), frühere Ton-Amulette werden Bronze
+const ALTES_MATERIAL = { ton: 'bronze' };
+const modellPruefen = m => {
+  if (!m) return null;
+  const material = ALTES_MATERIAL[m.material] || m.material;
+  return FORMEN.includes(m.form) && MATERIALIEN.includes(material) ? { form: m.form, material } : null;
+};
 
 export const STUFEN = [
   // material: Das Amulett dieser Stufe ist aus diesem Material (schwerere Stufe = edleres Material)
-  { name: 'Zählen', modus: 'zaehlen', min: 2, max: 6, material: 'ton' },
-  { name: 'Zerlegen bis 7', modus: 'zerlegen', min: 5, max: 7, material: 'bronze' },
-  { name: 'Zerlegen bis 10', modus: 'zerlegen', min: 7, max: 10, material: 'silber' },
-  { name: 'Zerlegen bis 20', modus: 'zerlegen', min: 11, max: 20, maxGruppe: 10, material: 'gold' },
+  { name: 'Zählen', modus: 'zaehlen', min: 2, max: 6, material: 'bronze' },
+  { name: 'Zerlegen bis 7', modus: 'zerlegen', min: 5, max: 7, material: 'silber' },
+  { name: 'Zerlegen bis 10', modus: 'zerlegen', min: 7, max: 10, material: 'gold' },
+  { name: 'Zerlegen bis 20', modus: 'zerlegen', min: 11, max: 20, maxGruppe: 10, material: 'kristall' },
 ];
 
 /** Steingröße in Tisch-Einheiten (Tischbreite 1000): bei vielen Steinen kleiner, damit alle Platz haben. */

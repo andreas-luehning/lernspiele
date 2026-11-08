@@ -121,12 +121,12 @@ export function fassungsPlatz(i, n) {
 
 // Materialien der Amulette (eins pro Stufe, siehe aufgaben.js).
 // hell/mittel/dunkel: Verlauf des polierten Randes; tief1/tief2: vertiefte Innenfläche, auf der die Steine leuchten.
-// perlen: Perlenreihe am Rand (Metall) oder eingeritzte Linie (Ton, glasierte Keramik).
+// glitzer: zusätzliche Funkelsterne auf dem Rand (höchste Stufe). Neue Materialien hier und in aufgaben.js MATERIALIEN ergänzen.
 export const MATERIAL = {
-  ton:    { name: 'Ton',    hell: '#eaa58b', mittel: '#a9503a', dunkel: '#55210f', tief1: '#8f4330', tief2: '#3f160b', perlen: false, glasur: true },
-  bronze: { name: 'Bronze', hell: '#f7cf9f', mittel: '#b8763a', dunkel: '#5a3210', tief1: '#94582a', tief2: '#3e220a', perlen: true },
-  silber: { name: 'Silber', hell: '#ffffff', mittel: '#c4cdd9', dunkel: '#677386', tief1: '#8f9bad', tief2: '#3f4859', perlen: true },
-  gold:   { name: 'Gold',   hell: '#fff4bd', mittel: '#e6b23a', dunkel: '#8d600b', tief1: '#b98522', tief2: '#5c3f05', perlen: true },
+  bronze:   { name: 'Bronze',   hell: '#f7cf9f', mittel: '#b8763a', dunkel: '#5a3210', tief1: '#94582a', tief2: '#3e220a' },
+  silber:   { name: 'Silber',   hell: '#ffffff', mittel: '#c4cdd9', dunkel: '#677386', tief1: '#8f9bad', tief2: '#3f4859' },
+  gold:     { name: 'Gold',     hell: '#fff4bd', mittel: '#e6b23a', dunkel: '#8d600b', tief1: '#b98522', tief2: '#5c3f05' },
+  kristall: { name: 'Kristall', hell: '#ffffff', mittel: '#a9dcff', dunkel: '#3f7fbf', tief1: '#5f9fd9', tief2: '#16346a', glitzer: true },
 };
 const MITTE = [0, 6];
 const rund = (n, rf) => Array.from({ length: n }, (_, i) => { const t = i / n * 2 * Math.PI - Math.PI / 2, r = rf(t); return [MITTE[0] + r * Math.cos(t), MITTE[1] + r * Math.sin(t)]; });
@@ -173,10 +173,8 @@ export function amulett(steine, n, { form = 'rund', material = 'gold', neu = -1,
   // Polierter Rand mit Lichtkante
   s.append(svg('polygon', { points: pkt(aussen), fill: rand, stroke: m.dunkel, 'stroke-width': '2.2', 'stroke-linejoin': 'round' }));
   s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.95)), fill: 'none', stroke: '#ffffff', 'stroke-opacity': '0.45', 'stroke-width': '1.4', 'stroke-linejoin': 'round' }));
-  // Perlenreihe (Metall) oder eingeritzte Linie (Ton)
-  const linie = skaliert(aussen, 0.885);
-  if (m.perlen) for (const [x, y] of entlang(linie, 7.2)) s.append(svg('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 1.9, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.5', 'stroke-opacity': '0.6' }));
-  else s.append(svg('polygon', { points: pkt(linie), fill: 'none', stroke: m.dunkel, 'stroke-width': '1.4', 'stroke-dasharray': '1.5 3.5', 'stroke-linecap': 'round' }));
+  // Perlenreihe
+  for (const [x, y] of entlang(skaliert(aussen, 0.885), 7.2)) s.append(svg('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 1.9, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.5', 'stroke-opacity': '0.6' }));
   // Vertiefte Innenfläche
   s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.8)), fill: `url(#tief-${mat})`, stroke: m.dunkel, 'stroke-width': '1.6', 'stroke-linejoin': 'round' }));
   // Mitte: kleine Rosette aus Metall
@@ -197,7 +195,9 @@ export function amulett(steine, n, { form = 'rund', material = 'gold', neu = -1,
       s.append(svg('circle', { cx: (p.x + 12 * Math.cos(t)).toFixed(1), cy: (p.y + 12 * Math.sin(t)).toFixed(1), r: 2.1, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.6' }));
     }
   }
-  // Glasur (Ton): breiter Glanz oben links
-  if (m.glasur) s.append(svg('ellipse', { cx: -24, cy: -22, rx: 18, ry: 8, fill: '#ffffff', 'fill-opacity': '0.28', transform: 'rotate(-35 -24 -22)' }));
+  // Kristall: Funkelsterne auf dem Rand
+  if (m.glitzer) for (const [x, y, g] of [[-40, -18, 1], [42, 22, 0.8], [-20, 50, 0.7], [30, -30, 0.6]]) {
+    s.append(svg('path', { class: 'funkeln', d: `M${x} ${y - 7 * g} L${x + 1.8 * g} ${y - 1.8 * g} L${x + 7 * g} ${y} L${x + 1.8 * g} ${y + 1.8 * g} L${x} ${y + 7 * g} L${x - 1.8 * g} ${y + 1.8 * g} L${x - 7 * g} ${y} L${x - 1.8 * g} ${y - 1.8 * g} Z`, fill: '#ffffff', 'fill-opacity': '0.95' }));
+  }
   return s;
 }
