@@ -49,7 +49,15 @@ Die Lernspiele sind Medienzeit. Erwachsene stellen unter „Für Erwachsene“ d
 | 20 Min, davon nur 2 Runden Zehnerweg | 18 / 64 | Tag 35 | Tag 14 | Tag 35 |
 | 30 Min (6 Runden, 6 richtige je Runde) | 49 / 187 | Tag 14 | Tag 5 | Tag 30 |
 
-Das Album ist nach etwa einem Monat voll, die Deko (alle 5 Übungstage) bestimmt das Ende. Kopfbedeckungen und Schnecken kommen reichlich; nach dem Sammeln bleibt das Anziehen und Wachsenlassen. Wird der Garten zu voll, ist eine spätere Idee: begrenzte Plätze und ein Schneckenhotel für die übrigen. Spielt das Kind auch andere Spiele, kommen entsprechend weniger Schnecken; dafür wächst dort die eigene Sammlung.
+Das ist der **Höchstfall** (jeden Tag die volle Lernzeit). Realistischer Alltag (an manchen Tagen gar nicht, 2–6 richtige Aufgaben je Runde, Mittel aus 5 Läufen):
+
+| Alltag | Tiere nach 4 / 8 Wochen | alle 14 Kopfbedeckungen | ganzes Album |
+|---|---|---|---|
+| 3 Tage/Woche, 5–10 Min | 22 / 42 | Woche 7 | Woche 16 |
+| 4 Tage/Woche, 5–15 Min | 38 / 75 | Woche 5 | Woche 8 |
+| 5 Tage/Woche, 10–20 Min | 66 / 132 | Woche 3 | Woche 6 |
+
+Bei typischer Nutzung reicht das Album also für 2–4 Monate. Im Höchstfall ist es nach etwa einem Monat voll, die Deko (alle 5 Übungstage) bestimmt das Ende. Kopfbedeckungen und Schnecken kommen reichlich; nach dem Sammeln bleibt das Anziehen und Wachsenlassen. Wird der Garten zu voll, ist eine spätere Idee: begrenzte Plätze und ein Schneckenhotel für die übrigen. Spielt das Kind auch andere Spiele, kommen entsprechend weniger Schnecken; dafür wächst dort die eigene Sammlung.
 
 ## Sammelalbum
 
