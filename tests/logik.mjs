@@ -28,12 +28,13 @@ for (let st = 0; st < LT.STUFEN.length; st++) {
   for (let i = 0; i < 1500; i++) {
     const zwei = i % 2 === 0;
     const H = [420, 700, 1050, 1500][i % 4];
-    const a = LT.verteilen(LT.neueAufgabe(st, { zweiSorten: zwei }), 1000, H, 125);
+    const a0 = LT.neueAufgabe(st, { zweiSorten: zwei }); const a = LT.verteilen(a0, 1000, H, LT.steinGroesse(a0));
     chk(a.gesamt >= S.min && a.gesamt <= S.max, `lt stufe ${st} gesamt ${a.gesamt}`);
     chk(a.steine.length === a.gesamt, 'lt anzahl steine');
     chk(a.steine.every(p => p.x >= 0 && p.x <= 1000 && p.y >= 0 && p.y <= H && LT.STEINE.includes(p.sorte)), 'lt steine im tisch');
     if (a.modus === 'zerlegen') {
-      chk(a.links + a.rechts === a.gesamt && a.links >= 2 && a.rechts >= 2 && a.links <= 6 && a.rechts <= 6, `lt zerlegung ${a.links}+${a.rechts}`);
+      const mg = S.maxGruppe || 6;
+      chk(a.links + a.rechts === a.gesamt && a.links >= 2 && a.rechts >= 2 && a.links <= mg && a.rechts <= mg, `lt zerlegung ${a.links}+${a.rechts}`);
       chk(a.steine.filter(p => p.gruppe === 0).every(p => p.x < 460) && a.steine.filter(p => p.gruppe === 1).every(p => p.x > 540), 'lt gruppen getrennt');
       chk(zwei ? a.sorteL !== a.sorteR : a.sorteL === a.sorteR, 'lt sorten');
     }
@@ -43,7 +44,7 @@ for (let st = 0; st < LT.STUFEN.length; st++) {
   }
 }
 const z = LT.zustandPruefen({ stufe: 9, eingabe: '<b>', zweiSorten: 'ja', fassung: ['rubin', 'gold', '__proto__', 'topas'], amulette: [['rubin'], ['rubin', 'saphir', 'smaragd', 'amethyst', 'topas'], 'x'] });
-chk(z.stufe === 0 && z.eingabe === 'tippen' && z.zweiSorten === true, 'lt zustand werte');
+chk(z.stufe === 0 && z.eingabe === 'tippen' && z.zweiSorten === true && z.licht === 'ruhig', 'lt zustand werte');
 chk(JSON.stringify(z.fassung) === '["rubin","topas"]' && z.amulette.length === 1, 'lt zustand steine bereinigt');
 const z2 = LT.zustandPruefen({ stufe: 0, eingabe: 'tippen', zweiSorten: true, fassung: [], amulette: [] });
 for (let i = 0; i < LT.FASSUNGEN - 1; i++) chk(!LT.steinEinsetzen(z2, 'saphir').voll, 'lt noch nicht voll');

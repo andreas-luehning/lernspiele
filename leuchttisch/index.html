@@ -23,6 +23,7 @@
       <button type="button" data-stufe="0" aria-pressed="true">Zählen</button>
       <button type="button" data-stufe="1" aria-pressed="false">Zerlegen bis 7</button>
       <button type="button" data-stufe="2" aria-pressed="false">bis 10</button>
+      <button type="button" data-stufe="3" aria-pressed="false">bis 20</button>
     </div>
     <div class="meta">
       <div class="kiste" id="kiste" aria-label="Amulette in der Schatzkiste">
@@ -36,7 +37,7 @@
 
   <div class="grown" id="grown" hidden>
     <h2>Für Erwachsene</h2>
-    <p>Edelsteine liegen auf dem Leuchttisch. Das Kind zählt sie (Stufe 1) oder sieht zwei Gruppen und sagt, wie viele es zusammen sind (Stufen 2 und 3, Teil-Teil-Ganzes). Jede richtige Antwort setzt einen Stein in das Amulett. Mit 5 Steinen ist es fertig und kommt in die Schatzkiste. Fehler kosten nichts. „Zeig mir's“ zeigt den Weg, aber nie das Ergebnis.</p>
+    <p>Edelsteine liegen auf dem Leuchttisch. Das Kind zählt sie (Stufe 1) oder sieht zwei Gruppen und sagt, wie viele es zusammen sind (Stufen 2 bis 4, Teil-Teil-Ganzes; bis 20 mit höchstens 10 Steinen pro Gruppe). Jede richtige Antwort setzt einen Stein in das Amulett. Mit 5 Steinen ist es fertig und kommt in die Schatzkiste. Fehler kosten nichts. „Zeig mir's“ zeigt den Weg, aber nie das Ergebnis.</p>
     <div class="einst">
       <span>Antwort</span>
       <div class="seg" id="eingabe" role="group" aria-label="Antwort">
@@ -51,13 +52,23 @@
         <button type="button" data-zwei="nein" aria-pressed="false">Eine Sorte</button>
       </div>
     </div>
+    <div class="einst">
+      <span>Licht unter dem Tisch</span>
+      <div class="seg" id="licht" role="group" aria-label="Licht unter dem Tisch">
+        <button type="button" data-licht="ruhig" aria-pressed="true">Ruhig</button>
+        <button type="button" data-licht="bewegt" aria-pressed="false">Bewegt</button>
+      </div>
+    </div>
+    <p>„Bewegt“: Weiche Lichtflecken wandern langsam unter dem Tisch, ab und zu funkelt ein Stein. Bei „Zeig mir's“ steht das Licht still. Wenn das Gerät „Bewegung reduzieren“ eingestellt hat, bleibt es immer ruhig.</p>
     <p>Beim Schreiben läuft die Zahlenerkennung auf dem Gerät, es wird nichts übertragen oder gespeichert. Entwurf: Die 5-Minuten-Runde fehlt noch.</p>
   </div>
 
   <div class="frage" id="frage" aria-live="polite">Wie viele Steine sind es?</div>
 
   <div class="tisch-rahmen" id="rahmen">
-    <div class="tisch" id="tisch"></div>
+    <div class="tisch" id="tisch">
+      <div class="lichtspiel" aria-hidden="true"><span class="lf lf1"></span><span class="lf lf2"></span><span class="lf lf3"></span></div>
+    </div>
   </div>
 
   <div class="antwort">

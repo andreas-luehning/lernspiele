@@ -44,14 +44,15 @@ Gezeichnet mit Facetten (Licht von links oben), Tafel, Funkeln und einem farbige
 | Wann | Was passiert |
 |---|---|
 | Stufe 1: Zählen | 2–6 Steine einer Sorte liegen verstreut. „Wie viele Steine sind es?“ |
-| Stufe 2 und 3: Zerlegen | Zwei lockere Gruppen (links/rechts), 5–7 bzw. 7–10 Steine. „Wie viele sind es zusammen?“ Standard: zwei Sorten; die Eltern können auf eine Sorte umstellen. |
-| Richtig | Ein Stein der Aufgabe wandert in die nächste freie Fassung des Amuletts. Kurz stehen lassen, dann kommen von selbst neue Steine. |
+| Stufe 2 bis 4: Zerlegen | Zwei lockere Gruppen (links/rechts), 5–7, 7–10 bzw. 11–20 Steine (bis 20: höchstens 10 pro Gruppe, oft mit Zehnerübergang wie 8 + 5; die Steine sind etwas kleiner). „Wie viele sind es zusammen?“ Standard: zwei Sorten; die Eltern können auf eine Sorte umstellen. |
+| Richtig | Der Tisch leuchtet einmal auf, alle Steine funkeln nacheinander. Ein Stein der Aufgabe wandert in die nächste freie Fassung des Amuletts. Kurz stehen lassen, dann kommen von selbst neue Steine. |
 | Amulett voll | Es kommt in die Schatzkiste, ein neues leeres Amulett erscheint. |
 | Falsch | Sanftes Wackeln, ein Tipp, beliebig oft probieren. Beim Zerlegen erscheint „a + b = ?“. Nichts geht verloren. |
 | „Zeig mir's“ | Zählen: Die Steine werden nacheinander nummeriert. Zerlegen: Beide Gruppen werden umrandet, mit ihrer Anzahl, dann „a + b = ?“. Das Ergebnis wird nie verraten. |
+| Licht | Standard „Ruhig“: Licht scheint gleichmäßig durch die Steine. Erwachsene können „Bewegt“ einschalten: weiche Lichtflecken wandern sehr langsam unter dem Tisch, etwa alle 2–3 Sekunden funkelt ein Stein. Bei „Zeig mir's“ und nach der richtigen Antwort steht das Licht still. Bei „Bewegung reduzieren“ am Gerät keine Bewegung. |
 | Angefangenes Amulett | Bleibt gespeichert, auch über Nacht (wie die Salatblätter). |
 
-Gespeichert unter `lernspiele:leuchttisch`: `{ version: 1, stufe, eingabe: "tippen" | "schreiben", zweiSorten, fassung: [Steine], amulette: [[Steine], …] }`. Beim Lesen werden nur bekannte Steine übernommen.
+Gespeichert unter `lernspiele:leuchttisch`: `{ version: 1, stufe, eingabe: "tippen" | "schreiben", zweiSorten, licht: "ruhig" | "bewegt", fassung: [Steine], amulette: [[Steine], …] }`. Beim Lesen werden nur bekannte Steine übernommen.
 
 Noch nicht im Entwurf: 5-Minuten-Runde und Tageszeit (kommt mit `gemeinsam/runde.js`), Burg, Schatzburg.
 

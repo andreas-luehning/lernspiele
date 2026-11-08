@@ -9,7 +9,11 @@ export const STUFEN = [
   { name: 'Zählen', modus: 'zaehlen', min: 2, max: 6 },
   { name: 'Zerlegen bis 7', modus: 'zerlegen', min: 5, max: 7 },
   { name: 'Zerlegen bis 10', modus: 'zerlegen', min: 7, max: 10 },
+  { name: 'Zerlegen bis 20', modus: 'zerlegen', min: 11, max: 20, maxGruppe: 10 },
 ];
+
+/** Steingröße in Tisch-Einheiten (Tischbreite 1000): bei vielen Steinen kleiner, damit alle Platz haben. */
+export const steinGroesse = a => (a.gesamt > 10 ? 96 : 125);
 
 const rand = (a, b, r = Math.random) => Math.floor(r() * (b - a + 1)) + a;
 const mischen = (a, r = Math.random) => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -44,7 +48,8 @@ export function neueAufgabe(stufeIdx, { zweiSorten = true, vorher = null } = {},
   if (vorher && vorher.modus === st.modus && vorher.gesamt === gesamt && st.max > st.min) gesamt = gesamt === st.max ? st.min : gesamt + 1;
   const [s1, s2] = mischen(STEINE, r);
   if (st.modus === 'zaehlen') return { modus: 'zaehlen', gesamt, links: gesamt, rechts: 0, sorteL: s1, sorteR: s1, steine: [] };
-  const lo = Math.max(2, gesamt - 6), hi = Math.min(gesamt - 2, 6);
+  const mg = st.maxGruppe || 6;               // höchstens so viele Steine pro Gruppe
+  const lo = Math.max(2, gesamt - mg), hi = Math.min(gesamt - 2, mg);
   const links = rand(lo, hi, r);
   return { modus: 'zerlegen', gesamt, links, rechts: gesamt - links, sorteL: s1, sorteR: zweiSorten ? s2 : s1, steine: [] };
 }
@@ -92,6 +97,7 @@ export function zustandPruefen(z) {
   aus.stufe = Number.isInteger(z.stufe) && z.stufe >= 0 && z.stufe < STUFEN.length ? z.stufe : 0;
   aus.eingabe = z.eingabe === 'schreiben' ? 'schreiben' : 'tippen';
   aus.zweiSorten = z.zweiSorten !== false;
+  aus.licht = z.licht === 'bewegt' ? 'bewegt' : 'ruhig';
   aus.fassung = steinListe(z.fassung, FASSUNGEN - 1);
   aus.amulette = (Array.isArray(z.amulette) ? z.amulette : [])
     .map(a => steinListe(a, FASSUNGEN)).filter(a => a.length === FASSUNGEN).slice(-MAX_AMULETTE);

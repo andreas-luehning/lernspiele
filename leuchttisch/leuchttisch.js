@@ -2,19 +2,19 @@
 import { ladeModell } from '../gemeinsam/ziffern.js';
 import { Schreibfeld, alleNeuZeichnen } from '../gemeinsam/schreibfeld.js';
 import { lesen, schreiben } from '../gemeinsam/speicher.js';
-import { STUFEN, FASSUNGEN, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen } from './aufgaben.js';
+import { STUFEN, FASSUNGEN, steinGroesse, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen } from './aufgaben.js';
 import { svg, stein, defsEinbauen, amulett, STEIN_ART } from './steine.js';
 
 const $ = id => document.getElementById(id);
 
 /* ---------- Gespeicherter Zustand ---------- */
-const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, fassung: [], amulette: [] };
+const STANDARD = { stufe: 0, eingabe: 'tippen', zweiSorten: true, licht: 'ruhig', fassung: [], amulette: [] };
 let zustand = zustandPruefen(lesen('leuchttisch', STANDARD));
 const speichern = () => schreiben('leuchttisch', zustand);
 
 /* ---------- Tisch ---------- */
 const tisch = $('tisch');
-const G = 125;                     // Steingröße in Tisch-Einheiten (Tischbreite 1000)
+let G = 125;                       // Steingröße in Tisch-Einheiten (Tischbreite 1000), je Aufgabe
 let aufgabe = null, B = 1000, H = 700, tischSvg = null, rundeNr = 0, geloest = false, zeigt = false;
 
 function tischMasse() {
@@ -26,14 +26,18 @@ function tischMasse() {
 function tischZeichnen() {
   tischSvg = svg('svg', { viewBox: `0 0 ${B} ${H}`, class: 'tisch-svg', role: 'img', 'aria-label': `Edelsteine auf dem Leuchttisch` });
   for (const s of aufgabe.steine) tischSvg.append(stein(s.sorte, s.x, s.y, G, s.dreh, { licht: true }));
-  tisch.replaceChildren(tischSvg);
+  tisch.querySelector('.tisch-svg')?.remove();   // das Lichtspiel darunter bleibt
+  tisch.append(tischSvg);
 }
 
 function neueSteine() {
   if (zeigt) return;
   rundeNr++; geloest = false;
   ({ B, H } = tischMasse());
-  aufgabe = verteilen(neueAufgabe(zustand.stufe, { zweiSorten: zustand.zweiSorten, vorher: aufgabe }), B, H, G);
+  aufgabe = neueAufgabe(zustand.stufe, { zweiSorten: zustand.zweiSorten, vorher: aufgabe });
+  G = steinGroesse(aufgabe);
+  verteilen(aufgabe, B, H, G);
+  tisch.classList.remove('jubel');
   tischZeichnen();
   $('frage').textContent = aufgabe.modus === 'zaehlen' ? 'Wie viele Steine sind es?' : 'Wie viele sind es zusammen?';
   zeigeHinweis(zustand.eingabe === 'schreiben' ? 'Schreib die Zahl in das Feld.' : 'Tipp auf die richtige Zahl.');
@@ -91,6 +95,7 @@ function pruefen(wert, knopf) {
     if (a.modus === 'zerlegen') zeigeRechnung(a, true, `Super! ${a.links} + ${a.rechts} = ${a.gesamt}.`, 'good');
     else zeigeHinweis(`Super! Es sind ${a.gesamt} Steine.`, 'good');
     schatzZeigen(voll ? -1 : platz, voll);
+    jubeln();
     const nr = rundeNr;
     setTimeout(() => { if (nr === rundeNr) neueSteine(); }, voll ? 3200 : 2200);
   } else {
@@ -131,9 +136,9 @@ function zeigeRechnung(a, mitErgebnis, text, art) {
 /* ---------- „Zeig mir's“ ---------- */
 function zeigMirs() {
   if (zeigt || geloest || !aufgabe) return;
-  zeigt = true; $('b-hilfe').disabled = $('b-neu').disabled = true;
+  zeigt = true; $('b-hilfe').disabled = $('b-neu').disabled = true; tisch.classList.add('ruhe');
   tischZeichnen();                                   // alte Zahlen weg
-  const a = aufgabe, nr = rundeNr, fertig = () => { if (nr !== rundeNr) return; zeigt = false; $('b-hilfe').disabled = $('b-neu').disabled = false; };
+  const a = aufgabe, nr = rundeNr, fertig = () => { if (nr !== rundeNr) return; zeigt = false; $('b-hilfe').disabled = $('b-neu').disabled = false; tisch.classList.remove('ruhe'); };
   if (a.modus === 'zaehlen') {
     zeigeHinweis('Zähl mit: 1, 2, 3 …');
     const reihe = [...a.steine].sort((p, q) => p.x - q.x);
@@ -188,6 +193,29 @@ function kisteZeigen(pop = false) {
   if (pop) { const k = $('kiste'); k.classList.remove('pop'); void k.offsetWidth; k.classList.add('pop'); }
 }
 
+/* ---------- Licht ---------- */
+const wenigBewegung = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+/** Richtige Antwort: Der Tisch leuchtet einmal auf, alle Steine funkeln nacheinander. */
+function jubeln() {
+  tisch.classList.remove('jubel'); void tisch.offsetWidth; tisch.classList.add('jubel');
+  tischSvg?.querySelectorAll('.stein').forEach((st, i) => {
+    for (const f of st.querySelectorAll('.funkeln')) f.style.animationDelay = (i * 70) + 'ms';
+  });
+}
+/** Bewegtes Licht (Einstellung für Erwachsene): weiche Lichtflecken unter dem Tisch, ab und zu funkelt ein Stein. */
+function lichtZeigen() {
+  tisch.classList.toggle('bewegt', zustand.licht === 'bewegt');
+  document.querySelectorAll('#licht button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.licht === zustand.licht)));
+}
+setInterval(() => {
+  if (zustand.licht !== 'bewegt' || zeigt || geloest || document.hidden || wenigBewegung?.matches || !tischSvg) return;
+  const steine = tischSvg.querySelectorAll('.stein');
+  if (!steine.length) return;
+  const st = steine[Math.floor(Math.random() * steine.length)];
+  st.classList.remove('blinkt'); void st.getBoundingClientRect(); st.classList.add('blinkt');
+  setTimeout(() => st.classList.remove('blinkt'), 1000);
+}, 2600);
+
 /* ---------- Knöpfe und Einstellungen ---------- */
 function stufenZeigen() { document.querySelectorAll('#stufen button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.stufe === zustand.stufe))); }
 document.querySelectorAll('#stufen button').forEach(b => b.addEventListener('click', () => {
@@ -200,6 +228,9 @@ document.querySelectorAll('#eingabe button').forEach(b => b.addEventListener('cl
 function sortenZeigen() { document.querySelectorAll('#sorten button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.zwei === 'ja') === zustand.zweiSorten))); }
 document.querySelectorAll('#sorten button').forEach(b => b.addEventListener('click', () => {
   zustand.zweiSorten = b.dataset.zwei === 'ja'; speichern(); sortenZeigen(); if (aufgabe?.modus === 'zerlegen') neueSteine();
+}));
+document.querySelectorAll('#licht button').forEach(b => b.addEventListener('click', () => {
+  zustand.licht = b.dataset.licht === 'bewegt' ? 'bewegt' : 'ruhig'; speichern(); lichtZeigen();
 }));
 $('b-hilfe').addEventListener('click', zeigMirs);
 $('b-neu').addEventListener('click', neueSteine);
@@ -220,5 +251,5 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 
 /* ---------- Start ---------- */
 defsEinbauen();
-stufenZeigen(); sortenZeigen(); schatzZeigen(); kisteZeigen();
+stufenZeigen(); sortenZeigen(); lichtZeigen(); schatzZeigen(); kisteZeigen();
 requestAnimationFrame(() => { neueSteine(); eingabeZeigen(); });
