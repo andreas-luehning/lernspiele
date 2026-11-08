@@ -53,20 +53,21 @@ function facette(ps) {
 /**
  * Ein Edelstein als <g>, Mitte (x, y), Größe g (Breite in Einheiten), Drehung in Grad.
  * licht: Der Stein liegt auf dem Leuchttisch; das Licht von unten scheint durch (hellere Mitte, stärkerer Schein).
+ * schlicht: für kleine Bilder (Amulett): kein weicher Schein, nur ein Facettenring, ein Funkeln. Sonst wirkt es krümelig.
  */
-export function stein(sorte, x, y, g, dreh = 0, { licht = false } = {}) {
+export function stein(sorte, x, y, g, dreh = 0, { licht = false, schlicht = false } = {}) {
   const art = STEIN_ART[sorte] || STEIN_ART.rubin, s = g / 84;
   const gr = svg('g', { transform: `translate(${x} ${y}) rotate(${dreh}) scale(${s})`, class: 'stein', 'data-sorte': sorte });
   const k = svg('g', { 'stroke-linejoin': 'round' });
   // Licht scheint durch den Stein auf den Tisch
   const sch = licht ? 1.22 : 1.1;
-  k.append(svg('polygon', { points: pkt(art.umriss.map(([a, b]) => [a * sch, b * sch])), fill: licht ? art.farbe : art.hell, 'fill-opacity': licht ? '0.45' : '0.55', filter: 'url(#schein)' }));
-  k.append(svg('polygon', { points: pkt(art.umriss), fill: `url(#verlauf-${sorte in STEIN_ART ? sorte : 'rubin'})`, 'fill-opacity': licht ? '0.74' : '0.9' }));
+  if (!schlicht) k.append(svg('polygon', { points: pkt(art.umriss.map(([a, b]) => [a * sch, b * sch])), fill: licht ? art.farbe : art.hell, 'fill-opacity': licht ? '0.45' : '0.55', filter: 'url(#schein)' }));
+  k.append(svg('polygon', { points: pkt(art.umriss), fill: `url(#verlauf-${sorte in STEIN_ART ? sorte : 'rubin'})`, 'fill-opacity': licht ? '0.74' : schlicht ? '1' : '0.9' }));
   if (licht) k.append(svg('polygon', { points: pkt(art.umriss), fill: 'url(#innenlicht)' }));
   // Ringe von außen nach innen; s ist relativ zum vorigen Ring.
   // versetzt: Die inneren Ecken liegen zwischen den äußeren, das ergibt Dreiecke wie beim Brillanten.
   let aussen = art.umriss;
-  for (const ring of art.ringe) {
+  for (const ring of schlicht ? art.ringe.slice(0, 1) : art.ringe) {
     const n = aussen.length, nach = i => aussen[(i + 1) % n];
     const innen = ring.versetzt
       ? aussen.map((p, i) => [(p[0] + nach(i)[0]) / 2 * ring.s, (p[1] + nach(i)[1]) / 2 * ring.s])
@@ -82,7 +83,7 @@ export function stein(sorte, x, y, g, dreh = 0, { licht = false } = {}) {
   // Kante
   k.append(svg('polygon', { points: pkt(art.umriss), fill: 'none', stroke: art.dunkel, 'stroke-width': '2.4' }));
   // Funkeln: ein großes, ein kleines
-  k.append(svg('path', { class: 'funkeln', d: 'M14 10 l1.2 3.8 l3.8 1.2 l-3.8 1.2 l-1.2 3.8 l-1.2 -3.8 l-3.8 -1.2 l3.8 -1.2 Z', fill: '#ffffff', 'fill-opacity': '0.7' }));
+  if (!schlicht) k.append(svg('path', { class: 'funkeln', d: 'M14 10 l1.2 3.8 l3.8 1.2 l-3.8 1.2 l-1.2 3.8 l-1.2 -3.8 l-3.8 -1.2 l3.8 -1.2 Z', fill: '#ffffff', 'fill-opacity': '0.7' }));
   k.append(svg('path', { class: 'funkeln', d: 'M-13 -27 l2.2 6.8 l6.8 2.2 l-6.8 2.2 l-2.2 6.8 l-2.2 -6.8 l-6.8 -2.2 l6.8 -2.2 Z', fill: '#ffffff', 'fill-opacity': '0.95' }));
   gr.append(k);
   return gr;
@@ -113,10 +114,14 @@ export function defsEinbauen() {
   document.body.append(svg('svg', { id: 'stein-defs', class: 'svg-defs', width: '0', height: '0', 'aria-hidden': 'true', focusable: 'false' }, [defs]));
 }
 
-/** Position der Fassungen im Amulett (Mitte 0/0): fünf im Kreis. */
+/**
+ * Fassungen im Amulett: vier kleine schräg um die Mitte, als fünfte (letzte) der große Hauptstein in der Mitte.
+ * Ergebnis: Mitte (x, y) und Radius r der Fassung.
+ */
 export function fassungsPlatz(i, n) {
-  const a = (-90 + i * 360 / n) * Math.PI / 180;
-  return { x: 27 * Math.cos(a), y: 6 + 27 * Math.sin(a) };
+  if (i === n - 1) return { x: 0, y: 6, r: 16 };
+  const a = (-135 + i * 360 / (n - 1)) * Math.PI / 180;
+  return { x: 28 * Math.cos(a), y: 6 + 28 * Math.sin(a), r: 9 };
 }
 
 // Materialien der Amulette (eins pro Stufe, siehe aufgaben.js).
@@ -173,30 +178,27 @@ export function amulett(steine, n, { form = 'rund', material = 'gold', neu = -1,
   // Polierter Rand mit Lichtkante
   s.append(svg('polygon', { points: pkt(aussen), fill: rand, stroke: m.dunkel, 'stroke-width': '2.2', 'stroke-linejoin': 'round' }));
   s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.95)), fill: 'none', stroke: '#ffffff', 'stroke-opacity': '0.45', 'stroke-width': '1.4', 'stroke-linejoin': 'round' }));
-  // Perlenreihe
-  for (const [x, y] of entlang(skaliert(aussen, 0.885), 7.2)) s.append(svg('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 1.9, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.5', 'stroke-opacity': '0.6' }));
+  // Perlenreihe (nicht im kleinen Bild)
+  if (!klein) for (const [x, y] of entlang(skaliert(aussen, 0.885), 7.2)) s.append(svg('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 1.9, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.5', 'stroke-opacity': '0.6' }));
   // Vertiefte Innenfläche
   s.append(svg('polygon', { points: pkt(skaliert(aussen, 0.8)), fill: `url(#tief-${mat})`, stroke: m.dunkel, 'stroke-width': '1.6', 'stroke-linejoin': 'round' }));
-  // Mitte: kleine Rosette aus Metall
-  for (let i = 0; i < 6; i++) { const t = i * Math.PI / 3; s.append(svg('circle', { cx: (4.2 * Math.cos(t)).toFixed(1), cy: (6 + 4.2 * Math.sin(t)).toFixed(1), r: 2.6, fill: rand, stroke: m.dunkel, 'stroke-width': '0.6' })); }
-  s.append(svg('circle', { cx: 0, cy: 6, r: 2.4, fill: m.hell }));
-  // Fassungen: Metallring mit vier Krallen, darin der Stein
+  // Fassungen: Metallring, darin der Stein; der Hauptstein in der Mitte bekommt vier Krallen
   for (let i = 0; i < n; i++) {
-    const p = fassungsPlatz(i, n);
-    s.append(svg('circle', { class: 'a-fassung', cx: p.x, cy: p.y, r: 12.5, fill: m.tief2, 'fill-opacity': '0.55' }));
+    const p = fassungsPlatz(i, n), gross = i === n - 1;
+    s.append(svg('circle', { class: 'a-fassung', cx: p.x, cy: p.y, r: p.r, fill: m.tief2, 'fill-opacity': '0.55' }));
     if (steine[i]) {
-      const g = stein(steine[i], p.x, p.y, 23);
+      const g = stein(steine[i], p.x, p.y, p.r * (gross ? 2.15 : 1.85), 0, { schlicht: true });
       if (i === neu) g.firstChild.classList.add('neu'); // inneres <g>: die Animation darf das transform-Attribut nicht ersetzen
       s.append(g);
     }
-    s.append(svg('circle', { cx: p.x, cy: p.y, r: 12.5, fill: 'none', stroke: rand, 'stroke-width': '2.6' }));
-    for (let k = 0; k < 4; k++) {
+    s.append(svg('circle', { cx: p.x, cy: p.y, r: p.r, fill: 'none', stroke: rand, 'stroke-width': gross ? '3' : '2.2' }));
+    if (gross && !klein) for (let k = 0; k < 4; k++) {
       const t = (45 + k * 90) * Math.PI / 180;
-      s.append(svg('circle', { cx: (p.x + 12 * Math.cos(t)).toFixed(1), cy: (p.y + 12 * Math.sin(t)).toFixed(1), r: 2.1, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.6' }));
+      s.append(svg('circle', { cx: (p.x + p.r * Math.cos(t)).toFixed(1), cy: (p.y + p.r * Math.sin(t)).toFixed(1), r: 2.4, fill: m.hell, stroke: m.dunkel, 'stroke-width': '0.6' }));
     }
   }
   // Kristall: Funkelsterne auf dem Rand
-  if (m.glitzer) for (const [x, y, g] of [[-40, -18, 1], [42, 22, 0.8], [-20, 50, 0.7], [30, -30, 0.6]]) {
+  if (m.glitzer && !klein) for (const [x, y, g] of [[-40, -18, 1], [42, 22, 0.8], [-20, 50, 0.7], [30, -30, 0.6]]) {
     s.append(svg('path', { class: 'funkeln', d: `M${x} ${y - 7 * g} L${x + 1.8 * g} ${y - 1.8 * g} L${x + 7 * g} ${y} L${x + 1.8 * g} ${y + 1.8 * g} L${x} ${y + 7 * g} L${x - 1.8 * g} ${y + 1.8 * g} L${x - 7 * g} ${y} L${x - 1.8 * g} ${y - 1.8 * g} Z`, fill: '#ffffff', 'fill-opacity': '0.95' }));
   }
   return s;

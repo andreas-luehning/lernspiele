@@ -12,19 +12,24 @@ export const modellId = m => m.form + ':' + m.material;
 export const materialDerStufe = stufe => (STUFEN[stufe] || STUFEN[0]).material;
 /** Modelle, die schon in der Sammlung sind (als Menge von "form:material"). */
 export const gefundeneModelle = amulette => new Set(amulette.map(modellId));
-/** Nächstes Modell im Material: bevorzugt eine Form, die darin noch fehlt; sonst eine andere als zuletzt. */
+/**
+ * Nächstes Modell im Material: bevorzugt eine Form, die darin noch fehlt; sonst eine andere als zuletzt.
+ * Dazu eine Steinsorte für das ganze Amulett (alle Steine gleich, wie bei echtem Schmuck), nicht dieselbe wie zuletzt.
+ */
 export function neuesModell(amulette, material = 'bronze', r = Math.random) {
-  const da = gefundeneModelle(amulette), letztes = amulette.length ? amulette[amulette.length - 1].form : '';
+  const da = gefundeneModelle(amulette), letztes = amulette.length ? amulette[amulette.length - 1] : null;
   let wahl = FORMEN.filter(f => !da.has(f + ':' + material));
-  if (!wahl.length) wahl = FORMEN.filter(f => f !== letztes);
-  return { form: wahl[Math.floor(r() * wahl.length)], material };
+  if (!wahl.length) wahl = FORMEN.filter(f => f !== letztes?.form);
+  const steine = STEINE.filter(s => s !== letztes?.stein);
+  return { form: wahl[Math.floor(r() * wahl.length)], material, stein: steine[Math.floor(r() * steine.length)] };
 }
 // Übernahme: Ton gibt es nicht mehr (Entscheidung 08.11.), frühere Ton-Amulette werden Bronze
 const ALTES_MATERIAL = { ton: 'bronze' };
 const modellPruefen = m => {
   if (!m) return null;
   const material = ALTES_MATERIAL[m.material] || m.material;
-  return FORMEN.includes(m.form) && MATERIALIEN.includes(material) ? { form: m.form, material } : null;
+  if (!FORMEN.includes(m.form) || !MATERIALIEN.includes(material)) return null;
+  return { form: m.form, material, stein: STEINE.includes(m.stein) ? m.stein : null };
 };
 
 export const STUFEN = [
@@ -129,11 +134,14 @@ export function zustandPruefen(z) {
   aus.fassung = steinListe(z.fassung, FASSUNGEN - 1);
   aus.amulette = (Array.isArray(z.amulette) ? z.amulette : []).map(a => {
     // Übernahme: frühere Amulette waren nur eine Liste von Steinen → rundes Gold-Amulett
-    if (Array.isArray(a)) return { steine: steinListe(a, FASSUNGEN), form: 'rund', material: 'gold' };
+    if (Array.isArray(a)) { const st = steinListe(a, FASSUNGEN); return { steine: st, form: 'rund', material: 'gold', stein: st[0] }; }
     const m = a && typeof a === 'object' ? modellPruefen(a) : null;
-    return m ? { steine: steinListe(a.steine, FASSUNGEN), ...m } : null;
+    if (!m) return null;
+    const st = steinListe(a.steine, FASSUNGEN);
+    return { steine: st, ...m, stein: m.stein || st[0] };
   }).filter(a => a && a.steine.length === FASSUNGEN).slice(-MAX_AMULETTE);
   aus.modell = modellPruefen(z.modell) || neuesModell(aus.amulette, materialDerStufe(aus.stufe));
+  if (!aus.modell.stein) aus.modell.stein = aus.fassung[0] || STEINE[0];
   aus.modell.material = materialDerStufe(aus.stufe);   // das angefangene Amulett hat immer das Material der Stufe
   return aus;
 }
@@ -161,7 +169,8 @@ export function rundeBeendenLT(z) {
  * Verändert den Zustand. Ergebnis: { platz, voll }
  */
 export function steinEinsetzen(z, sorte, r = Math.random) {
-  if (!STEINE.includes(sorte)) sorte = STEINE[0];
+  // Das Amulett hat eine Steinsorte; die Sorte der Aufgabe gilt nur, wenn noch keine festgelegt ist
+  sorte = STEINE.includes(z.modell?.stein) ? z.modell.stein : STEINE.includes(sorte) ? sorte : STEINE[0];
   z.fassung.push(sorte);
   const platz = z.fassung.length - 1;
   if (z.fassung.length >= FASSUNGEN) {

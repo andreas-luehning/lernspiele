@@ -66,6 +66,9 @@ chk(za.amulette.length === 2 && za.amulette[0].form === 'rund' && za.amulette[0]
 chk(za.modell.form === 'schild' && za.modell.material === 'kristall', 'lt angefangenes amulett: material der stufe');
 { const z3 = LT.zustandPruefen({ stufe: 1 }); for (let i = 0; i < LT.FASSUNGEN; i++) LT.steinEinsetzen(z3, 'rubin');
   chk(z3.amulette.length === 1 && z3.amulette[0].material === 'silber' && z3.modell.material === 'silber', 'lt fertiges amulett silber (stufe 2), neues auch'); }
+{ const z4 = LT.zustandPruefen({ stufe: 0 }); const sorte = z4.modell.stein; chk(LT.STEINE.includes(sorte), 'lt amulett hat steinsorte');
+  for (let i = 0; i < LT.FASSUNGEN; i++) LT.steinEinsetzen(z4, LT.STEINE.find(s => s !== sorte));
+  chk(z4.amulette[0].steine.every(s => s === sorte) && z4.amulette[0].stein === sorte && z4.modell.stein !== sorte, 'lt alle steine eines amuletts gleich, nächstes andere sorte'); }
 console.log('Leuchttisch geprüft');
 console.log(fehler ? fehler + ' Fehler' : 'alles ok');
 process.exit(fehler ? 1 : 0);
