@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f3f9ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lernspiele">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../gemeinsam/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../gemeinsam/icons/apple-touch-icon.png">
+<title>Schneckengarten</title>
+<link rel="stylesheet" href="../gemeinsam/theme.css">
+<link rel="stylesheet" href="../gemeinsam/parade.css">
+<link rel="stylesheet" href="garten.css">
+<script src="../gemeinsam/thema.js"></script>
+<script type="module" src="../gemeinsam/app.js"></script>
+<script type="module" src="garten.js"></script>
+</head>
+<body>
+<main class="garten-seite">
+  <header>
+    <a class="info-btn" href="../" aria-label="Zur Startseite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="titel">
+      <h1>Schneckengarten</h1>
+      <p class="sub" id="anzahl"></p>
+    </div>
+    <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
+  </header>
+
+  <div class="reiter" role="tablist" aria-label="Garten oder Sammelalbum">
+    <button type="button" role="tab" id="r-garten" aria-controls="seite-garten" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19h13a4 4 0 0 0 4-4V9.5"/><circle cx="10" cy="13" r="5"/><path d="M10 13a1.6 1.6 0 1 1 2 1.4"/><path d="M19 9.5 18 5M21 9.5 22 6"/></svg>
+      <span>Garten</span>
+    </button>
+    <button type="button" role="tab" id="r-album" aria-controls="seite-album" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5V5.5"/><path d="M12 8.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z"/></svg>
+      <span>Sammelalbum</span><b class="zahl" id="album-zahl-reiter"></b>
+    </button>
+  </div>
+
+  <section id="seite-garten" role="tabpanel" aria-labelledby="r-garten">
+    <p class="hinweis" id="hinweis" aria-live="polite"></p>
+    <div class="hutschachtel" id="hutschachtel" role="group" aria-label="Hutschachtel"></div>
+    <div class="gardenbox">
+      <div class="deco" id="deco"></div>
+      <div class="garden" id="garden"></div>
+    </div>
+    <div class="aktionen">
+      <a class="btn primary" id="b-spiel" href="../zehnerweg/">Zum Zehnerweg</a>
+      <button type="button" class="btn" id="b-tag" hidden>Nächster Tag (Probe)</button>
+    </div>
+  </section>
+
+  <section id="seite-album" role="tabpanel" aria-labelledby="r-album" hidden>
+    <div class="fortschritt"><div class="balken"><i id="album-balken"></i></div><span id="album-zahl"></span></div>
+    <div class="album" id="album"></div>
+  </section>
+</main>
+</body>
+</html>

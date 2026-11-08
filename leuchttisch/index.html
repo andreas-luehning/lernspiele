@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f3f9ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lernspiele">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../gemeinsam/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../gemeinsam/icons/apple-touch-icon.png">
+<title>Leuchttisch</title>
+<link rel="stylesheet" href="../gemeinsam/theme.css">
+<link rel="stylesheet" href="leuchttisch.css">
+<script src="../gemeinsam/thema.js"></script>
+<script type="module" src="../gemeinsam/app.js"></script>
+<script type="module" src="leuchttisch.js"></script>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <div class="kopf-links">
+      <a class="info-btn zurueck" id="b-zurueck" href="../" aria-label="Zurück zur Startseite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+      <a class="brand" href="../" aria-label="Zur Startseite">
+        <h1>Leuchttisch</h1>
+        <small>Steine zählen</small>
+      </a>
+    </div>
+    <div class="seg" id="stufen" role="group" aria-label="Stufe">
+      <button type="button" data-stufe="0" aria-pressed="true">Zählen</button>
+      <button type="button" data-stufe="1" aria-pressed="false">Zerlegen bis 7</button>
+      <button type="button" data-stufe="2" aria-pressed="false">bis 10</button>
+      <button type="button" data-stufe="3" aria-pressed="false">bis 20</button>
+    </div>
+    <div class="meta">
+      <div class="uhr" id="uhr" role="timer" aria-label="Restzeit"><span id="uhrzeit">5:00</span><div class="sand" aria-hidden="true"><i id="sand"></i></div></div>
+      <a class="kiste" id="kiste" href="../schatzkammer/" aria-label="Zur Schatzkammer: deine Amulette">
+        <span class="kiste-bild" id="kistebild"></span>
+        <span id="kistezahl">0</span>
+      </a>
+      <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
+      <button type="button" class="info-btn" id="b-info" aria-expanded="false" aria-controls="grown" aria-label="Infos und Einstellungen für Erwachsene">?</button>
+    </div>
+  </header>
+
+  <div class="grown" id="grown" hidden>
+    <h2>Für Erwachsene</h2>
+    <p>Edelsteine liegen auf dem Leuchttisch. Das Kind zählt sie (Stufe 1) oder sieht zwei Gruppen und sagt, wie viele es zusammen sind (Stufen 2 bis 4, Teil-Teil-Ganzes; bis 20 mit höchstens 10 Steinen pro Gruppe). Jede richtige Antwort setzt einen Stein in das Amulett. Mit 10 Steinen ist es fertig und kommt in die Schatzkammer; das nächste hat eine andere Form und einen anderen Stein; das Material zeigt die Stufe (Bronze, Silber, Gold, Kristall). Fehler kosten nichts. „Zeig mir's“ zeigt den Weg, aber nie das Ergebnis.</p>
+    <div class="einst">
+      <span>Antwort</span>
+      <div class="seg" id="eingabe" role="group" aria-label="Antwort">
+        <button type="button" data-eingabe="tippen" aria-pressed="true">Tippen</button>
+        <button type="button" data-eingabe="schreiben" aria-pressed="false">Schreiben</button>
+      </div>
+    </div>
+    <div class="einst">
+      <span>Beim Zerlegen</span>
+      <div class="seg" id="sorten" role="group" aria-label="Sorten beim Zerlegen">
+        <button type="button" data-zwei="ja" aria-pressed="true">Zwei Sorten</button>
+        <button type="button" data-zwei="nein" aria-pressed="false">Eine Sorte</button>
+      </div>
+    </div>
+    <div class="einst">
+      <span>Leiste im Querformat</span>
+      <div class="seg" id="seite" role="group" aria-label="Leiste im Querformat">
+        <button type="button" data-seite="links" aria-pressed="false">Links</button>
+        <button type="button" data-seite="rechts" aria-pressed="true">Rechts</button>
+      </div>
+    </div>
+    <div class="einst">
+      <span>Licht unter dem Tisch</span>
+      <div class="seg" id="licht" role="group" aria-label="Licht unter dem Tisch">
+        <button type="button" data-licht="ruhig" aria-pressed="true">Ruhig</button>
+        <button type="button" data-licht="bewegt" aria-pressed="false">Bewegt</button>
+      </div>
+    </div>
+    <p>Leiste rechts ist für Rechtshänder bequemer (die Hand verdeckt beim Schreiben den Tisch nicht), links für Linkshänder.</p>
+    <p>„Bewegt“: Weiche Lichtflecken wandern langsam unter dem Tisch, ab und zu funkelt ein Stein. Bei „Zeig mir's“ steht das Licht still. Wenn das Gerät „Bewegung reduzieren“ eingestellt hat, bleibt es immer ruhig.</p>
+    <p>Beim Schreiben läuft die Zahlenerkennung auf dem Gerät, es wird nichts übertragen oder gespeichert. Die Uhr zählt zur gemeinsamen Lernzeit aller Spiele. Steine für das Amulett gibt es nur während einer Runde; ist die Lernzeit für heute um, geht freies Üben ohne Steine.</p>
+  </div>
+
+  <div class="frage" id="frage" aria-live="polite">Wie viele Steine sind es?</div>
+
+  <div class="tisch-rahmen" id="rahmen">
+    <div class="tisch" id="tisch">
+      <div class="lichtspiel" aria-hidden="true"><span class="lf lf1"></span><span class="lf lf2"></span><span class="lf lf3"></span></div>
+    </div>
+  </div>
+
+  <div class="antwort">
+    <div class="optionen" id="optionen"></div>
+    <div class="schreib-box" id="schreiben" hidden></div>
+  </div>
+
+  <div class="schatz">
+    <div class="amulett-platz" id="amulett"></div>
+    <div class="hinweis" id="hinweis" aria-live="polite"></div>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn" id="b-hilfe">Zeig mir's</button>
+    <button type="button" class="btn primary" id="b-neu">Neue Steine</button>
+  </div>
+</div>
+</body>
+</html>

@@ -3,18 +3,20 @@ import { ladeModell } from '../gemeinsam/ziffern.js';
 import { Schreibfeld, alleNeuZeichnen } from '../gemeinsam/schreibfeld.js';
 import { lesen, schreiben, vorhanden, altLesen } from '../gemeinsam/speicher.js';
 import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgaben.js';
+import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
+import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
+import { richtig, falsch, parade, HATS, BLAETTER_PRO_HUT } from '../gemeinsam/parade-logik.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
-const STANDARD = { sterne: 0, gespiegelt: false, modus: 'plus' };
+const STANDARD = { gespiegelt: false, modus: 'plus' };
 const MODI = ['plus', 'minus', 'mix'];
 let zustand;
 if (vorhanden('zehnerweg')) {
   zustand = lesen('zehnerweg', STANDARD);
 } else {
   // Einmalige Übernahme aus dem Prototyp (alte Schlüssel bleiben, damit der Prototyp weiter geht)
-  zustand = { ...STANDARD, sterne: parseInt(altLesen('zehnerweg-stars') || '0', 10) || 0, gespiegelt: altLesen('zehnerweg-flip') === '1' };
+  zustand = { ...STANDARD, gespiegelt: altLesen('zehnerweg-flip') === '1' };
 }
-zustand.sterne = Math.min(Math.max(0, Math.floor(zustand.sterne)), 1_000_000);
 if (!MODI.includes(zustand.modus)) zustand.modus = 'plus';
 const speichern = () => schreiben('zehnerweg', zustand);
 
@@ -89,16 +91,19 @@ function nachErkennung(f) {
   if (task && f.id === herzFeld(task) && f.value === task.ans[f.id]) {
     stage.classList.remove('love'); void stage.offsetWidth; stage.classList.add('love');
   }
-  // Automatisch prüfen, sobald alle Felder erkannt sind und keins mehr in Arbeit ist
-  if (!pruefeLaeuft && ORDER.every(id => FIELDS[id].value != null && !FIELDS[id].wartet)) check();
+  if (f.kritzel) { setHint('Hier ist Platz für eine Zahl. Tippe auf ×, dann kannst du neu schreiben.', 'bad'); return; }
+  // Automatisch prüfen, sobald alle Felder sicher erkannt sind und keins mehr in Arbeit ist
+  if (pruefeLaeuft || !ORDER.every(id => FIELDS[id].value != null && !FIELDS[id].wartet)) return;
+  if (ORDER.some(id => FIELDS[id].unsicher)) { setHint('Bei einem Feld bin ich nicht sicher, was da steht. Schreib deutlicher oder tippe auf Prüfen.', ''); knoepfe('pruefen'); }
+  else check();
 }
 let pruefeLaeuft = false;
 for (const id of Object.keys(SHAPES)) {
   FIELDS[id] = new Schreibfeld(stage, {
     id, kind: SHAPES[id].kind,
     onErkannt: nachErkennung,
-    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); },
-    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); },
+    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); paradeStarten(); },
+    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); knoepfe('rechnen'); },
   });
 }
 
@@ -106,8 +111,14 @@ function layout() {
   const wrap = $('wrap');
   // Seitenleiste nur, wenn der Weg dadurch größer wird (breite Bildschirme im Querformat)
   const iw = window.innerWidth - 32, ih = window.innerHeight - 16;
-  const topBottom = Math.min(iw, (ih - 150) * GH.W / GH.H), sideways = Math.min(iw - 300, (ih - 40) * GH.W / GH.H);
+  // Kopfzeile + Tipp/Knöpfe ≈ 150 px, Paradestreifen ≈ 104 px
+  const topBottom = Math.min(iw, (ih - 254) * GH.W / GH.H), sideways = Math.min(iw - 300, (ih - 144) * GH.W / GH.H);
   app.classList.toggle('side', iw > ih && sideways > topBottom * 1.04);
+  // Passt die Seitenleiste nicht in die Höhe (z. B. Tablet quer mit Browserleiste), lieber oben/unten anordnen
+  if (app.classList.contains('side')) {
+    const oben = document.querySelector('header .meta').getBoundingClientRect(), tipp = $('hint').getBoundingClientRect(), letzter = $('b-next').getBoundingClientRect();
+    if (tipp.top < oben.bottom + 8 || letzter.bottom > window.innerHeight - 4) app.classList.remove('side');
+  }
   const availH = Math.max(240, wrap.clientHeight - 30);
   const availW = wrap.clientWidth - (app.classList.contains('side') ? 25 : 0);
   vertical = availW < availH * 1.05;
@@ -138,11 +149,24 @@ function newTask() {
   FIELDS.start.vorgeben(task.a); FIELDS.big.vorgeben(task.b);
   stage.classList.remove('done', 'love'); stage.classList.toggle('minus', task.op === 'minus');
   setHint(START_TIPP);
+  knoepfe('rechnen');
   updateTarget();
+  runde?.aufgabeFertig(); // war die Zeit schon um, endet die Runde jetzt
 }
 function updateTarget() {
   let marked = false;
   for (const id of ORDER) { const f = FIELDS[id]; const t = !marked && f.value == null; f.el.classList.toggle('target', t); if (t) marked = true; }
+}
+/**
+ * Der hervorgehobene Knopf zeigt den nächsten sinnvollen Schritt:
+ * rechnen → keiner (die Felder sind dran), pruefen → „Prüfen“ (alles ausgefüllt, aber unsicher),
+ * weiter → „Neue Aufgabe“ (gelöst, mit sanftem Pulsieren).
+ */
+function knoepfe(zustand) {
+  $('b-check').classList.toggle('primary', zustand === 'pruefen');
+  $('b-check').classList.toggle('leise', zustand === 'weiter');
+  $('b-next').classList.toggle('primary', zustand === 'weiter');
+  $('b-next').classList.toggle('puls', zustand === 'weiter');
 }
 function setHint(t, cls) { const h = $('hint'); h.textContent = t; h.className = 'hint' + (cls ? ' ' + cls : ''); }
 
@@ -159,8 +183,10 @@ function check() {
     if (b.falsch.includes(id)) el.classList.add('no');
   }
   if (b.falsch.length) {
+    paradeFalsch();
     const f = FIELDS[b.falsch[0]];
-    setHint((f.unsicher ? `Ich habe ${f.value} gelesen. Schreib es deutlicher, falls du etwas anderes meinst. ` : '') + tipp(task, f.id), 'bad');
+    if (f.hinweis === 'siebenOhneQuerstrich' && String(task.ans[f.id]).includes('7')) setHint('Ich habe eine 1 gelesen. Eine 7 bekommt einen Querstrich in der Mitte.', 'bad');
+    else setHint((f.unsicher ? `Ich habe ${f.value} gelesen. Schreib es deutlicher, falls du etwas anderes meinst. ` : '') + tipp(task, f.id), 'bad');
   } else if (b.leer.length) {
     setHint(`Bis hier stimmt alles! ${tipp(task, b.leer[0])}`, '');
   } else {
@@ -169,12 +195,65 @@ function check() {
     setHint(`Super! ${task.a} ${z} ${task.ans.part1} ${z} ${task.ans.part2} = ${task.ans.goal}`, 'good');
     if (!stage.classList.contains('done')) {
       stage.classList.add('done');
-      zustand.sterne++; speichern(); zeigeSterne();
-      const st = $('stars'); st.classList.remove('pop'); void st.offsetWidth; st.classList.add('pop');
+      knoepfe('weiter');
+      paradeRichtig();
     }
   }
 }
-function zeigeSterne() { $('starcount').textContent = String(zustand.sterne); }
+
+/* ---------- Schneckenparade ---------- */
+const streifen = new ParadeStreifen($('track'));
+const blaetter = $('leaves');
+let runde = null;
+const LERNZEIT_UM = 'Deine Lernzeit für heute ist um. Schau doch mal in deinen Garten! Du kannst auch frei weiter üben.';
+const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : LERNZEIT_UM);
+function zeigeParade(animiert) { streifen.zeige(parade(runde.z), animiert); zeigeBlaetter(blaetter, runde.z); }
+function paradeStarten() {
+  const was = runde.aktivitaet(); // startet eine Runde oder setzt nach einer Pause fort
+  if (was === 'neu') { zeigeParade(true); streifen.sag('Los geht’s! Halte 5 Minuten durch, dann kommt eine neue Schnecke.'); }
+  else if (was === 'weiter') streifen.sag('Weiter geht’s!');
+}
+function paradeRichtig() {
+  if (!runde.laeuft || task.belohnt) { if (!runde.laeuft) streifen.sag('Super gerechnet!'); return; } // freies Üben: Lob, keine Belohnung
+  task.belohnt = true;
+  const erg = richtig(runde.z); runde.speichern();
+  const slots = blaetter.querySelectorAll('.slot');
+  streifen.blattFliegt(FIELDS.goal.el, slots[erg.hut ? slots.length - 1 : Math.max(0, runde.z.leaves - 1)]);
+  setTimeout(() => {
+    zeigeParade(true);
+    if (erg.hut) streifen.sag(`Fünf Blätter! Neu in deiner Hutschachtel im Garten: ${HATS[erg.hut]}.`);
+    else { const noch = BLAETTER_PRO_HUT - runde.z.leaves; streifen.sag(['Mmh, Salat!', 'Ein Salatblatt!', 'Lecker, noch ein Blatt!'][runde.z.leaves % 3] + ` Noch ${noch}, dann gibt es eine Kopfbedeckung.`); }
+  }, 800);
+  setTimeout(() => runde.aufgabeFertig(), 2200);
+}
+function paradeFalsch() {
+  if (!runde.laeuft || task.fehlerGezaehlt || task.belohnt) return;
+  task.fehlerGezaehlt = true; // zählt nur einmal pro Aufgabe
+  falsch(runde.z);
+  streifen.sag('Macht nichts. Schau dir den Tipp an.');
+}
+const gartenUrl = '../garten/' + (PROBE ? '?probe' : '');
+$('b-garten').href = gartenUrl;
+runde = new Runde({
+  onTick: (rest, dauer, pause) => {
+    $('uhrzeit').textContent = uhrText(rest);
+    $('sand').style.width = (rest / dauer * 100) + '%';
+    $('uhr').classList.toggle('um', rest <= 0);
+    $('uhr').classList.toggle('pause', !!pause);
+  },
+  onPause: () => streifen.sag('Pause. Schreib weiter, dann läuft die Uhr wieder.'),
+  onZeitUm: () => {
+    // Nur eine angefangene Aufgabe darf fertig werden; ist noch nichts geschrieben (oder schon gelöst), endet die Runde gleich
+    const angefangen = ORDER.some(id => FIELDS[id].strokes.length) && !stage.classList.contains('done');
+    if (angefangen) streifen.sag('Die Zeit ist um! Mach diese Aufgabe noch fertig.');
+    else runde.beenden();
+  },
+  onEnde: ergebnis => {
+    streifen.ausziehen();
+    setTimeout(() => { rueckblick(ergebnis, { gartenUrl }); zeigeParade(false); sagStart(); }, 2600);
+  },
+});
+
 
 /* ---------- Knöpfe ---------- */
 const grown = $('grown'), infoBtn = $('b-info'), flipBtn = $('b-flip');
@@ -188,7 +267,7 @@ $('b-check').addEventListener('click', check);
 $('b-next').addEventListener('click', newTask);
 $('b-clear').addEventListener('click', () => {
   for (const id of ORDER) FIELDS[id].loeschen();
-  stage.classList.remove('done'); setHint(START_TIPP); updateTarget();
+  stage.classList.remove('done'); setHint(START_TIPP); updateTarget(); knoepfe('rechnen');
 });
 flipBtn.addEventListener('click', () => {
   zustand.gespiegelt = !zustand.gespiegelt; speichern();
@@ -210,8 +289,9 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 
 /* ---------- Start ---------- */
 flipBtn.setAttribute('aria-pressed', String(zustand.gespiegelt));
-zeigeModus(); zeigeSterne();
+zeigeModus();
 layout(); newTask();
+zeigeParade(false); sagStart(); runde.tick();
 setHint('Einen Moment, die Zahlenerkennung lädt …');
 ladeModell()
   .then(() => setHint(START_TIPP))

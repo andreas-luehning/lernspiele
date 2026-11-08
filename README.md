@@ -6,9 +6,9 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 
 | Spiel | Inhalt | Stand |
 |---|---|---|
-| **Zehnerweg** | Zehnerübergang, Plus und Minus bis 20, Rechenweg über die 10 | spielbar: `zehnerweg/` (noch mit Sternen statt Schnecken) |
-| **Schneckenparade** | Gemeinsame Belohnung für alle Spiele: Salatblätter sammeln, Schnecken bekommen | als Nächstes; Probe: `prototypen/schneckenparade.html` |
-| Burgen, Gegenstände | Leuchttisch-Spiele: schnell zählen und zerlegen | Idee, siehe `docs/ideen-und-offene-fragen.md` |
+| **Zehnerweg** | Zehnerübergang, Plus und Minus bis 20, Rechenweg über die 10 | spielbar: `zehnerweg/` |
+| **Schneckenparade** | Gemeinsame Belohnung für alle Spiele: Salatblätter sammeln, Schnecken bekommen | im Zehnerweg eingebaut, Garten: `garten/`. Zum Ausprobieren `?probe` anhängen (Runde 1 Minute, „Nächster Tag“ im Garten) |
+| **Leuchttisch** | Edelsteine zählen und zerlegen, Amulette sammeln; später Burg und Zahlenmauer | Entwurf: `leuchttisch/`, Regeln: `docs/leuchttisch.md` |
 
 ## Ausprobieren
 
@@ -24,8 +24,17 @@ Prüfen (Playwright, bei laufendem Server auf Port 8123):
 
 ```
 node tests/logik.mjs
+node tests/parade-logik.mjs
 node tests/browser.js
+node tests/parade-browser.js
+node tests/ziffern-browser.js
+node tests/app-browser.js
+node tests/layout-browser.js
 ```
+
+## Als App installieren
+
+Auf der Startseite unter **„Für Erwachsene“**: In Chrome (Android, Rechner) gibt es den Knopf „Installieren“. Auf iPad und iPhone in Safari: Teilen-Symbol → „Zum Home-Bildschirm“. Als App startet es im Vollbild und funktioniert auch ohne Internet. Bei Problemen hilft dort die „Diagnose“.
 
 Veröffentlicht wird über GitHub Pages vom Branch `main`. Jedes Spiel hat eine eigene Adresse, z. B. `…/lernspiele/zehnerweg/`.
 
@@ -35,6 +44,9 @@ Veröffentlicht wird über GitHub Pages vom Branch `main`. Jedes Spiel hat eine 
 |---|---|
 | `index.html` | Startseite mit allen Spielen |
 | `zehnerweg/` | Spiel 1 |
+| `garten/` | Schneckengarten |
+| `leuchttisch/` | Spiel 2 (Entwurf) |
+| `schatzkammer/` | Amulette vom Leuchttisch |
 | `gemeinsam/` | Gemeinsame Teile: Aussehen, Schriften, Zahlenerkennung, Schreibfeld, Speicher |
 | `docs/` | Regeln der Spiele, Datenschutz und Sicherheit, Ideen und offene Fragen |
 | `tests/` | Automatische Prüfungen (Logik und Browser) |

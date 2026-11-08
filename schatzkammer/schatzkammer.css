@@ -1,0 +1,34 @@
+/* Schatzkammer: Kopfzeile, angefangenes Amulett, Raster der Amulette, Album aller Modelle. */
+.schatz-seite {
+  box-sizing: border-box; max-width: 1100px; margin: 0 auto; min-height: 100%;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; gap: 22px;
+}
+.schatz-seite header { display: flex; align-items: center; gap: 14px; }
+.schatz-seite .titel { margin-right: auto; }
+.schatz-seite h1 { font: 800 clamp(1.8rem, 5vw, 2.6rem) var(--display); margin: 0; line-height: 1; }
+.schatz-seite .sub { margin: 4px 0 0; color: var(--muted); }
+.schatz-seite h2 { font: 800 1.35rem var(--display); margin: 0 0 10px; }
+
+.svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.jetzt { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; background: var(--sheet); border: 2px solid var(--rule); border-radius: 26px; padding: 16px 20px; box-shadow: 0 8px 0 var(--rule); }
+.jetzt-bild .amulett { width: 150px; height: 160px; display: block; }
+.jetzt-text { flex: 1 1 240px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.jetzt-text h2 { margin: 0; }
+.jetzt-text p { margin: 0; color: var(--muted); font-size: 1.1rem; }
+.jetzt-text .btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+.raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.karte { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; background: var(--sheet); border: 2px solid var(--rule); border-radius: 20px; padding: 10px 6px 8px; }
+.amulett .a-kontur { stroke: var(--line); }
+.karte .amulett { width: 96px; height: 102px; display: block; }
+.karte figcaption { font: 700 .85rem var(--body); color: var(--muted); text-align: center; }
+.karte.fehlt { background: transparent; border-style: dashed; color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.karte.fehlt figcaption { font: 800 1.1rem var(--display); color: var(--muted); }
+.album .reihe { grid-column: 1 / -1; margin: 10px 0 0; font: 800 1.05rem var(--display); }
+.leer { color: var(--muted); font-size: 1.05rem; margin: 0; grid-column: 1 / -1; }
+
+.fortschritt { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-weight: 700; }
+.balken { flex: 1; max-width: 360px; height: 14px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.balken i { display: block; height: 100%; width: 0; background: var(--star); border-radius: 999px; }

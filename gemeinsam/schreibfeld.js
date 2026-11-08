@@ -6,7 +6,7 @@
 // - pointerup am Fenster, lostpointercapture und blur als Sicherheitsnetz: Kein Feld bleibt "blockiert".
 // - touch-action: none auf der Spielfläche (CSS), Kontextmenü und Zoom-Gesten aus.
 
-import { leseZahl, UNSICHER } from './ziffern.js';
+import { leseZahl, istGekritzel, UNSICHER } from './ziffern.js';
 
 const WARTEZEIT = 650;          // ms nach dem letzten Strich bis zur Erkennung
 const STIFT_SPERRE = 1500;      // ms, in denen Finger nach Stift-Benutzung ignoriert werden
@@ -109,11 +109,13 @@ export class Schreibfeld {
   erkennen() {
     clearTimeout(this.timer); this.timer = 0;
     if (this.fixed) return;
-    const r = leseZahl(this.strokes, this.w, this.h);
-    this.value = r ? r.value : null; this.conf = r ? r.conf : 0;
+    // Sieht es nach einem Bild aus, wird nicht geraten (sonst würde automatisch geprüft und es zählte als Fehler)
+    this.kritzel = istGekritzel(this.strokes, this.w, this.h);
+    const r = this.kritzel ? null : leseZahl(this.strokes, this.w, this.h);
+    this.value = r ? r.value : null; this.conf = r ? r.conf : 0; this.hinweis = r ? r.hinweis : null;
     const has = this.strokes.length > 0;
     this.el.classList.toggle('has', has); this.tag.hidden = !has;
-    this.read.textContent = r ? (r.conf < UNSICHER ? r.value + ' ?' : 'erkannt: ' + r.value) : 'nicht erkannt';
+    this.read.textContent = this.kritzel ? 'Bitte nur eine Zahl' : r ? (r.conf < UNSICHER ? r.value + ' ?' : 'erkannt: ' + r.value) : 'nicht erkannt';
     this.tag.classList.toggle('unsure', !r || r.conf < UNSICHER);
     this.onErkannt(this);
   }
@@ -122,7 +124,7 @@ export class Schreibfeld {
 
   loeschen() {
     clearTimeout(this.timer); this.timer = 0;
-    this.strokes = []; this.cur = null; this.pid = null; this.value = null; this.conf = 0; this.punkte = 0;
+    this.strokes = []; this.cur = null; this.pid = null; this.value = null; this.conf = 0; this.punkte = 0; this.hinweis = null; this.kritzel = false;
     this.tag.hidden = true;
     this.el.classList.remove('has', 'ok', 'no');
     this.zeichnen();

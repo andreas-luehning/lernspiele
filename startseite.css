@@ -7,14 +7,21 @@
 .start h1 { font: 800 clamp(2rem, 6vw, 3rem) var(--display); margin: 0; line-height: 1; }
 .start .sub { margin: 6px 0 0; color: var(--muted); font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; }
 
-.kacheln { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+.lernzeit { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+.lernzeit .lz-symbol { font-size: 1.3rem; }
+.lz-punkt { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--leaf); background: var(--sheet); }
+.lz-punkt.halb { background: linear-gradient(90deg, var(--leaf) 50%, var(--sheet) 50%); }
+.lz-punkt.fertig { background: var(--leaf); }
+.lernzeit.geschafft .lz-punkt { border-color: var(--muted); background: var(--muted); }
+.kacheln { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
+.kacheln li { display: flex; min-width: 0; }
 .kachel {
-  display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 20px; text-decoration: none; color: var(--fg);
+  flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 20px; text-decoration: none; color: var(--fg);
   background: var(--sheet); border: 2px solid var(--rule); border-radius: 26px; box-shadow: 0 8px 0 var(--rule);
 }
 .kachel:active { translate: 0 4px; box-shadow: 0 4px 0 var(--rule); }
 .kachel .bild { width: 100%; height: auto; margin-bottom: 6px; }
-.kachel .name { font: 800 1.6rem var(--display); }
+.kachel .name { font: 800 clamp(1.35rem, 2.7vw, 1.6rem) var(--display); }
 .kachel .was { color: var(--muted); font-size: 1.05rem; }
 
 .k-road { fill: var(--road); }
@@ -22,6 +29,32 @@
 .k-oval { fill: var(--oval); stroke: var(--line); stroke-width: 1.6; }
 .k-start, .k-ten, .k-goal { stroke: var(--line); stroke-width: 1.6; }
 .k-start { fill: var(--f-start); } .k-ten { fill: var(--f-ten); } .k-goal { fill: var(--f-goal); }
+.k-gras { fill: var(--grass); }
+.k-body { fill: var(--body-snail); stroke: var(--line); stroke-width: 2.4; }
+.k-line { stroke: var(--line); stroke-width: 2.4; stroke-linecap: round; fill: none; }
+.k-auge { fill: #fff; stroke: var(--line); stroke-width: 2; }
+.k-haus1 { fill: #ffd447; stroke: var(--line); stroke-width: 2.6; }
+.k-haus2 { fill: #b79bff; stroke: var(--line); stroke-width: 2.6; }
+.k-blatt { fill: var(--leaf); stroke: var(--line); stroke-width: 1.4; }
+.k-rahmen { fill: #232848; }
+.k-tisch { fill: #cbd8ec; }
+.k-st { stroke-width: 2; stroke-linejoin: round; fill-opacity: .6; }
+.k-rot { fill: #e8193c; stroke: #7d0a20; } .k-blau { fill: #1f6fe5; stroke: #0a347f; } .k-gruen { fill: #14a85a; stroke: #08502c; }
+.k-lila { fill: #8b4fe8; stroke: #43208a; } .k-orange { fill: #ff8a1a; stroke: #9c4300; }
+.k-kette { fill: none; stroke: #c9a24a; stroke-width: 3; stroke-dasharray: 2 4; stroke-linecap: round; }
+.k-oese { fill: none; stroke: #c98a12; stroke-width: 3.5; }
+.k-gold { fill: #ffd56b; stroke: #c98a12; stroke-width: 3; } .k-gold-innen { fill: #fff3cf; stroke: #e7b53c; stroke-width: 2; }
+.k-silber { fill: #dfe5ee; stroke: #7f8ba0; stroke-width: 3; } .k-kristall { fill: #cfeaff; stroke: #3f7fbf; stroke-width: 3; }
 .kachel text { font: 800 17px var(--display); fill: var(--fg); }
 
-.fuss { margin-top: auto; color: var(--muted); font-size: .95rem; }
+.erwachsene { margin-top: auto; background: var(--sheet); border: 2px solid var(--rule); border-radius: 18px; padding: 4px 16px; }
+.erwachsene summary { font: 800 1.05rem var(--display); cursor: pointer; padding: 10px 0; min-height: 28px; }
+.erwachsene .zeile { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; padding: 12px 0; border-top: 1.5px solid var(--rule); }
+.erwachsene .zeile > div { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
+.erwachsene small { color: var(--muted); font-size: .92rem; line-height: 1.4; }
+.erwachsene pre { flex: 1 1 100%; margin: 0; white-space: pre-wrap; word-break: break-word; font: .85rem/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--paper); border: 1.5px solid var(--rule); border-radius: 12px; padding: 10px 12px; user-select: text; -webkit-user-select: text; }
+.schalter { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; min-height: 48px; cursor: pointer; }
+.schalter input { width: 28px; height: 28px; accent-color: var(--btn); margin: 0; }
+.auswahl { font: 700 1.05rem var(--body); min-height: 48px; padding: 6px 12px; border-radius: 12px; border: 2px solid var(--rule); background: var(--sheet); color: var(--fg); }
+.btn.gefahr { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--rule)); }
+.fuss { color: var(--muted); font-size: .95rem; }

@@ -1,0 +1,69 @@
+.garten-seite {
+  box-sizing: border-box; max-width: 1100px; margin: 0 auto; min-height: 100%;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+.garten-seite header { display: flex; align-items: center; gap: 14px; }
+.garten-seite .titel { margin-right: auto; }
+.garten-seite h1 { font: 800 clamp(1.8rem, 5vw, 2.6rem) var(--display); margin: 0; line-height: 1; }
+.garten-seite .sub { margin: 4px 0 0; color: var(--muted); }
+.hinweis { margin: 0; font-size: 1.15rem; min-height: 1.5em; }
+
+.gardenbox { background: var(--grass); border-radius: 24px; padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.deco { display: flex; flex-wrap: wrap; gap: 4px 12px; min-height: 56px; align-items: flex-end; border-bottom: 2px dashed var(--grass-2); padding-bottom: 6px; }
+.deco svg { width: 56px; height: 56px; }
+.deco .leer { color: var(--muted); font-size: .95rem; align-self: center; }
+.garden { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 6px 10px; align-items: end; }
+.g-snail {
+  background: none; border: 3px solid transparent; padding: 26px 4px 8px; border-radius: 18px; cursor: pointer; color: var(--fg);
+  font: 700 1rem/1.2 var(--body); display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  position: relative; height: 100%; min-height: 110px;
+}
+.g-snail svg { width: calc(96px * var(--k, 1)); height: auto; }
+.g-snail small { font-weight: 400; color: var(--muted); font-size: .8rem; }
+.g-snail.walks { border-color: var(--btn); background: color-mix(in srgb, var(--btn) 14%, transparent); }
+.g-snail .marke { position: absolute; top: 2px; right: 4px; background: var(--btn); color: var(--btn-fg); font-size: .72rem; border-radius: 999px; padding: 1px 8px; }
+.g-snail .marke.neu { background: var(--good); }
+.g-snail:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.g-snail.wackeln { animation: wackeln .4s; }
+@keyframes wackeln { 25% { translate: -4px 0; } 75% { translate: 4px 0; } }
+
+.aktionen { display: flex; gap: 12px; flex-wrap: wrap; }
+.aktionen .btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Reiter Garten / Sammelalbum */
+.reiter { display: flex; gap: 8px; background: var(--sheet); border: 2px solid var(--rule); border-radius: 18px; padding: 4px; align-self: flex-start; }
+.reiter button { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 18px; border: 0; border-radius: 14px; background: none; color: var(--muted); font: 800 1.1rem var(--display); cursor: pointer; }
+.reiter button svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.reiter button[aria-selected="true"] { background: var(--btn); color: var(--btn-fg); }
+.reiter .zahl { font: 700 .85rem var(--body); opacity: .85; }
+.reiter button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+#seite-garten, #seite-album { display: flex; flex-direction: column; gap: 16px; }
+
+/* Sammelalbum wie ein Stickeralbum */
+.fortschritt { display: flex; align-items: center; gap: 12px; font: 700 1rem var(--body); color: var(--muted); }
+.fortschritt .balken { flex: 1 1 auto; max-width: 420px; height: 14px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.fortschritt .balken i { display: block; height: 100%; background: var(--leaf); border-radius: 999px; }
+.album { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); background: var(--sheet); border: 2px solid var(--rule); border-radius: 22px; padding: 16px; }
+.album h3 { font: 800 1rem var(--display); color: var(--fg); margin: 0 0 8px; display: flex; justify-content: space-between; gap: 8px; }
+.album h3 .teil-zahl { font: 700 .85rem var(--body); color: var(--muted); }
+.album .haeuser-teil { grid-column: 1 / -1; }
+.sticker-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.sticker-raster.sechs { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 680px; }
+.sticker { aspect-ratio: 13 / 10; display: grid; place-items: center; border-radius: 14px; background: var(--grass); box-shadow: 0 2px 0 var(--grass-2); rotate: -1.5deg; }
+.sticker:nth-child(even) { rotate: 1.5deg; }
+.sticker.klein { aspect-ratio: 1; }
+.sticker svg { width: 88%; height: 88%; }
+.sticker.miss { background: none; box-shadow: none; rotate: 0deg; border: 2px dashed var(--rule); color: var(--muted); font: 800 1.15rem var(--display); }
+
+/* Hutschachtel */
+.hutschachtel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--sheet); border: 2px solid var(--rule); border-radius: 18px; padding: 8px 12px; min-height: 64px; }
+.hs-schachtel svg { width: 44px; height: 36px; display: block; }
+.hs-leer { color: var(--muted); font-size: .95rem; }
+.hs-hut { position: relative; width: 64px; height: 56px; border-radius: 14px; border: 3px solid transparent; background: var(--grass); cursor: pointer; padding: 2px; display: grid; place-items: center; }
+.hs-hut svg { width: 100%; height: 100%; }
+.hs-hut[aria-pressed="true"] { border-color: var(--btn); background: color-mix(in srgb, var(--btn) 18%, var(--grass)); transform: translateY(-3px); }
+.hs-hut:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.hs-ab { background: var(--paper); }
+.hs-zahl { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; border-radius: 999px; background: var(--btn); color: var(--btn-fg); font: 800 .8rem/22px var(--display); text-align: center; padding: 0 4px; }
+.hut-modus .g-snail:not(:disabled) { border-style: dashed; border-color: var(--btn); }
