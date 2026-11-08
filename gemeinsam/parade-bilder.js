@@ -44,7 +44,7 @@ export function hatSVG(h) {
 }
 
 export function bugSVG() {
-  return `<svg viewBox="0 0 130 100" aria-hidden="true">
+  return `<svg viewBox="0 -12 130 112" aria-hidden="true">
   <path d="M100 48 L110 28 M108 52 L122 36" stroke="${L}" stroke-width="2.4" stroke-linecap="round"/><circle cx="110" cy="27" r="3.5" fill="${L}"/><circle cx="122" cy="35" r="3.5" fill="${L}"/>
   <circle cx="98" cy="62" r="15" fill="${L}"/><circle cx="102" cy="58" r="3.5" fill="#fff"/><circle cx="103" cy="58" r="1.6" fill="${L}"/>
   <ellipse cx="60" cy="62" rx="36" ry="27" fill="#e5484d" stroke="${L}" stroke-width="2.6"/>
@@ -67,7 +67,7 @@ export function snailSVG(s) {
     fill = `url(#g${id})`;
   }
   if (glitter) extra = [[30, 26, .8], [84, 34, 1], [80, 74, .7], [24, 70, .9]].map(([x, y, k]) => `<path d="${STAR}" transform="translate(${x} ${y}) scale(${k})" fill="#ffd447" stroke="${L}" stroke-width=".8"/>`).join('');
-  return `<svg viewBox="0 0 130 100" aria-hidden="true"><defs>${defs}</defs>
+  return `<svg viewBox="0 -12 130 112" aria-hidden="true"><defs>${defs}</defs>
   <path class="sn-body" d="M8 86 Q6 76 20 76 L92 76 Q100 76 102 66 L104 50 Q106 36 116 37 Q127 39 125 54 L121 72 Q117 89 96 89 L16 89 Q8 89 8 86Z" stroke="${L}" stroke-width="2.4"/>
   <path d="M111 41 L105 17 M119 42 L123 19" stroke="${L}" stroke-width="2.4" stroke-linecap="round"/>
   <circle cx="105" cy="15" r="5.5" fill="#fff" stroke="${L}" stroke-width="2"/><circle cx="123" cy="17" r="5.5" fill="#fff" stroke="${L}" stroke-width="2"/>

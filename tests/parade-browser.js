@@ -44,10 +44,8 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
 
   // Zeit um → angefangene Aufgabe fertig → neue Schnecke, Rückblick
   await aendere(() => { const z = JSON.parse(localStorage.getItem('lernspiele:probe:parade')); z.runde.ende = Date.now() - 100; z.runde.pause = null; z.runde.zeitUm = false; localStorage.setItem('lernspiele:probe:parade', JSON.stringify(z)); });
-  await page.goto(BASE + 'zehnerweg/'); await page.waitForTimeout(1000);
-  chk(/Zeit ist um/.test(await bubble()), 'Zeit um: angefangene Aufgabe darf fertig werden');
-  chk(await loese(page), 'Letzte Aufgabe gelöst');
-  await page.waitForTimeout(5500);
+  await page.goto(BASE + 'zehnerweg/'); await page.waitForTimeout(3500);
+  // Beim Öffnen ist noch nichts geschrieben: Die Runde endet sofort, ohne auf eine neue Aufgabe zu warten
   chk(await page.locator('dialog.rueckblick[open]').count() === 1, 'Rückblick erscheint');
   const rb = await page.textContent('dialog.rueckblick');
   chk(/Runde geschafft/.test(rb) && /neue Schnecke/.test(rb) && /Noch eine Runde/.test(rb), 'Rückblick: „Runde geschafft!“, neue Schnecke, „Noch eine Runde“');
@@ -112,6 +110,24 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   await page.setViewportSize({ width: 1280, height: 800 }); await page.click('[data-thema-knopf]'); await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(SHOTS, 'garten-android-quer-dunkel.png') });
   chk(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'Garten ohne Querscrollen');
+
+  // Zeitende mit vorgespulter Uhr: angefangene Aufgabe darf fertig werden, leere Aufgabe beendet die Runde sofort
+  const p2 = await ctx.newPage(); await p2.clock.install();
+  p2.on('pageerror', e => probleme.push(e.message));
+  await p2.goto(BASE + 'zehnerweg/?probe'); await p2.clock.runFor(1500);
+  await p2.evaluate(() => { const d = new Date(); localStorage.setItem('lernspiele:probe:lernzeit', JSON.stringify({ version: 1, tag: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, ms: 0 })); });
+  // Uhr vorspulen, dabei alle 12 s schreiben (sonst hält die Uhr nach 20 s ohne Schreiben an)
+  const ueben = async (ms, feld) => { for (let t = 0; t < ms; t += 12000) { await schreibe(p2, feld, 1); await p2.clock.runFor(Math.min(12000, ms - t)); } };
+  await ueben(64000, '#f-ten');
+  chk(/Zeit ist um/.test(await p2.textContent('#track .bubble')) && await p2.locator('dialog.rueckblick').count() === 0, 'Zeit um mit angefangener Aufgabe: „Mach diese Aufgabe noch fertig“, Runde läuft weiter');
+  await p2.click('#b-next'); await p2.clock.runFor(3500);
+  chk(await p2.locator('dialog.rueckblick[open]').count() === 1, 'Neue Aufgabe nach Zeitende: Runde endet, Rückblick');
+  await p2.click('dialog.rueckblick button');
+  await ueben(52000, '#f-ten');                                    // nächste Runde, fast zu Ende geübt
+  await p2.click('#b-next'); await p2.clock.runFor(500);          // leere neue Aufgabe, nichts geschrieben
+  await p2.clock.runFor(12000); await p2.clock.runFor(3500);      // Zeit läuft ab
+  chk(await p2.locator('dialog.rueckblick[open]').count() === 1, 'Zeit um ohne Geschriebenes: Runde endet sofort');
+  await p2.close();
 
   chk(!probleme.length, 'Keine Fehler/CSP-Verstöße ' + probleme.join(' | '));
   chk(!fremd.length, 'Keine Anfragen an fremde Server ' + fremd.join(' '));

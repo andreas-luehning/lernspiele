@@ -242,7 +242,12 @@ runde = new Runde({
     $('uhr').classList.toggle('pause', !!pause);
   },
   onPause: () => streifen.sag('Pause. Schreib weiter, dann läuft die Uhr wieder.'),
-  onZeitUm: () => streifen.sag('Die Zeit ist um! Mach diese Aufgabe noch fertig.'),
+  onZeitUm: () => {
+    // Nur eine angefangene Aufgabe darf fertig werden; ist noch nichts geschrieben (oder schon gelöst), endet die Runde gleich
+    const angefangen = ORDER.some(id => FIELDS[id].strokes.length) && !stage.classList.contains('done');
+    if (angefangen) streifen.sag('Die Zeit ist um! Mach diese Aufgabe noch fertig.');
+    else runde.beenden();
+  },
   onEnde: ergebnis => {
     streifen.ausziehen();
     setTimeout(() => { rueckblick(ergebnis, { gartenUrl }); zeigeParade(false); sagStart(); }, 2600);

@@ -28,7 +28,7 @@ Die Lernspiele sind Medienzeit. Erwachsene stellen unter „Für Erwachsene“ d
 | Richtige Aufgabe | Ein Salatblatt fliegt zur Parade. Anzeige: 5 Blatt-Plätze. |
 | 5 Salatblätter | Eine **Kopfbedeckung** kommt in die **Hutschachtel** im Garten. Welche, ist zufällig; in 20 % der Fälle bewusst eine, die im Sammelalbum noch fehlt. Blätter zählen neu. |
 | Falsche Aufgabe | Kein Blatt. Nichts geht verloren. |
-| Ende der 5 Minuten | Die angefangene Aufgabe darf fertig werden. Die Parade zieht ins Ziel. **Eine neue Babyschnecke** kommt dazu (Hausfarbe und Muster zufällig; in 20 % der Fälle bewusst ein Haus, das im Sammelalbum fehlt; ohne Kopfbedeckung). Jeder Begleiter zählt einen Ausflug, jede Schnecke höchstens einmal am Tag. Rückblick: neue Schnecke, gewachsene Schnecken, neue Kopfbedeckungen, neue Deko. |
+| Ende der 5 Minuten | Ist schon etwas geschrieben, darf die angefangene Aufgabe fertig werden; sonst endet die Runde sofort. Die Parade zieht ins Ziel. **Eine neue Babyschnecke** kommt dazu (Hausfarbe und Muster zufällig; in 20 % der Fälle bewusst ein Haus, das im Sammelalbum fehlt; ohne Kopfbedeckung). Jeder Begleiter zählt einen Ausflug, jede Schnecke höchstens einmal am Tag. Rückblick: neue Schnecke, gewachsene Schnecken, neue Kopfbedeckungen, neue Deko. |
 | Kopfbedeckung aufsetzen | Im Garten: Kopfbedeckung in der Hutschachtel antippen, dann eine Schnecke antippen. Hat die Schnecke schon eine, wandert die alte zurück in die Schachtel. Ohne Lesen bedienbar. |
 | Wachsen | Baby (0), Klein (ab 2 Ausflügen), Groß (ab 5), Glitzerhaus (ab 10). Wer in der nächsten Runde andere Begleiter mitnimmt, lässt auch diese wachsen. |
 | Alle 5 Übungstage | Neue Garten-Deko, in dieser Reihenfolge: Pilz, Blume, Teich, Bank, Gießkanne, Schneckenhotel. **Nicht am Stück:** gezählt werden alle Tage, an denen geübt wurde; Tage ohne Üben zählen einfach nicht mit, es fängt nichts von vorne an. |
@@ -121,7 +121,7 @@ Lernzeit, gemeinsam für alle Spiele, unter `lernspiele:lernzeit`: `{ "version":
 
 - **Startgarten:** Ein neuer Garten beginnt mit 3 Babyschnecken ohne Hut. Sie sind die ersten Begleiter.
 - **Rundenbeginn:** Die Runde beginnt mit dem ersten Strich in einem Feld, nicht schon beim Öffnen des Spiels.
-- **Zeit um:** Die angefangene Aufgabe darf fertig werden. Die Runde endet, sobald diese Aufgabe gelöst ist oder „Neue Aufgabe“ gedrückt wird, spätestens 3 Minuten nach Ablauf.
+- **Zeit um:** Ist in der aktuellen Aufgabe schon etwas geschrieben, darf das Kind sie fertig machen („Die Zeit ist um! Mach diese Aufgabe noch fertig.“); die Runde endet, sobald sie gelöst ist oder „Neue Aufgabe“ gedrückt wird, spätestens 3 Minuten nach Ablauf. Ist noch nichts geschrieben oder die Aufgabe schon gelöst, endet die Runde sofort.
 - **Uhr und Pause:** Die Uhr hält von selbst an, wenn die App verlassen oder das Tablet gesperrt wird oder eine Minute lang niemand schreibt. Beim nächsten Strich läuft sie weiter. So geht keine Zeit verloren, wenn das Kind die App vergisst. Ist die Zeit schon um und die angefangene Aufgabe wird nicht fertig, endet die Runde nach 3 Minuten.
 - **Anzeige im Zehnerweg:** Ein schmaler Paradestreifen unter dem Rechenweg. Uhr und 5 Blatt-Plätze stehen oben bei der Aufgabe, ein Schnecken-Knopf führt zum Garten. (Später: Schnecken kriechen auf der Straße des Zehnerwegs.)
 - **Garten:** eigene Seite `garten/` mit Deko, allen Tieren, Begleiter-Wahl und Sammelalbum.

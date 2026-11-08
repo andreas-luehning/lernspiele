@@ -29,7 +29,7 @@ export class ParadeStreifen {
   platzieren(animiert) {
     const n = this.tiere.length, tw = this.track.clientWidth, th = this.track.clientHeight;
     if (!tw) return;
-    const base = Math.min(th * 1.15, Math.max(48, 96 - Math.max(0, n - 6) * 5));
+    const base = Math.min(th * 1.0, Math.max(48, 96 - Math.max(0, n - 6) * 5));
     const lead = tw - base - 12;
     const step = n > 1 ? Math.min(base * 0.9, (lead - 8) / (n - 1)) : 0;
     let x = lead;
