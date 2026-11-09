@@ -49,7 +49,7 @@
   <div class="grown" id="grown" hidden>
     <h2>Für Erwachsene</h2>
     <p>Der Weg folgt dem Arbeitsblatt: Am Anfang der Straße steht die Startzahl, im großen Kreis auf der Straße die zweite Zahl. Das Kind zerlegt sie in die beiden kleinen Kreise, rechnet erst bis zur 10 (mittleres Kästchen) und dann weiter bis zum Ergebnis am Ende der Straße. Bei Plus markiert das Herz die verliebte Zahl zur Startzahl. Bei Minus steht die Hand beim Wegnehmen bis zur 10, und das Herz zeigt, dass zweiter Kreis und Ergebnis zusammen 10 ergeben. Sind alle Felder ausgefüllt, prüft die App automatisch.</p>
-    <p>Belohnung ist die Schneckenparade: Einmal am Tag gibt es eine Runde von 5 Minuten. Sie beginnt mit dem ersten Strich. Jede richtige Aufgabe bringt ein Salatblatt, für 3 Blätter kommt eine neue Schnecke in den Garten. Danach kann weiter geübt werden, aber ohne Blätter. Zum Ausprobieren: <code>?probe</code> an die Adresse hängen (Runde 1 Minute, im Garten „Nächster Tag“).</p>
+    <p>Belohnung ist die Schneckenparade: Eine Runde dauert 5 Minuten und beginnt mit der ersten erkannten Zahl (Gekritzel startet nichts). Wer in der Runde mindestens 2 Aufgaben richtig löst, bekommt am Ende eine neue Schnecke. Jede richtige Aufgabe bringt ein Salatblatt, für 5 Blätter gibt es eine Kopfbedeckung. Alle Spiele teilen sich die Lernzeit pro Tag (einstellbar auf der Startseite unter „Für Erwachsene“); danach kann weiter geübt werden, aber ohne Belohnung. Zum Ausprobieren: <code>?probe</code> an die Adresse hängen (Runde 1 Minute, im Garten „Nächster Tag“).</p>
     <p><button type="button" class="btn" data-vollbild-knopf hidden>Vollbild</button></p>
     <p>Die Zahlenerkennung läuft vollständig auf dem Gerät, es wird nichts übertragen. Am besten klappt es, wenn die Ziffern einer Zahl nebeneinander stehen und sich nicht berühren. Unter jedem Feld steht klein, was erkannt wurde. Mit × lässt sich ein Feld neu beschreiben. Wird ein Stift benutzt, ignoriert die App kurz danach Berührungen mit der Hand.</p>
   </div>
@@ -60,7 +60,11 @@
     </div>
   </div>
 
-  <div class="track" id="track" aria-label="Schneckenparade"></div>
+  <div class="track-zeile">
+    <div class="track" id="track" aria-label="Schneckenparade"></div>
+    <!-- Nur im Querformat mit Seitenleiste: „Neue Aufgabe“ unten rechts, nah an der Schreibhand -->
+    <button type="button" class="weiter-rund" id="b-weiter" aria-label="Neue Aufgabe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button>
+  </div>
 
   <div class="bottom">
     <div class="hint" id="hint" aria-live="polite">Einen Moment …</div>

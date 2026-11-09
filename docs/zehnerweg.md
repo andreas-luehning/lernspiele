@@ -45,7 +45,7 @@ Eine Straße verbindet zwei Kästchen: Start und Ergebnis. Auf der Straße liegt
 - Fehlen noch Felder, aber alles bisher stimmt: „Bis hier stimmt alles!“ und der Tipp für das nächste leere Feld.
 - Alles richtig: Ein grüner Weg zeichnet sich über die Pfeile, die Pfeilspitzen werden grün, die Lösung steht oben in der Aufgabe. Wenn das Herz-Feld richtig ist, schlagen die Herzen kurz.
 - Belohnung: Schneckenparade (`schneckenparade.md`).
-- **Knöpfe:** Hervorgehoben ist immer der nächste sinnvolle Schritt. Beim Rechnen keiner (die Felder sind dran). Alles ausgefüllt, aber unsicher erkannt: „Prüfen“. Gelöst: „Neue Aufgabe“ mit sanftem Pulsieren, „Prüfen“ tritt zurück.
+- **Knöpfe:** Hervorgehoben ist immer der nächste sinnvolle Schritt. Beim Rechnen keiner (die Felder sind dran). Alles ausgefüllt, aber unsicher erkannt: „Prüfen“. Gelöst: „Neue Aufgabe“ mit sanftem Pulsieren, „Prüfen“ tritt zurück. Im Querformat mit Seitenleiste gibt es zusätzlich einen runden Weiter-Knopf (→) am rechten Ende der Schneckenstraße, nah an der Schreibhand; er wird beim Lösen ebenfalls hervorgehoben (Rückmeldung 08.11.: „Neue Aufgabe“ unten links ist schlecht erreichbar).
 
 ## Bildschirm
 

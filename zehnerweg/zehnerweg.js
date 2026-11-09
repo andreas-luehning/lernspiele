@@ -169,6 +169,8 @@ function knoepfe(zustand) {
   $('b-check').classList.toggle('leise', zustand === 'weiter');
   $('b-next').classList.toggle('primary', zustand === 'weiter');
   $('b-next').classList.toggle('puls', zustand === 'weiter');
+  $('b-weiter').classList.toggle('primary', zustand === 'weiter');
+  $('b-weiter').classList.toggle('puls', zustand === 'weiter');
 }
 function setHint(t, cls) { const h = $('hint'); h.textContent = t; h.className = 'hint' + (cls ? ' ' + cls : ''); }
 
@@ -272,6 +274,7 @@ modusKnoepfe.forEach(b => b.addEventListener('click', () => {
 }));
 $('b-check').addEventListener('click', check);
 $('b-next').addEventListener('click', newTask);
+$('b-weiter').addEventListener('click', newTask);
 $('b-clear').addEventListener('click', () => {
   for (const id of ORDER) FIELDS[id].loeschen();
   stage.classList.remove('done'); setHint(START_TIPP); updateTarget(); knoepfe('rechnen');

@@ -279,7 +279,8 @@ document.querySelectorAll('#licht button').forEach(b => b.addEventListener('clic
 document.querySelectorAll('#seite button').forEach(b => b.addEventListener('click', () => {
   zustand.seite = b.dataset.seite === 'links' ? 'links' : 'rechts'; speichern(); seiteZeigen();
 }));
-$('b-hilfe').addEventListener('click', () => { aktiv(); zeigMirs(); });
+// „Zeig mir's“ startet keine Runde (das tut nur eine Antwort), setzt aber eine laufende Runde nach einer Pause fort
+$('b-hilfe').addEventListener('click', () => { if (runde.laeuft) aktiv(); zeigMirs(); });
 $('kiste').href = '../schatzkammer/' + (PROBE ? '?probe' : ''); // Probe-Modus bleibt erhalten
 $('b-neu').addEventListener('click', () => { if (zustand.runde?.zeitUm) runde.beenden(); neueSteine(); });
 $('b-info').addEventListener('click', () => {
