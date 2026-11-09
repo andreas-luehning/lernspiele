@@ -30,6 +30,7 @@ node tests/parade-browser.js
 node tests/ziffern-browser.js
 node tests/app-browser.js
 node tests/layout-browser.js
+node tests/leuchttisch-browser.js
 ```
 
 ## Als App installieren

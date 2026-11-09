@@ -1,7 +1,7 @@
 // Schneckenparade: Anzeige in den Spielen (Paradestreifen, Blatt-Plätze, Uhr, Rückblick).
 // Namen und Texte immer mit textContent, SVG nur aus parade-bilder.js.
 
-import { SCALE, STAGES, DECO, describe, BLAETTER_PRO_HUT } from './parade-logik.js';
+import { SCALE, STAGES, DECO, describe, BLAETTER_PRO_HUT, MIN_RICHTIG } from './parade-logik.js';
 import { snailSVG, decoSVG, hatSVG, LEAF, svgElement } from './parade-bilder.js';
 
 /** Kopfbedeckung als kleines Bild (Ausschnitt um den Hut). */
@@ -83,11 +83,12 @@ export function zeigeBlaetter(box, z) {
 }
 
 /** Rückblick nach der Runde als Dialog. */
-export function rueckblick({ neu, gewachsen, deko, huete = [], lernzeitUm = false }, { gartenUrl }) {
+export function rueckblick({ neu, gewachsen, deko, huete = [], lernzeitUm = false, keineSchnecke = false }, { gartenUrl }) {
   const d = el('dialog', 'rueckblick');
-  d.append(el('h2', null, 'Runde geschafft!'));
+  d.append(el('h2', null, keineSchnecke ? 'Gut gemacht!' : 'Runde geschafft!'));
   const n = neu.length;
-  d.append(el('p', null, n === 1 ? 'Für deine 5 Minuten kommt eine neue Schnecke in den Garten.' : `Für deine 5 Minuten kommen ${n} neue Tiere in den Garten.`));
+  if (keineSchnecke) d.append(el('p', null, `Für eine neue Schnecke brauchst du ${MIN_RICHTIG} richtige Aufgaben. Das schaffst du beim nächsten Mal!`));
+  else d.append(el('p', null, n === 1 ? 'Für deine 5 Minuten kommt eine neue Schnecke in den Garten.' : `Für deine 5 Minuten kommen ${n} neue Tiere in den Garten.`));
   if (n) {
     const row = el('div', 'row');
     for (const t of neu) { const f = el('figure'); f.append(svgElement(snailSVG(t)), el('figcaption', null, t.name)); f.setAttribute('aria-label', describe(t)); row.append(f); }

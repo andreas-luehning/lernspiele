@@ -2,18 +2,20 @@
 import {
   startGarten, rundeStarten, richtig, falsch, rundeBeenden, begleiterUmschalten, bereinigeZustand, parade, album,
   stageOf, neueSchnecke, pausieren, fortsetzen, restzeit, hutAufsetzen, hutAbnehmen, setzeBevorzugt, FEHLT_BEVORZUGT,
-  BLAETTER_PRO_HUT, HATS,
+  BLAETTER_PRO_HUT, HATS, MIN_RICHTIG, COLORS,
 } from '../gemeinsam/parade-logik.js';
 
 let fehler = 0; const chk = (c, m) => { console.log((c ? 'ok     ' : 'FEHLER ') + m); if (!c) fehler++; };
 const zufall = (seed = 1) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 const T1 = '2026-11-02', T2 = '2026-11-03';
+// Eine Runde mit genug richtigen Aufgaben beenden (ohne dass dabei Salatblätter und Kopfbedeckungen entstehen)
+const fertig = (z, tag, rnd) => { z.runde.geloest = MIN_RICHTIG; return rundeBeenden(z, tag, rnd); };
 
 // Startgarten
 let z = startGarten({}, zufall(3), '2026-11-01');
-chk(z.garden.length === 3 && z.walkers.length === 3, 'Startgarten: 3 Schnecken, alle laufen mit');
+chk(z.garden.length === 1 && z.walkers.length === 1, 'Startgarten: eine Schnecke, sie läuft mit');
 chk(z.garden.every(s => s.hat === null && s.stage === 0 && !s.special), 'Startgarten: Babys ohne Kopfbedeckung');
-chk(new Set(z.garden.map(s => s.name)).size === 3, 'Startgarten: keine doppelten Namen');
+chk(z.garden[0].name.length > 0 && z.garden[0].born === '2026-11-01', 'Startgarten: Schnecke hat Namen und Geburtstag');
 
 // Ohne Runde (Lernzeit um / freies Üben) gibt es nichts
 chk(richtig(z) === null && falsch(z) === false, 'Ohne laufende Runde: keine Blätter (freies Üben)');
@@ -26,25 +28,39 @@ falsch(z);
 chk(z.leaves === BLAETTER_PRO_HUT - 1, 'Falsche Aufgabe: kein Blatt, nichts geht verloren');
 const e = richtig(z, zufall(20));
 chk(e.hut && z.hutschachtel.includes(e.hut) && z.hueteGefunden.includes(e.hut) && z.leaves === 0 && z.runde.huete.includes(e.hut), `${BLAETTER_PRO_HUT}. Blatt: Kopfbedeckung in der Hutschachtel, Blätter zählen neu`);
-chk(z.garden.length === 3, 'Blätter bringen keine Schnecken');
+chk(z.garden.length === 1, 'Blätter bringen keine Schnecken');
 
 // Runde fertig → eine Schnecke
 let erg = rundeBeenden(z, T1, zufall(30));
-chk(erg.neu.length === 1 && erg.neu[0].hat === null && erg.neu[0].stage === 0 && z.garden.length === 4, 'Runde fertig: genau eine neue Babyschnecke ohne Kopfbedeckung');
+chk(erg.neu.length === 1 && erg.neu[0].hat === null && erg.neu[0].stage === 0 && z.garden.length === 2, 'Runde fertig: genau eine neue Babyschnecke ohne Kopfbedeckung');
 chk(erg.huete.length === 1, 'Rückblick kennt die Kopfbedeckungen dieser Runde');
 chk(z.practiceDays === 1 && z.lastPracticeDay === T1 && !z.runde, 'Ein Übungstag gezählt');
 chk(z.garden.filter(s => z.walkers.includes(s.id)).every(s => s.runs === 1), 'Begleiter haben einen Ausflug');
 
 // Zweite Runde am selben Tag
-rundeStarten(z, 0, 300000, T1); erg = rundeBeenden(z, T1, zufall(31));
+rundeStarten(z, 0, 300000, T1); erg = fertig(z, T1, zufall(31));
 chk(erg.neu.length === 1 && z.practiceDays === 1, 'Zweite Runde am selben Tag: wieder eine Schnecke, Übungstag zählt nur einmal');
 chk(z.garden.filter(s => z.walkers.includes(s.id)).every(s => s.runs === 1), 'Begleiter wachsen höchstens einmal am Tag');
 const neue = z.garden.find(s => !z.walkers.includes(s.id) && s.special !== 'kaefer'); z.walkers = [neue.id];
-rundeStarten(z, 0, 300000, T1); rundeBeenden(z, T1, zufall(32));
+rundeStarten(z, 0, 300000, T1); fertig(z, T1, zufall(32));
 chk(neue.runs === 1, 'Andere Begleiter in der nächsten Runde wachsen auch');
-rundeStarten(z, 0, 300000, T2); rundeBeenden(z, T2, zufall(33));
+rundeStarten(z, 0, 300000, T2); fertig(z, T2, zufall(33));
 chk(z.practiceDays === 2, 'Nächster Tag: zweiter Übungstag');
 chk(parade(z).length === z.walkers.length, 'Parade ohne Runde: nur die Begleiter');
+
+// Mindestleistung: ohne 2 richtige Aufgaben (z. B. nur gemalt) gibt es keine Schnecke, aber auch keine Strafe
+for (const richtige of [0, 1]) {
+  z = startGarten({}, zufall(50 + richtige), '2026-11-01');
+  rundeStarten(z, 0, 300000, T1); for (let i = 0; i < richtige; i++) richtig(z, zufall(60 + i));
+  const vorher = z.garden.length; erg = rundeBeenden(z, T1, zufall(70));
+  chk(erg.keineSchnecke === true && erg.neu.length === 0 && z.garden.length === vorher && !z.runde, `${richtige} richtige Aufgabe(n): keine Schnecke`);
+  chk(z.practiceDays === 0 && z.lastPracticeDay === '' && z.garden[0].runs === 0, `${richtige} richtige Aufgabe(n): kein Übungstag, kein Ausflug`);
+}
+z = startGarten({}, zufall(55), '2026-11-01'); rundeStarten(z, 0, 300000, T1);
+for (let i = 0; i < MIN_RICHTIG; i++) richtig(z, zufall(80 + i));
+erg = rundeBeenden(z, T1, zufall(81));
+chk(!erg.keineSchnecke && erg.neu.length === 1 && z.practiceDays === 1 && z.garden.length === 2, `${MIN_RICHTIG} richtige Aufgaben: Schnecke, Übungstag und Ausflug`);
+chk(MIN_RICHTIG === 2, 'Mindestens 2 richtige Aufgaben');
 
 // Wachsen
 chk([0, 1, 2, 4, 5, 9, 10, 50].map(stageOf).join() === '0,0,1,1,2,2,3,3', 'Wachstumsstufen bei 2, 5, 10 Ausflügen');
@@ -53,9 +69,9 @@ chk([0, 1, 2, 4, 5, 9, 10, 50].map(stageOf).join() === '0,0,1,1,2,2,3,3', 'Wachs
 z = startGarten({}, zufall(11), '2026-11-01');
 const tage = ['2026-12-01', '2026-12-03', '2026-12-04', '2026-12-08', '2026-12-09', '2026-12-15', '2026-12-16', '2026-12-17', '2026-12-20', '2026-12-28'];
 const decos = [];
-for (const t of tage) { rundeStarten(z, 0, 1, t); const r = rundeBeenden(z, t, zufall(t.length + decos.length)); if (r.deko) decos.push(r.deko); }
+for (const t of tage) { rundeStarten(z, 0, 1, t); const r = fertig(z, t, zufall(t.length + decos.length)); if (r.deko) decos.push(r.deko); }
 chk(decos.join() === 'pilz,blume', 'Deko nach 5 und 10 Übungstagen, auch mit Lücken dazwischen (nicht am Stück)');
-for (let i = 0; i < 20; i++) { rundeStarten(z, 0, 1, '2027-01-01'); rundeBeenden(z, '2027-01-01', zufall(100 + i)); }
+for (let i = 0; i < 20; i++) { rundeStarten(z, 0, 1, '2027-01-01'); fertig(z, '2027-01-01', zufall(100 + i)); }
 chk(z.garden.filter(s => s.special === 'kaefer').length === Math.floor(z.newCount / 10), 'Jede 10. neue Schnecke bringt einen Marienkäfer');
 
 // Hutschachtel: aufsetzen, tauschen, abnehmen
@@ -97,7 +113,7 @@ chk(standardWert === 0.2, 'Standard: in 20 % der Fälle ein fehlendes Haus bzw. 
 
 // Begleiter: höchstens 3
 z = startGarten({}, zufall(9), '2026-11-01');
-for (let i = 0; i < 3; i++) z.garden.push(neueSchnecke(z, zufall(40 + i)));
+for (let i = 0; i < 5; i++) z.garden.push(neueSchnecke(z, zufall(40 + i)));
 z.walkers = []; z.garden.slice(0, 5).forEach(s => begleiterUmschalten(z, s.id));
 chk(z.walkers.length === 3 && z.walkers[0] === z.garden[2].id, 'Höchstens 3 Begleiter, der zuerst gewählte fällt heraus');
 
@@ -120,6 +136,11 @@ chk(boese.garden[1].runs === 0 && boese.garden[1].stage === 0, 'Unsinnige Zahlen
 chk(boese.walkers.join() === '1,4' && boese.leaves === 0 && boese.deco.join() === 'pilz', 'Begleiter, Blätter, Deko bereinigt');
 chk(boese.hutschachtel.join() === 'krone,zauber', 'Hutschachtel: nur bekannte Kopfbedeckungen');
 chk(boese.nextId === 5 && boese.runde === null && !('boese' in Object.getPrototypeOf(boese)), 'nextId, Runde und Prototyp sicher');
+
+// Hausfarben neutral, alte Farben werden übernommen
+chk(Object.keys(COLORS).join() === 'rot,orange,gelb,gruen,blau,kobalt', 'Sechs neutrale Hausfarben, kein Rosa und kein Lila');
+const farben = bereinigeZustand({ garden: ['rosa', 'mint', 'lila', 'gelb', 'violett'].map((c, i) => ({ id: i + 1, name: 'T' + i, color: c, pattern: 'uni', hat: null, special: null, runs: 0 })) });
+chk(farben.garden.map(s => s.color).join() === 'rot,gruen,kobalt,gelb', 'Alte Gärten: Rosa → Rot, Mint → Grün, Lila → Dunkelblau; unbekannte Farben werden verworfen');
 
 // Name nie doppelt, auch wenn die Liste erschöpft ist
 const voll = { garden: [], nextId: 1 };

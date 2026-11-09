@@ -63,8 +63,9 @@ function schreibfeldBereit() {
   if (feld) return;
   feld = new Schreibfeld($('schreiben'), {
     id: 'antwort', kind: 'box',
-    onErkannt: f => { if (f.value != null && !f.wartet) pruefen(f.value, null); },
-    onStart: () => { $('grown').hidden = true; $('b-info').setAttribute('aria-expanded', 'false'); aktiv(); },
+    // Die Runde beginnt erst mit einer erkannten Zahl: Gekritzel und Bemalen starten nichts
+    onErkannt: f => { if (f.value != null && !f.wartet) { aktiv(); pruefen(f.value, null); } },
+    onStart: () => { $('grown').hidden = true; $('b-info').setAttribute('aria-expanded', 'false'); },
   });
   requestAnimationFrame(() => feld.groesseAnpassen());
 }

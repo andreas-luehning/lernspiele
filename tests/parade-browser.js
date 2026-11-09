@@ -3,7 +3,7 @@
 // Aufruf: python3 -m http.server 8123 (im Projektordner), dann: node tests/parade-browser.js
 const { chromium } = require('playwright');
 const path = require('path'); const fs = require('fs');
-const { loese, schreibe } = require('./hilfen.js');
+const { loese, loesungen, schreibe } = require('./hilfen.js');
 const BASE = process.env.BASE || 'http://localhost:8123/';
 const SHOTS = path.join(__dirname, '..', 'screenshots'); fs.mkdirSync(SHOTS, { recursive: true });
 const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
@@ -25,14 +25,22 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   const aendere = async (fn, arg) => { await page.goto(BASE); await page.waitForTimeout(200); await page.evaluate(fn, arg); };
 
   await page.goto(BASE + 'zehnerweg/?probe'); await page.waitForTimeout(800);
-  chk(/Schreib los/.test(await bubble()), 'Vor der Runde: „Schreib los, dann startet die Parade!“');
+  chk(/Schreib eine Zahl/.test(await bubble()), 'Vor der Runde: „Schreib eine Zahl, dann startet die Parade!“');
   chk(await page.textContent('#uhrzeit') === '1:00', 'Probe-Modus: Runde dauert 1 Minute');
-  chk(await page.locator('#track .walker').count() === 3 && await page.locator('#leaves .slot').count() === 5, 'Drei Begleiter, fünf Blatt-Plätze');
+  chk(await page.locator('#track .walker').count() === 1 && await page.locator('#leaves .slot').count() === 5, 'Eine Startschnecke als Begleiter, fünf Blatt-Plätze');
+
+  // Bemalen startet keine Runde und zählt nicht zur Lernzeit
+  const kb = await page.locator('#f-part1').boundingBox();
+  await page.mouse.move(kb.x + kb.width * .28, kb.y + kb.height * .3); await page.mouse.down();
+  for (let i = 0; i < 24; i++) await page.mouse.move(kb.x + kb.width * (i % 2 ? .72 : .28), kb.y + kb.height * (.3 + .4 * i / 24), { steps: 3 });
+  await page.mouse.up(); await page.waitForTimeout(1200);
+  chk(/Bitte nur eine Zahl/.test(await page.locator('#f-part1 + .tag').textContent()) && (await parade()).runde === null && (await lernzeit()) === null, 'Gekritzel: keine Runde, keine Lernzeit');
+  await page.click('#f-part1 + .tag .clr');
 
   // Fünf richtige Aufgaben → eine Kopfbedeckung in der Hutschachtel, aber keine Schnecke
   for (let i = 0; i < 5; i++) { chk(await loese(page), `Aufgabe ${i + 1} gelöst`); await page.waitForTimeout(900); if (i < 4) await page.click('#b-next'); }
   let z = await parade();
-  chk(z.runde && z.hutschachtel.length === 1 && z.leaves === 0 && z.garden.length === 3, '5 Blätter: eine Kopfbedeckung in der Hutschachtel, noch keine neue Schnecke');
+  chk(z.runde && z.hutschachtel.length === 1 && z.leaves === 0 && z.garden.length === 1, '5 Blätter: eine Kopfbedeckung in der Hutschachtel, noch keine neue Schnecke');
   chk(/Hutschachtel/.test(await bubble()), 'Hinweis auf die Hutschachtel im Garten');
   await page.screenshot({ path: path.join(SHOTS, 'parade-hut.png') });
 
@@ -52,14 +60,14 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   chk(await page.locator('dialog.rueckblick .hut-bild').count() === 1, 'Rückblick zeigt die Kopfbedeckung dieser Runde');
   await page.screenshot({ path: path.join(SHOTS, 'parade-rueckblick.png') });
   z = await parade();
-  chk(!z.runde && z.garden.length === 4 && z.garden[3].hat === null && z.practiceDays === 1, 'Runde fertig: genau eine neue Schnecke ohne Kopfbedeckung, ein Übungstag');
+  chk(!z.runde && z.garden.length === 2 && z.garden[1].hat === null && z.practiceDays === 1, 'Runde fertig: genau eine neue Schnecke ohne Kopfbedeckung, ein Übungstag');
   const lz = await lernzeit();
   chk(lz && lz.tag === heute() && lz.ms > 1000 && lz.ms <= 61000, `Lernzeit gezählt (${Math.round((lz || {}).ms / 1000)} s von höchstens 60 s)`);
 
   // Pause, wenn die App verlassen wird; der nächste Strich setzt fort
   await page.click('dialog.rueckblick button');
-  await schreibe(page, '#f-ten', 10); await page.waitForTimeout(400);
-  chk(!!(await parade()).runde, 'Nächster Strich startet die nächste Runde');
+  await schreibe(page, '#f-ten', 10); await page.waitForTimeout(1400);
+  chk(!!(await parade()).runde, 'Nächste erkannte Zahl startet die nächste Runde');
   await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
   const angehalten = await page.textContent('#uhrzeit'); const lzAngehalten = (await lernzeit()).ms;
   await page.waitForTimeout(2200);
@@ -99,7 +107,7 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   // Nächster Tag (Probe): Lernzeit wieder voll
   await page.click('#b-tag'); await page.waitForTimeout(200);
   await page.click('#b-spiel'); await page.waitForURL(/zehnerweg/); await page.waitForTimeout(800);
-  chk(/Schreib los/.test(await bubble()) && await page.textContent('#uhrzeit') === '1:00', 'Nächster Tag: Lernzeit wieder voll, neue Runde möglich');
+  chk(/Schreib eine Zahl/.test(await bubble()) && await page.textContent('#uhrzeit') === '1:00', 'Nächster Tag: Lernzeit wieder voll, neue Runde möglich');
 
   // Probe-Modus beenden: echter Speicher unberührt
   await page.goto(BASE); await page.click('.erwachsene summary'); await page.click('[data-probe-knopf]'); await page.waitForTimeout(500);
@@ -111,22 +119,41 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   await page.screenshot({ path: path.join(SHOTS, 'garten-android-quer-dunkel.png') });
   chk(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'Garten ohne Querscrollen');
 
-  // Zeitende mit vorgespulter Uhr: angefangene Aufgabe darf fertig werden, leere Aufgabe beendet die Runde sofort
+  // Zeitende mit vorgespulter Uhr (Probe: Runde 60 s, Nachspiel 30 s)
   const p2 = await ctx.newPage(); await p2.clock.install();
   p2.on('pageerror', e => probleme.push(e.message));
-  await p2.goto(BASE + 'zehnerweg/?probe'); await p2.clock.runFor(1500);
-  await p2.evaluate(() => { const d = new Date(); localStorage.setItem('lernspiele:probe:lernzeit', JSON.stringify({ version: 1, tag: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, ms: 0 })); });
-  // Uhr vorspulen, dabei alle 12 s schreiben (sonst hält die Uhr nach 20 s ohne Schreiben an)
-  const ueben = async (ms, feld) => { for (let t = 0; t < ms; t += 12000) { await schreibe(p2, feld, 1); await p2.clock.runFor(Math.min(12000, ms - t)); } };
-  await ueben(64000, '#f-ten');
-  chk(/Zeit ist um/.test(await p2.textContent('#track .bubble')) && await p2.locator('dialog.rueckblick').count() === 0, 'Zeit um mit angefangener Aufgabe: „Mach diese Aufgabe noch fertig“, Runde läuft weiter');
+  const frisch = async () => { await p2.goto(BASE + 'zehnerweg/?probe'); await p2.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('lernspiele:probe:')) localStorage.removeItem(k); }); await p2.goto(BASE + 'zehnerweg/?probe'); await p2.clock.runFor(1500); };
+  const bubble2 = () => p2.textContent('#track .bubble');
+  const rb2 = () => p2.locator('dialog.rueckblick[open]').count();
+  // Uhr vorspulen, dabei alle 12 s schreiben (sonst hält die Uhr nach 20 s ohne erkannte Zahl an)
+  const ueben = async (ms, feld = '#f-ten') => { for (let t = 0; t < ms; t += 12000) { await schreibe(p2, feld, 1); await p2.clock.runFor(Math.min(12000, ms - t)); } };
+  const loeseFake = async () => { const ans = await loesungen(p2); for (const id of ['part1', 'ten', 'part2', 'goal']) { await schreibe(p2, '#f-' + id, ans[id]); await p2.clock.runFor(900); } await p2.clock.runFor(300); };
+  const gartenGroesse = () => p2.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:probe:parade')).garden.length);
+
+  // a) Nur geschrieben, nichts richtig: Zeit um → „Löse noch 2 Aufgaben richtig“, Runde läuft weiter; nach dem Nachspiel Ende ohne Schnecke
+  await frisch(); await ueben(64000);
+  chk(/Löse noch 2 Aufgaben richtig/.test(await bubble2()) && await rb2() === 0, 'Zeit um, 0 richtig: „Löse noch 2 Aufgaben richtig, dann kommt deine Schnecke“, Runde läuft weiter');
   await p2.click('#b-next'); await p2.clock.runFor(3500);
-  chk(await p2.locator('dialog.rueckblick[open]').count() === 1, 'Neue Aufgabe nach Zeitende: Runde endet, Rückblick');
+  chk(await rb2() === 0, 'Neue Aufgabe reicht nicht, um die Runde ohne richtige Aufgaben zu beenden');
+  await ueben(30000);
+  await p2.clock.runFor(4000);
+  const text = await p2.textContent('dialog.rueckblick');
+  chk(await rb2() === 1 && /Gut gemacht/.test(text) && /brauchst du 2 richtige Aufgaben/.test(text), 'Nach dem Nachspiel: Ende mit freundlichem Rückblick ohne Schnecke');
+  chk(await gartenGroesse() === 1 && (await p2.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:probe:parade')).practiceDays)) === 0, 'Keine neue Schnecke, kein Übungstag');
+  chk((await p2.evaluate(() => JSON.parse(localStorage.getItem('lernspiele:probe:lernzeit')).ms)) > 30000, 'Die Lernzeit zählt trotzdem');
   await p2.click('dialog.rueckblick button');
-  await ueben(52000, '#f-ten');                                    // nächste Runde, fast zu Ende geübt
-  await p2.click('#b-next'); await p2.clock.runFor(500);          // leere neue Aufgabe, nichts geschrieben
-  await p2.clock.runFor(12000); await p2.clock.runFor(3500);      // Zeit läuft ab
-  chk(await p2.locator('dialog.rueckblick[open]').count() === 1, 'Zeit um ohne Geschriebenes: Runde endet sofort');
+
+  // b) 2 richtige Aufgaben, dann Zeit um: angefangene Aufgabe darf fertig werden, leere Aufgabe beendet die Runde sofort
+  await frisch(); await loeseFake(); await p2.click('#b-next'); await loeseFake(); await p2.click('#b-next');
+  await ueben(56000);
+  chk(/Zeit ist um/.test(await bubble2()) && !/Löse noch/.test(await bubble2()) && await rb2() === 0, '2 richtig, Zeit um mit angefangener Aufgabe: „Mach diese Aufgabe noch fertig“');
+  await p2.click('#b-next'); await p2.clock.runFor(3500);
+  chk(await rb2() === 1 && /neue Schnecke/.test(await p2.textContent('dialog.rueckblick')) && await gartenGroesse() === 2, 'Neue Aufgabe nach Zeitende: Runde endet mit neuer Schnecke');
+  await p2.click('dialog.rueckblick button');
+  await frisch();
+  for (let i = 0; i < 9; i++) { await loeseFake(); await p2.click('#b-next'); }    // fleißig gelöst (~58 s, jede Aufgabe etwa 6,5 s)
+  await p2.clock.runFor(5000); await p2.clock.runFor(3500);                        // neue Aufgabe noch leer, Zeit läuft ab
+  chk(await rb2() === 1 && await gartenGroesse() === 2, 'Zeit um ohne Geschriebenes (2 richtig): Runde endet sofort mit Schnecke');
   await p2.close();
 
   // Erster Start: Die Schnecken des Startgartens bleiben beim erneuten Öffnen gleich (werden sofort gespeichert)
@@ -134,7 +161,7 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   const namen = async () => (await p3.locator('.g-snail span:not(.marke)').allTextContents()).join(',');
   await p3.goto(BASE + 'garten/'); await p3.waitForTimeout(300); const erster = await namen();
   chk(await p3.evaluate(() => localStorage.getItem('lernspiele:parade') !== null), 'Startgarten wird sofort gespeichert');
-  let gleich = erster.split(',').length === 3;
+  let gleich = erster.split(',').length === 1;
   for (let i = 0; i < 3; i++) { await p3.goto(BASE + 'garten/'); await p3.waitForTimeout(250); gleich = gleich && (await namen()) === erster; }
   chk(gleich, `Erster Start: Namen bleiben bei jedem Öffnen gleich (${erster})`);
   await ctx2.close();

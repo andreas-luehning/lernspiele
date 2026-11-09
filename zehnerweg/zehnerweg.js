@@ -5,7 +5,7 @@ import { lesen, schreiben, vorhanden, altLesen } from '../gemeinsam/speicher.js'
 import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgaben.js';
 import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
 import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
-import { richtig, falsch, parade, HATS, BLAETTER_PRO_HUT } from '../gemeinsam/parade-logik.js';
+import { richtig, falsch, parade, HATS, BLAETTER_PRO_HUT, MIN_RICHTIG } from '../gemeinsam/parade-logik.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
 const STANDARD = { gespiegelt: false, modus: 'plus' };
@@ -88,6 +88,8 @@ let task = null;
 
 function nachErkennung(f) {
   updateTarget();
+  // Die Runde beginnt erst mit einer erkannten Zahl: Gekritzel und Bemalen starten nichts und halten die Uhr nicht an
+  if (f.value != null && !f.kritzel) paradeStarten();
   if (task && f.id === herzFeld(task) && f.value === task.ans[f.id]) {
     stage.classList.remove('love'); void stage.offsetWidth; stage.classList.add('love');
   }
@@ -102,7 +104,7 @@ for (const id of Object.keys(SHAPES)) {
   FIELDS[id] = new Schreibfeld(stage, {
     id, kind: SHAPES[id].kind,
     onErkannt: nachErkennung,
-    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); paradeStarten(); },
+    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); },
     onGeloescht: () => { stage.classList.remove('done'); updateTarget(); knoepfe('rechnen'); },
   });
 }
@@ -206,11 +208,11 @@ const streifen = new ParadeStreifen($('track'));
 const blaetter = $('leaves');
 let runde = null;
 const LERNZEIT_UM = 'Deine Lernzeit für heute ist um. Schau doch mal in deinen Garten! Du kannst auch frei weiter üben.';
-const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : LERNZEIT_UM);
+const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib eine Zahl, dann startet die Parade!' : LERNZEIT_UM);
 function zeigeParade(animiert) { streifen.zeige(parade(runde.z), animiert); zeigeBlaetter(blaetter, runde.z); }
 function paradeStarten() {
   const was = runde.aktivitaet(); // startet eine Runde oder setzt nach einer Pause fort
-  if (was === 'neu') { zeigeParade(true); streifen.sag('Los geht’s! Halte 5 Minuten durch, dann kommt eine neue Schnecke.'); }
+  if (was === 'neu') { zeigeParade(true); streifen.sag(`Los geht’s! Halte 5 Minuten durch und löse ${MIN_RICHTIG} Aufgaben richtig, dann kommt eine neue Schnecke.`); }
   else if (was === 'weiter') streifen.sag('Weiter geht’s!');
 }
 function paradeRichtig() {
@@ -234,7 +236,10 @@ function paradeFalsch() {
 }
 const gartenUrl = '../garten/' + (PROBE ? '?probe' : '');
 $('b-garten').href = gartenUrl;
+// Die Schnecke gibt es nur mit genug richtigen Aufgaben; bis dahin läuft die Runde nach Ablauf der Zeit weiter (höchstens 3 Minuten)
+const nochNoetig = () => Math.max(0, MIN_RICHTIG - ((runde.z.runde && runde.z.runde.geloest) || 0));
 runde = new Runde({
+  darfEnden: () => nochNoetig() === 0,
   onTick: (rest, dauer, pause) => {
     $('uhrzeit').textContent = uhrText(rest);
     $('sand').style.width = (rest / dauer * 100) + '%';
@@ -243,6 +248,8 @@ runde = new Runde({
   },
   onPause: () => streifen.sag('Pause. Schreib weiter, dann läuft die Uhr wieder.'),
   onZeitUm: () => {
+    const noch = nochNoetig();
+    if (noch > 0) { streifen.sag(`Die Zeit ist um! Löse noch ${noch === 1 ? 'eine Aufgabe' : noch + ' Aufgaben'} richtig, dann kommt deine Schnecke.`); return; }
     // Nur eine angefangene Aufgabe darf fertig werden; ist noch nichts geschrieben (oder schon gelöst), endet die Runde gleich
     const angefangen = ORDER.some(id => FIELDS[id].strokes.length) && !stage.classList.contains('done');
     if (angefangen) streifen.sag('Die Zeit ist um! Mach diese Aufgabe noch fertig.');

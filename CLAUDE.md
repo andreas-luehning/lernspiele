@@ -13,7 +13,8 @@ Kleine Tablet-Lernspiele für Mathematik in Klasse 2 (Rechnen bis 20). Die Spiel
 2. **Nah am Arbeitsblatt:** Anordnung, Symbole (Herz, Hand, Straße) und Rechenweg wie auf Papier. Die Fotos liegen lokal in `docs/arbeitsblaetter/` (nicht im Git).
 3. **Fehler kosten nichts:** Es gibt Tipps statt Strafen. Nichts Gesammeltes geht verloren.
 4. **Hell und freundlich:** Pastellfarben, große Schreibfelder, Knöpfe mindestens 48 px, wenig Text. Hell ist Standard, Nachtmodus ist umschaltbar. Schriften: Grandstander (Überschriften, Zahlen) und Andika (Fließtext, für Leseanfänger gemacht).
-5. **Für alle Kinder:** Motive neutral halten (Schnecken, Tiere), keine Klischees wie „Autos für Jungen“.
+5. **Für alle Kinder:** Motive neutral halten (Schnecken, Tiere), keine Klischees wie „Autos für Jungen“. Die Hausfarben der Schnecken sind bewusst gemischt (Rot, Orange, Gelb, Grün, Himmelblau, Dunkelblau), ohne Rosa und Lila.
+   **Eine Runde zählt nur mit echter Mitarbeit:** Sie startet mit der ersten erkannten Zahl (Gekritzel startet nichts), und die Schnecke gibt es erst ab 2 richtigen Aufgaben. Die Lernzeit zählt auch ohne Schnecke.
 6. **Datenschutz und Sicherheit:** Alles bleibt auf dem Gerät. Keine Konten, kein Tracking, kein Server, keine Werbung, keine Anfragen an fremde Server (auch keine Schriften oder Bibliotheken von CDNs). Die Zahlenerkennung läuft im Browser. Details und Checkliste: `docs/datenschutz-und-sicherheit.md`.
 7. **Belohnung fair trennen:** Durchhalten (eine fertige Runde) bringt die Hauptbelohnung, Richtigrechnen bringt Extras. Jede Spielwelt hat ihre eigene Sammlung (Schnecken, später Amulette am Leuchttisch, Numis Freunde); gekoppelt sind die Spiele nur über die gemeinsame Lernzeit.
 
@@ -61,7 +62,7 @@ docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
   uebergaben/           Gelieferte Aufträge zu den Leuchttisch-Prototypen (nicht verändern)
 prototypen/             Die Prototypen aus der Ideenphase (nicht verändern, nur als Vorlage)
 werkzeuge/              Trainingsskript für das Ziffern-Modell, icons.js (App-Symbole erzeugen)
-tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-browser.js, ziffern-browser.js, app-browser.js, layout-browser.js (Playwright, Server auf Port 8123)
+tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-browser.js, ziffern-browser.js, app-browser.js, layout-browser.js, leuchttisch-browser.js (Playwright, Server auf Port 8123)
 ```
 
 ## Stand

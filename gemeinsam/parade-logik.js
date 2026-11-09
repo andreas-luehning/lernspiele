@@ -7,11 +7,14 @@
 
 import { lesen, schreiben } from './speicher.js';
 
+// Neutrale Hausfarben, ohne typische „Mädchen-“ oder „Jungsfarben“ (kein Rosa, kein Lila). Reihenfolge wie im Regenbogen.
 export const COLORS = {
-  rosa: { name: 'Rosa', adj: 'rosa', fill: '#ff9ec4' }, gelb: { name: 'Gelb', adj: 'gelbem', fill: '#ffd447' },
-  mint: { name: 'Mint', adj: 'mintgrünem', fill: '#7fe0b8' }, blau: { name: 'Himmelblau', adj: 'himmelblauem', fill: '#7cc8ff' },
-  lila: { name: 'Lila', adj: 'lila', fill: '#b79bff' }, orange: { name: 'Orange', adj: 'orangem', fill: '#ffad66' },
+  rot: { name: 'Rot', adj: 'rotem', fill: '#ff7a6b' }, orange: { name: 'Orange', adj: 'orangem', fill: '#ffad66' },
+  gelb: { name: 'Gelb', adj: 'gelbem', fill: '#ffd447' }, gruen: { name: 'Grün', adj: 'grünem', fill: '#8fd45c' },
+  blau: { name: 'Himmelblau', adj: 'himmelblauem', fill: '#7cc8ff' }, kobalt: { name: 'Dunkelblau', adj: 'dunkelblauem', fill: '#5b7cf0' },
 };
+// Frühere Hausfarben werden in alten Gärten umgewandelt
+const FARB_UEBERNAHME = { rosa: 'rot', mint: 'gruen', lila: 'kobalt' };
 export const PATTERNS = { uni: 'Einfarbig', punkte: 'Punkte', streifen: 'Streifen', sterne: 'Sterne', herzen: 'Herzen', wellen: 'Wellen' };
 export const HATS = {
   krone: 'Krone', zylinder: 'Zylinder', blumen: 'Blumenkranz', pirat: 'Piratenhut', zipfel: 'Zipfelmütze', party: 'Partyhut',
@@ -35,6 +38,7 @@ export const RUNDE_MS = 5 * 60 * 1000;
 export const NACHSPIEL_MS = 3 * 60 * 1000; // so lange darf die angefangene Aufgabe nach Ablauf noch dauern
 export const MAX_BEGLEITER = 3;
 export const BLAETTER_PRO_HUT = 5;
+export const MIN_RICHTIG = 2;      // so viele Aufgaben müssen in einer Runde richtig sein, damit es eine Schnecke gibt
 export let FEHLT_BEVORZUGT = 0.2;  // Wahrscheinlichkeit, dass bewusst ein fehlendes Haus bzw. eine fehlende Kopfbedeckung kommt
 export const setzeBevorzugt = w => { FEHLT_BEVORZUGT = w; }; // nur für Simulationen
 const MAX_NAME = 20, MAX_TIERE = 3000, MAX_SCHACHTEL = 500;
@@ -75,6 +79,7 @@ const istHut = k => typeof k === 'string' && hat(HATS, k);
 export function pruefeSchnecke(s) {
   if (!s || typeof s !== 'object') return null;
   if (!istId(s.id) || typeof s.name !== 'string' || !s.name.trim()) return null;
+  if (typeof s.color === 'string' && hat(FARB_UEBERNAHME, s.color)) s = { ...s, color: FARB_UEBERNAHME[s.color] };
   if (!hat(COLORS, s.color) || !hat(PATTERNS, s.pattern)) return null;
   if (!(s.hat === null || istHut(s.hat))) return null;
   if (!(s.special === null || s.special === 'regenbogen' || s.special === 'kaefer')) return null;
@@ -110,6 +115,7 @@ export function bereinigeZustand(roh, rnd = Math.random) {
     begleiter: (Array.isArray(r.begleiter) ? r.begleiter : []).filter(id => ids.has(id)).slice(0, MAX_BEGLEITER),
     neu: (Array.isArray(r.neu) ? r.neu : []).filter(id => ids.has(id)).slice(0, 200),
     huete: (Array.isArray(r.huete) ? r.huete : []).filter(istHut).slice(0, 200),
+    geloest: istZahl(r.geloest, 10000) ? r.geloest : 0,
     zeitUm: r.zeitUm === true,
   } : null;
   // Übernahme aus der vorigen Fassung: Schnecken aus dem Salatkorb schlüpfen jetzt
@@ -131,10 +137,10 @@ export function ladeParade(rnd = Math.random, tag = heute()) {
 }
 export const speichereParade = z => schreiben('parade', z);
 
-/** Neuer Garten: 3 Babyschnecken ohne Kopfbedeckung, die gleich mitlaufen. */
+/** Neuer Garten: eine Babyschnecke ohne Kopfbedeckung, die gleich mitläuft. Jede fertige Runde bringt die nächste. */
 export function startGarten(z, rnd = Math.random, tag = heute()) {
   const n = { ...structuredClone(STANDARD), ...z, garden: [], walkers: [] };
-  for (let i = 0; i < 3; i++) { const s = neueSchnecke(n, rnd, tag, 'start'); s.special = null; n.garden.push(s); n.walkers.push(s.id); }
+  const s = neueSchnecke(n, rnd, tag, 'start'); s.special = null; n.garden.push(s); n.walkers.push(s.id);
   return n;
 }
 
@@ -165,7 +171,7 @@ export const laeuft = z => !!z.runde;
 /** Runde beginnen (ob heute noch Lernzeit da ist, prüft runde.js). Gibt true zurück, wenn eine Runde läuft. */
 export function rundeStarten(z, jetzt = Date.now(), dauer = RUNDE_MS, tag = heute()) {
   if (z.runde) return true;
-  z.runde = { ende: jetzt + dauer, pause: null, tag, begleiter: [...z.walkers], neu: [], huete: [], zeitUm: false };
+  z.runde = { ende: jetzt + dauer, pause: null, tag, begleiter: [...z.walkers], neu: [], huete: [], geloest: 0, zeitUm: false };
   return true;
 }
 
@@ -189,6 +195,7 @@ export function fortsetzen(z, jetzt = Date.now(), tag = heute()) {
  */
 export function richtig(z, rnd = Math.random) {
   if (!z.runde) return null;
+  z.runde.geloest = (z.runde.geloest || 0) + 1;
   z.leaves++;
   let hut = null;
   if (z.leaves >= BLAETTER_PRO_HUT) {
@@ -212,10 +219,13 @@ export function falsch(z) { return !!z.runde; }
 export function rundeBeenden(z, tag = heute(), rnd = Math.random) {
   const r = z.runde; if (!r) return { neu: [], gewachsen: [], deko: null, huete: [] };
   const rundenTag = r.tag || tag;
+  // Zu wenig richtige Aufgaben (z. B. nur gemalt): keine Schnecke, kein Ausflug, kein Übungstag, keine Strafe.
+  // Die Lernzeit ist schon gezählt, Kopfbedeckungen für Salatblätter bleiben.
+  if ((r.geloest || 0) < MIN_RICHTIG) { z.runde = null; return { neu: [], gewachsen: [], deko: null, huete: [...r.huete], keineSchnecke: true }; }
   const neu = neueSchnecke(z, rnd, rundenTag, 'zehnerweg');
   z.garden.push(neu); r.neu.push(neu.id); z.newCount++;
   if (z.newCount % 10 === 0) {
-    const kaefer = { id: z.nextId++, name: wahl(rnd, KAEFER_NAMEN), color: 'rosa', pattern: 'uni', hat: null, special: 'kaefer', runs: 0, stage: 0, born: rundenTag, spiel: 'zehnerweg', ausflug: '' };
+    const kaefer = { id: z.nextId++, name: wahl(rnd, KAEFER_NAMEN), color: 'rot', pattern: 'uni', hat: null, special: 'kaefer', runs: 0, stage: 0, born: rundenTag, spiel: 'zehnerweg', ausflug: '' };
     z.garden.push(kaefer); r.neu.push(kaefer.id);
   }
   // Übungstage zählen jeden Tag nur einmal (nicht am Stück; Tage ohne Üben zählen einfach nicht)

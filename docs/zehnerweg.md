@@ -33,6 +33,7 @@ Eine Straße verbindet zwei Kästchen: Start und Ergebnis. Auf der Straße liegt
 - Unter jedem Feld steht klein, was erkannt wurde („erkannt: 7“, bei Unsicherheit „7 ?“), daneben × zum Löschen.
 - Sobald alle vier Felder **sicher** erkannt sind, prüft die App automatisch. Richtig: Feld grün. Falsch: Feld rot mit kurzem Wackeln.
 - Ist die Erkennung bei einem Feld unsicher („7 ?“), prüft die App nicht von selbst, sondern sagt: „Bei einem Feld bin ich nicht sicher, was da steht. Schreib deutlicher oder tippe auf Prüfen.“
+- **Runde und Schnecke:** Die Runde startet erst, wenn eine Zahl erkannt wurde; Gekritzel startet nichts. Für die Schnecke am Ende braucht es 2 richtige Aufgaben (siehe `schneckenparade.md`).
 - **Malen statt schreiben:** Sieht ein Feld nach einem Bild aus (sehr viel Tinte wie beim Ausmalen, ein Knäuel oder eine Spirale mit vielen Schleifen, mehr als 8 Striche oder mehr als zwei Zahlen nebeneinander), liest die App keine Zahl. Unter dem Feld steht „Bitte nur eine Zahl“, der Tipp sagt: „Hier ist Platz für eine Zahl. Tippe auf ×, dann kannst du neu schreiben.“ Das zählt nicht als Fehler. Grenze: Ein einzelner Kreis oder ein Gesicht sieht für die Erkennung aus wie eine 0 und wird nicht als Bild erkannt.
 - Der Tipp gilt immer dem ersten falschen Feld:
   - Erster Kreis, Plus: „Welche Zahl ist in die 8 verliebt? Zusammen ergeben sie 10.“

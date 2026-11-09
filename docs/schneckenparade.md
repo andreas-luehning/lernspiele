@@ -24,16 +24,17 @@ Die Lernspiele sind Medienzeit. Erwachsene stellen unter „Für Erwachsene“ d
 | Wann | Was passiert |
 |---|---|
 | Vor der Runde | Das Kind tippt im Garten bis zu 3 Begleiter an. Ohne Wahl laufen die vom letzten Mal mit. |
-| Erster Strich | Die Runde beginnt (5 Minuten), wenn heute noch Lernzeit da ist. Die Begleiter stehen am Anfang der Straße. |
+| Erste erkannte Zahl | Die Runde beginnt (5 Minuten), wenn heute noch Lernzeit da ist. **Gekritzel und Bemalen starten nichts** und zählen nicht zur Lernzeit. Die Begleiter stehen am Anfang der Straße. |
 | Richtige Aufgabe | Ein Salatblatt fliegt zur Parade. Anzeige: 5 Blatt-Plätze. |
 | 5 Salatblätter | Eine **Kopfbedeckung** kommt in die **Hutschachtel** im Garten. Welche, ist zufällig; in 20 % der Fälle bewusst eine, die im Sammelalbum noch fehlt. Blätter zählen neu. |
 | Falsche Aufgabe | Kein Blatt. Nichts geht verloren. |
-| Ende der 5 Minuten | Ist schon etwas geschrieben, darf die angefangene Aufgabe fertig werden; sonst endet die Runde sofort. Die Parade zieht ins Ziel. **Eine neue Babyschnecke** kommt dazu (Hausfarbe und Muster zufällig; in 20 % der Fälle bewusst ein Haus, das im Sammelalbum fehlt; ohne Kopfbedeckung). Jeder Begleiter zählt einen Ausflug, jede Schnecke höchstens einmal am Tag. Rückblick: neue Schnecke, gewachsene Schnecken, neue Kopfbedeckungen, neue Deko. |
+| Ende der 5 Minuten | Hat das Kind **mindestens 2 Aufgaben richtig** gelöst: Ist schon etwas geschrieben, darf die angefangene Aufgabe fertig werden; sonst endet die Runde sofort. Die Parade zieht ins Ziel. **Eine neue Babyschnecke** kommt dazu (Hausfarbe und Muster zufällig; in 20 % der Fälle bewusst ein Haus, das im Sammelalbum fehlt; ohne Kopfbedeckung). Jeder Begleiter zählt einen Ausflug, jede Schnecke höchstens einmal am Tag. Rückblick: neue Schnecke, gewachsene Schnecken, neue Kopfbedeckungen, neue Deko. |
 | Kopfbedeckung aufsetzen | Im Garten: Kopfbedeckung in der Hutschachtel antippen, dann eine Schnecke antippen. Hat die Schnecke schon eine, wandert die alte zurück in die Schachtel. Ohne Lesen bedienbar. |
 | Wachsen | Baby (0), Klein (ab 2 Ausflügen), Groß (ab 5), Glitzerhaus (ab 10). Wer in der nächsten Runde andere Begleiter mitnimmt, lässt auch diese wachsen. |
 | Alle 5 Übungstage | Neue Garten-Deko, in dieser Reihenfolge: Pilz, Blume, Teich, Bank, Gießkanne, Schneckenhotel. **Nicht am Stück:** gezählt werden alle Tage, an denen geübt wurde; Tage ohne Üben zählen einfach nicht mit, es fängt nichts von vorne an. |
 | Selten | Etwa jede 15. neue Schnecke hat ein Regenbogenhaus. Jede 10. neue Schnecke bringt einen Marienkäfer als Gast mit (läuft mit, wächst nicht). |
 | Blätter vom Vortag | Bleiben stehen. |
+| Weniger als 2 richtige Aufgaben | Die Runde endet nicht gleich. Der Streifen sagt: „Die Zeit ist um! Löse noch eine Aufgabe richtig, dann kommt deine Schnecke.“ Das geht bis zu 3 Minuten, danach endet die Runde **ohne Schnecke** (kein Ausflug, kein Übungstag, keine Strafe). Der Rückblick sagt freundlich: „Für eine neue Schnecke brauchst du 2 richtige Aufgaben. Das schaffst du beim nächsten Mal!“ Die **Lernzeit zählt trotzdem**, auch Kopfbedeckungen für Salatblätter bleiben. |
 | Lernzeit um | Freies Üben: Aufgaben werden geprüft und gelobt, aber es gibt keine Blätter und keine Schnecken. |
 
 Übungstage zählen nur, wenn eine Runde gespielt wurde, und jeder Tag nur einmal. Verpasste Tage haben keine Folgen.
@@ -67,7 +68,7 @@ Das Album ist ein Stickeralbum **ganz in Bildern**, weil die Kinder noch nicht s
 
 ## Bausteine
 
-- **Hausfarben:** Rosa, Gelb, Mint, Himmelblau, Lila, Orange
+- **Hausfarben (neutral, ohne typische „Mädchen-“ oder „Jungsfarben“):** Rot, Orange, Gelb, Grün, Himmelblau, Dunkelblau. Rosa, Mint und Lila der früheren Fassung werden in alten Gärten zu Rot, Grün und Dunkelblau.
 - **Muster:** Einfarbig, Punkte, Streifen, Sterne, Herzen, Wellen
 - **Kopfbedeckungen (14):** Krone, Zylinder, Blumenkranz, Piratenhut, Zipfelmütze, Partyhut, Schleife, Kochmütze, neu: Bommelmütze, Sonnenhut, Zaubererhut, Kapitänsmütze, Kopfhörer, Cowboyhut
 - **Besonderes:** Glitzerhaus (durch Wachsen), Regenbogenhaus (selten), Marienkäfer (Gast)
@@ -119,8 +120,8 @@ Lernzeit, gemeinsam für alle Spiele, unter `lernspiele:lernzeit`: `{ "version":
 
 ## Entscheidungen für die erste Umsetzung
 
-- **Startgarten:** Ein neuer Garten beginnt mit 3 Babyschnecken ohne Hut. Sie sind die ersten Begleiter.
-- **Rundenbeginn:** Die Runde beginnt mit dem ersten Strich in einem Feld, nicht schon beim Öffnen des Spiels.
+- **Startgarten:** Ein neuer Garten beginnt mit **einer** Babyschnecke ohne Hut. Sie ist der erste Begleiter; jede fertige Runde bringt die nächste. Der Startgarten wird sofort gespeichert, damit Name und Aussehen beim erneuten Öffnen gleich bleiben.
+- **Rundenbeginn:** Die Runde beginnt mit der ersten **erkannten Zahl** in einem Feld, nicht beim ersten Strich und nicht schon beim Öffnen des Spiels. Die Uhr hält nach einer Minute ohne erkannte Zahl an.
 - **Zeit um:** Ist in der aktuellen Aufgabe schon etwas geschrieben, darf das Kind sie fertig machen („Die Zeit ist um! Mach diese Aufgabe noch fertig.“); die Runde endet, sobald sie gelöst ist oder „Neue Aufgabe“ gedrückt wird, spätestens 3 Minuten nach Ablauf. Ist noch nichts geschrieben oder die Aufgabe schon gelöst, endet die Runde sofort.
 - **Uhr und Pause:** Die Uhr hält von selbst an, wenn die App verlassen oder das Tablet gesperrt wird oder eine Minute lang niemand schreibt. Beim nächsten Strich läuft sie weiter. So geht keine Zeit verloren, wenn das Kind die App vergisst. Ist die Zeit schon um und die angefangene Aufgabe wird nicht fertig, endet die Runde nach 3 Minuten.
 - **Anzeige im Zehnerweg:** Ein schmaler Paradestreifen unter dem Rechenweg. Uhr und 5 Blatt-Plätze stehen oben bei der Aufgabe, ein Schnecken-Knopf führt zum Garten. (Später: Schnecken kriechen auf der Straße des Zehnerwegs.)
