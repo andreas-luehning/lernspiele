@@ -7,14 +7,16 @@
 
 import { lesen, schreiben } from './speicher.js';
 
-// Neutrale Hausfarben, ohne typische „Mädchen-“ oder „Jungsfarben“ (kein Rosa, kein Lila). Reihenfolge wie im Regenbogen.
+// Hausfarben für alle Kinder, zufällig verteilt: typische „Mädchen-“ und „Jungenfarben“ sind bewusst beide dabei
+// (Entscheidung der Lehrkraft, siehe docs/schneckenparade.md). Reihenfolge wie im Regenbogen.
 export const COLORS = {
   rot: { name: 'Rot', adj: 'rotem', fill: '#ff7a6b' }, orange: { name: 'Orange', adj: 'orangem', fill: '#ffad66' },
   gelb: { name: 'Gelb', adj: 'gelbem', fill: '#ffd447' }, gruen: { name: 'Grün', adj: 'grünem', fill: '#8fd45c' },
   blau: { name: 'Himmelblau', adj: 'himmelblauem', fill: '#7cc8ff' }, kobalt: { name: 'Dunkelblau', adj: 'dunkelblauem', fill: '#5b7cf0' },
+  lila: { name: 'Lila', adj: 'lila', fill: '#b79bff' }, rosa: { name: 'Rosa', adj: 'rosa', fill: '#ff9ec4' },
 };
 // Frühere Hausfarben werden in alten Gärten umgewandelt
-const FARB_UEBERNAHME = { rosa: 'rot', mint: 'gruen', lila: 'kobalt' };
+const FARB_UEBERNAHME = { mint: 'gruen' };
 export const PATTERNS = { uni: 'Einfarbig', punkte: 'Punkte', streifen: 'Streifen', sterne: 'Sterne', herzen: 'Herzen', wellen: 'Wellen' };
 export const HATS = {
   krone: 'Krone', zylinder: 'Zylinder', blumen: 'Blumenkranz', pirat: 'Piratenhut', zipfel: 'Zipfelmütze', party: 'Partyhut',

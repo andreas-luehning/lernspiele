@@ -106,7 +106,7 @@ chk(!('korb' in alt) && !('cleanLeaves' in alt) && !('rundenHeute' in alt), 'Alt
 
 // Bevorzugung fehlender Häuser
 const standardWert = FEHLT_BEVORZUGT; setzeBevorzugt(1);
-const voll1 = { garden: [], nextId: 1 }; for (let i = 0; i < 36; i++) voll1.garden.push(neueSchnecke(voll1, zufall(i + 7)));
+const voll1 = { garden: [], nextId: 1 }; for (let i = 0; i < 48; i++) voll1.garden.push(neueSchnecke(voll1, zufall(i + 7)));
 chk(new Set(voll1.garden.filter(s => !s.special).map(s => s.color + s.pattern)).size === voll1.garden.filter(s => !s.special).length, 'Bei 100 % Bevorzugung keine doppelten Häuser');
 setzeBevorzugt(standardWert);
 chk(standardWert === 0.2, 'Standard: in 20 % der Fälle ein fehlendes Haus bzw. eine fehlende Kopfbedeckung');
@@ -137,10 +137,12 @@ chk(boese.walkers.join() === '1,4' && boese.leaves === 0 && boese.deco.join() ==
 chk(boese.hutschachtel.join() === 'krone,zauber', 'Hutschachtel: nur bekannte Kopfbedeckungen');
 chk(boese.nextId === 5 && boese.runde === null && !('boese' in Object.getPrototypeOf(boese)), 'nextId, Runde und Prototyp sicher');
 
-// Hausfarben neutral, alte Farben werden übernommen
-chk(Object.keys(COLORS).join() === 'rot,orange,gelb,gruen,blau,kobalt', 'Sechs neutrale Hausfarben, kein Rosa und kein Lila');
+// Hausfarben: alle für alle Kinder, auch Rosa und Lila; Mint der alten Fassung wird Grün
+chk(Object.keys(COLORS).join() === 'rot,orange,gelb,gruen,blau,kobalt,lila,rosa', 'Acht Hausfarben, auch Rosa und Lila');
 const farben = bereinigeZustand({ garden: ['rosa', 'mint', 'lila', 'gelb', 'violett'].map((c, i) => ({ id: i + 1, name: 'T' + i, color: c, pattern: 'uni', hat: null, special: null, runs: 0 })) });
-chk(farben.garden.map(s => s.color).join() === 'rot,gruen,kobalt,gelb', 'Alte Gärten: Rosa → Rot, Mint → Grün, Lila → Dunkelblau; unbekannte Farben werden verworfen');
+chk(farben.garden.map(s => s.color).join() === 'rosa,gruen,lila,gelb', 'Alte Gärten: Rosa und Lila bleiben, Mint → Grün; unbekannte Farben werden verworfen');
+{ const viele = { garden: [], nextId: 1 }; for (let i = 0; i < 400; i++) viele.garden.push(neueSchnecke(viele, zufall(1000 + i)));
+  const da = new Set(viele.garden.map(s => s.color)); chk(da.has('rosa') && da.has('lila') && da.has('kobalt') && da.has('rot'), 'Alle Farben kommen zufällig vor'); }
 
 // Name nie doppelt, auch wenn die Liste erschöpft ist
 const voll = { garden: [], nextId: 1 };

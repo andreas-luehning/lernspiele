@@ -43,6 +43,9 @@ Die Lernspiele sind Medienzeit. Erwachsene stellen unter „Für Erwachsene“ d
 
 ## Tempo (simuliert mit den echten Regeln, Mittel aus 5 Läufen)
 
+Simuliert noch mit 36 Häusern (6 Farben). Mit 8 Farben (48 Häuser) dauert „alle Häuser“ und „ganzes Album“ entsprechend länger, etwa ein Drittel.
+
+
 | Lernzeit im Zehnerweg | Tiere nach 1 / 4 Wochen | alle 36 Häuser | alle 14 Kopfbedeckungen | ganzes Album (59) |
 |---|---|---|---|---|
 | 15 Min (3 Runden, 4 richtige je Runde) | 26 / 95 | Tag 22 | Tag 11 | Tag 30 |
@@ -64,11 +67,11 @@ Bei typischer Nutzung reicht das Album also für 2–4 Monate. Im Höchstfall is
 
 Die Garten-Seite hat zwei Reiter: **Garten** (wer bei dir wohnt: jede Schnecke einzeln mit Namen, Größe, Ausflügen; hier werden die Begleiter gewählt und Kopfbedeckungen aufgesetzt) und **Sammelalbum** (was schon entdeckt ist: jede Art nur einmal). Mit `#album` an der Adresse öffnet sich gleich das Album.
 
-Das Album ist ein Stickeralbum **ganz in Bildern**, weil die Kinder noch nicht sicher lesen: 36 Häuser (6 Farben × 6 Muster), 14 Kopfbedeckungen, 3 Besonderheiten (Glitzerhaus, Regenbogenhaus, Marienkäfer) und 6 Deko-Stücke, zusammen 59. Gefundenes sitzt leicht schräg wie eingeklebt, Fehlendes ist ein gestricheltes „?“-Feld. Oben ein Fortschrittsbalken, die Zahl steht auch am Reiter. Namen gibt es nur für Vorlese-Hilfen (`aria-label`).
+Das Album ist ein Stickeralbum **ganz in Bildern**, weil die Kinder noch nicht sicher lesen: 48 Häuser (8 Farben × 6 Muster), 14 Kopfbedeckungen, 3 Besonderheiten (Glitzerhaus, Regenbogenhaus, Marienkäfer) und 6 Deko-Stücke, zusammen 71. Gefundenes sitzt leicht schräg wie eingeklebt, Fehlendes ist ein gestricheltes „?“-Feld. Oben ein Fortschrittsbalken, die Zahl steht auch am Reiter. Namen gibt es nur für Vorlese-Hilfen (`aria-label`).
 
 ## Bausteine
 
-- **Hausfarben (neutral, ohne typische „Mädchen-“ oder „Jungsfarben“):** Rot, Orange, Gelb, Grün, Himmelblau, Dunkelblau. Rosa, Mint und Lila der früheren Fassung werden in alten Gärten zu Rot, Grün und Dunkelblau.
+- **Hausfarben (8, für alle Kinder zufällig):** Rot, Orange, Gelb, Grün, Himmelblau, Dunkelblau, Lila, Rosa. Typische „Mädchen-“ und „Jungenfarben“ sind bewusst beide dabei, damit jedes Kind Lieblingsfarben findet; zugeteilt wird nichts nach Geschlecht (Entscheidung 09.11.; die Zwischenfassung ohne Rosa und Lila wurde verworfen). Mint der früheren Fassung wird in alten Gärten zu Grün.
 - **Muster:** Einfarbig, Punkte, Streifen, Sterne, Herzen, Wellen
 - **Kopfbedeckungen (14):** Krone, Zylinder, Blumenkranz, Piratenhut, Zipfelmütze, Partyhut, Schleife, Kochmütze, neu: Bommelmütze, Sonnenhut, Zaubererhut, Kapitänsmütze, Kopfhörer, Cowboyhut
 - **Besonderes:** Glitzerhaus (durch Wachsen), Regenbogenhaus (selten), Marienkäfer (Gast)
