@@ -129,6 +129,16 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   chk(await p2.locator('dialog.rueckblick[open]').count() === 1, 'Zeit um ohne Geschriebenes: Runde endet sofort');
   await p2.close();
 
+  // Erster Start: Die Schnecken des Startgartens bleiben beim erneuten Öffnen gleich (werden sofort gespeichert)
+  const ctx2 = await b.newContext(); const p3 = await ctx2.newPage();
+  const namen = async () => (await p3.locator('.g-snail span:not(.marke)').allTextContents()).join(',');
+  await p3.goto(BASE + 'garten/'); await p3.waitForTimeout(300); const erster = await namen();
+  chk(await p3.evaluate(() => localStorage.getItem('lernspiele:parade') !== null), 'Startgarten wird sofort gespeichert');
+  let gleich = erster.split(',').length === 3;
+  for (let i = 0; i < 3; i++) { await p3.goto(BASE + 'garten/'); await p3.waitForTimeout(250); gleich = gleich && (await namen()) === erster; }
+  chk(gleich, `Erster Start: Namen bleiben bei jedem Öffnen gleich (${erster})`);
+  await ctx2.close();
+
   chk(!probleme.length, 'Keine Fehler/CSP-Verstöße ' + probleme.join(' | '));
   chk(!fremd.length, 'Keine Anfragen an fremde Server ' + fremd.join(' '));
   await b.close();

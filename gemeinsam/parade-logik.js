@@ -124,7 +124,9 @@ export function bereinigeZustand(roh, rnd = Math.random) {
 export function ladeParade(rnd = Math.random, tag = heute()) {
   // runde ist null oder ein Objekt; speicher.js prüft nur den Typ, darum hier {} als Muster und genaue Prüfung in bereinigeZustand
   let z = bereinigeZustand(lesen('parade', { ...STANDARD, ...ALT, runde: {} }), rnd);
-  if (!z.garden.length) z = startGarten(z, rnd, tag);
+  // Der Startgarten wird sofort gespeichert. Sonst würden die Schnecken (und ihre Namen) bei jedem Öffnen neu ausgelost,
+  // bis zum ersten Spielzug etwas gespeichert wird.
+  if (!z.garden.length) { z = startGarten(z, rnd, tag); speichereParade(z); }
   return z;
 }
 export const speichereParade = z => schreiben('parade', z);
