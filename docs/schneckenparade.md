@@ -71,11 +71,11 @@ Das Album ist ein Stickeralbum **ganz in Bildern**, weil die Kinder noch nicht s
 
 ## Bausteine
 
-- **Hausfarben (8, für alle Kinder zufällig):** Rot, Orange, Gelb, Grün, Himmelblau, Dunkelblau, Lila, Rosa. Typische „Mädchen-“ und „Jungenfarben“ sind bewusst beide dabei, damit jedes Kind Lieblingsfarben findet; zugeteilt wird nichts nach Geschlecht (Entscheidung 09.11.; die Zwischenfassung ohne Rosa und Lila wurde verworfen). Mint der früheren Fassung wird in alten Gärten zu Grün.
+- **Hausfarben (8):** Rot, Orange, Gelb, Grün, Himmelblau, Dunkelblau, Lila, Rosa. Typische „Mädchen-“ und „Jungenfarben“ sind bewusst beide dabei (Entscheidung 09.11.; die Zwischenfassung ohne Rosa und Lila wurde verworfen). Rosa und Lila nur mit Mädchennamen, siehe Namen. Mint der früheren Fassung wird in alten Gärten zu Grün.
 - **Muster:** Einfarbig, Punkte, Streifen, Sterne, Herzen, Wellen
 - **Kopfbedeckungen (14):** Krone, Zylinder, Blumenkranz, Piratenhut, Zipfelmütze, Partyhut, Schleife, Kochmütze, neu: Bommelmütze, Sonnenhut, Zaubererhut, Kapitänsmütze, Kopfhörer, Cowboyhut
 - **Besonderes:** Glitzerhaus (durch Wachsen), Regenbogenhaus (selten), Marienkäfer (Gast)
-- **Namen:** zufällig aus einer Liste, gemischt (Lotti, Paul, Frieda, Kurt, …), ohne Doppelte. Später kann das Kind umbenennen.
+- **Namen:** zufällig, ohne Doppelte, aus drei Gruppen: Mädchennamen (Lotti, Frieda, Mia, …), Jungennamen (Paul, Kurt, Karl, …) und neutrale Namen (Flitzi, Momo, Kiki, Toni). **Name und Hausfarbe passen zusammen:** Rosa und Lila bekommen nur Schnecken mit Mädchennamen; Mädchennamen bekommen alle Farben (auch Blau oder Rot), Jungen- und neutrale Namen alle außer Rosa und Lila. Grund: Kinder fanden „Karl mit rosa Haus“ falsch (Rückmeldung 09.11.). In alten Gärten wird Rosa bzw. Lila bei einem Jungen- oder neutralen Namen zu Rot bzw. Dunkelblau. Später kann das Kind umbenennen.
 
 Alle Figuren werden als SVG aus Teilen gezeichnet (Körper, Haus, Muster, Hut, Glitzer); die Funktionen `snailSVG`, `hatSVG`, `patternSVG`, `bugSVG`, `decoSVG` im Prototyp können übernommen werden.
 

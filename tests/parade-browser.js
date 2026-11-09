@@ -100,7 +100,7 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   await page.click('.hs-ab'); await page.locator('.g-snail').first().click(); await page.waitForTimeout(200);
   chk((await parade()).hutschachtel.length === 1, 'Abnehmen: Kopfbedeckung wieder in der Schachtel');
   await page.click('#r-album'); await page.waitForTimeout(200);
-  chk(await page.locator('.sticker').count() === 59 && /von 59 entdeckt/.test(await page.textContent('#album-zahl')), 'Sammelalbum: 59 Felder');
+  chk(await page.locator('.sticker').count() === 71 && /von 71 entdeckt/.test(await page.textContent('#album-zahl')), 'Sammelalbum: 71 Felder (48 Häuser)');
   chk(await page.locator('.haeuser-teil ~ .seite-teil .sticker:not(.miss)').first().locator('svg').count() === 1, 'Gefundene Kopfbedeckung im Album als Bild');
   await page.click('#r-garten');
 

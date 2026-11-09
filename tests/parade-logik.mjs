@@ -2,7 +2,7 @@
 import {
   startGarten, rundeStarten, richtig, falsch, rundeBeenden, begleiterUmschalten, bereinigeZustand, parade, album,
   stageOf, neueSchnecke, pausieren, fortsetzen, restzeit, hutAufsetzen, hutAbnehmen, setzeBevorzugt, FEHLT_BEVORZUGT,
-  BLAETTER_PRO_HUT, HATS, MIN_RICHTIG, COLORS,
+  BLAETTER_PRO_HUT, HATS, MIN_RICHTIG, COLORS, namePasst, MAEDCHEN_NAMEN, JUNGEN_NAMEN, NEUTRALE_NAMEN,
 } from '../gemeinsam/parade-logik.js';
 
 let fehler = 0; const chk = (c, m) => { console.log((c ? 'ok     ' : 'FEHLER ') + m); if (!c) fehler++; };
@@ -93,7 +93,7 @@ chk(fortsetzen(z, 900000, T2) && restzeit(z, 960000) === 180000 && z.runde.tag =
 z.runde.zeitUm = true; chk(!pausieren(z, 1e6), 'Nach Ablauf der Zeit keine Pause mehr');
 
 // Album
-chk(album(z).reduce((n, g) => n + g.eintraege.length, 0) === 59 && Object.keys(HATS).length === 14, 'Sammelalbum: 59 Felder, 14 Kopfbedeckungen');
+chk(album(z).reduce((n, g) => n + g.eintraege.length, 0) === 71 && Object.keys(HATS).length === 14, 'Sammelalbum: 71 Felder (48 Häuser), 14 Kopfbedeckungen');
 
 // Übernahme alter Spielstände (Salatkorb, Rundenzähler, Hüte auf Schnecken)
 const alt = bereinigeZustand({
@@ -139,10 +139,15 @@ chk(boese.nextId === 5 && boese.runde === null && !('boese' in Object.getPrototy
 
 // Hausfarben: alle für alle Kinder, auch Rosa und Lila; Mint der alten Fassung wird Grün
 chk(Object.keys(COLORS).join() === 'rot,orange,gelb,gruen,blau,kobalt,lila,rosa', 'Acht Hausfarben, auch Rosa und Lila');
-const farben = bereinigeZustand({ garden: ['rosa', 'mint', 'lila', 'gelb', 'violett'].map((c, i) => ({ id: i + 1, name: 'T' + i, color: c, pattern: 'uni', hat: null, special: null, runs: 0 })) });
-chk(farben.garden.map(s => s.color).join() === 'rosa,gruen,lila,gelb', 'Alte Gärten: Rosa und Lila bleiben, Mint → Grün; unbekannte Farben werden verworfen');
+const farben = bereinigeZustand({ garden: [['rosa', 'Lotti'], ['mint', 'Paul'], ['lila', 'Ida'], ['gelb', 'Karl'], ['violett', 'Mia'], ['rosa', 'Karl'], ['lila', 'Toni'], ['rosa', 'Nele 33']].map(([c, n], i) => ({ id: i + 1, name: n, color: c, pattern: 'uni', hat: null, special: null, runs: 0 })) });
+chk(farben.garden.map(s => s.color).join() === 'rosa,gruen,lila,gelb,rot,kobalt,rosa', 'Alte Gärten: Rosa/Lila bleiben bei Mädchennamen, bei Karl/Toni → Rot/Dunkelblau; Mint → Grün; unbekannte Farben verworfen');
 { const viele = { garden: [], nextId: 1 }; for (let i = 0; i < 400; i++) viele.garden.push(neueSchnecke(viele, zufall(1000 + i)));
-  const da = new Set(viele.garden.map(s => s.color)); chk(da.has('rosa') && da.has('lila') && da.has('kobalt') && da.has('rot'), 'Alle Farben kommen zufällig vor'); }
+  const da = new Set(viele.garden.map(s => s.color)); chk(da.has('rosa') && da.has('lila') && da.has('kobalt') && da.has('rot'), 'Alle Farben kommen zufällig vor');
+  chk(viele.garden.every(s => s.special === 'kaefer' || namePasst(s.name, s.color)), 'Rosa und Lila nur mit Mädchennamen (auch mit Nummer)');
+  const jungen = viele.garden.filter(s => JUNGEN_NAMEN.includes(s.name.split(' ')[0]) || NEUTRALE_NAMEN.includes(s.name.split(' ')[0]));
+  const maedchen = viele.garden.filter(s => MAEDCHEN_NAMEN.includes(s.name.split(' ')[0]));
+  chk(jungen.length > 50 && !jungen.some(s => ['rosa', 'lila'].includes(s.color)), 'Jungen- und neutrale Namen nie mit Rosa oder Lila');
+  chk(new Set(maedchen.map(s => s.color)).size === 8, 'Mädchennamen bekommen alle 8 Farben'); }
 
 // Name nie doppelt, auch wenn die Liste erschöpft ist
 const voll = { garden: [], nextId: 1 };

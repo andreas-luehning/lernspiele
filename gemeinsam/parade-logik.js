@@ -32,7 +32,15 @@ export const DECO = { pilz: 'Pilz', blume: 'Blume', teich: 'Teich', bank: 'Bank'
 export const STAGES = ['Baby', 'Klein', 'Groß', 'Glitzer'];
 const GROW = [0, 2, 5, 10];              // Ausflüge, ab denen die Stufe gilt
 export const SCALE = [0.6, 0.78, 1, 1];  // Größe je Stufe
-const NAMES = ['Lotti', 'Paul', 'Frieda', 'Kurt', 'Mia', 'Ole', 'Wilma', 'Theo', 'Ida', 'Fritz', 'Greta', 'Emil', 'Lina', 'Bruno', 'Pia', 'Jonte', 'Rosi', 'Anton', 'Mila', 'Hugo', 'Nele', 'Otto', 'Flora', 'Max', 'Tilda', 'Leo', 'Edda', 'Moritz', 'Ronja', 'Karl'];
+// Namen in drei Gruppen. Rosa und Lila bekommen nur Schnecken mit Mädchennamen (Kinder fanden „Karl mit rosa Haus“ falsch);
+// Mädchennamen bekommen alle Farben, Jungen- und neutrale Namen alle außer Rosa und Lila (Entscheidung der Lehrkraft, 09.11.).
+export const MAEDCHEN_NAMEN = ['Lotti', 'Frieda', 'Mia', 'Wilma', 'Ida', 'Greta', 'Lina', 'Pia', 'Rosi', 'Mila', 'Nele', 'Flora', 'Tilda', 'Edda', 'Ronja'];
+export const JUNGEN_NAMEN = ['Paul', 'Kurt', 'Ole', 'Theo', 'Fritz', 'Emil', 'Bruno', 'Jonte', 'Anton', 'Hugo', 'Otto', 'Max', 'Leo', 'Moritz', 'Karl'];
+export const NEUTRALE_NAMEN = ['Flitzi', 'Momo', 'Kiki', 'Toni'];
+export const MAEDCHEN_FARBEN = ['rosa', 'lila'];
+const NAMES = [...MAEDCHEN_NAMEN, ...JUNGEN_NAMEN, ...NEUTRALE_NAMEN];
+/** Passt der Name zur Hausfarbe? (Grundname ohne angehängte Nummer, z. B. „Lotti 31“) */
+export const namePasst = (name, color) => !MAEDCHEN_FARBEN.includes(color) || MAEDCHEN_NAMEN.includes(String(name).split(' ')[0]);
 const KAEFER_NAMEN = ['Punkti', 'Kiki', 'Lulu'];
 const SPIELE = ['zehnerweg', 'start'];
 
@@ -82,6 +90,8 @@ export function pruefeSchnecke(s) {
   if (!s || typeof s !== 'object') return null;
   if (!istId(s.id) || typeof s.name !== 'string' || !s.name.trim()) return null;
   if (typeof s.color === 'string' && hat(FARB_UEBERNAHME, s.color)) s = { ...s, color: FARB_UEBERNAHME[s.color] };
+  // Alte Gärten: Rosa oder Lila bei einem Jungen- oder neutralen Namen wird Rot bzw. Dunkelblau (Name bleibt)
+  if (typeof s.color === 'string' && MAEDCHEN_FARBEN.includes(s.color) && !namePasst(s.name, s.color)) s = { ...s, color: s.color === 'rosa' ? 'rot' : 'kobalt' };
   if (!hat(COLORS, s.color) || !hat(PATTERNS, s.pattern)) return null;
   if (!(s.hat === null || istHut(s.hat))) return null;
   if (!(s.special === null || s.special === 'regenbogen' || s.special === 'kaefer')) return null;
@@ -157,8 +167,10 @@ export function neueSchnecke(z, rnd = Math.random, tag = heute(), spiel = 'zehne
   for (const c in COLORS) for (const p in PATTERNS) if (!vorhanden.has(c + '|' + p)) frei.push([c, p]);
   const [color, pattern] = frei.length && rnd() < FEHLT_BEVORZUGT ? wahl(rnd, frei) : [wahl(rnd, Object.keys(COLORS)), wahl(rnd, Object.keys(PATTERNS))];
   const special = rnd() < 1 / 15 ? 'regenbogen' : null;
-  const benutzt = new Set(z.garden.map(s => s.name)); const freieNamen = NAMES.filter(n => !benutzt.has(n));
-  const name = freieNamen.length ? wahl(rnd, freieNamen) : wahl(rnd, NAMES) + ' ' + (z.garden.length + 1);
+  // Der Name richtet sich nach der Hausfarbe: Rosa und Lila nur mit Mädchennamen
+  const passend = MAEDCHEN_FARBEN.includes(color) ? MAEDCHEN_NAMEN : NAMES;
+  const benutzt = new Set(z.garden.map(s => s.name)); const freieNamen = passend.filter(n => !benutzt.has(n));
+  const name = freieNamen.length ? wahl(rnd, freieNamen) : wahl(rnd, passend) + ' ' + (z.garden.length + 1);
   return { id: z.nextId++, name, color, pattern, hat: null, special, runs: 0, stage: 0, born: tag, spiel, ausflug: '' };
 }
 
