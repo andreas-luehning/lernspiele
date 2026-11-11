@@ -9,7 +9,16 @@
 5. **Zahlenmauern auf dem Leuchttisch:** Die Steine liegen als Zahlenmauer auf dem Tisch, das Kind beschriftet die Mauer direkt auf dem Leuchttisch (Schreibfelder in den Mauersteinen).
 
 
-## Weitere Spiele (noch zu beschreiben)
+## Rückmeldungen vom Tablet-Test (11.11.2026, noch nicht umgesetzt)
+
+1. **Ziffer 9:** Wird nur in amerikanischer Schreibweise erkannt, die deutsche 9 klappt noch nicht zuverlässig.
+2. **Einstellung „7 mit Querstrich“** soll zu einem Schalter **„Deutsche Schreibschrift“** werden, der alles auf deutsch umstellt (7 mit Querstrich, deutsche 1 und 9). Persönlicher Eindruck der Lehrkraft: Die 1 als einfacher Strich ist angenehm, eine 7 ohne Querstrich fühlt sich komisch an.
+3. **Zweimal Bommelmütze im Probe-Modus:** Prüfen, ob Fehler oder Zufall (doppelte Kopfbedeckungen sind bisher erlaubt).
+4. **Wachstumsstufen Baby, Klein, Groß:** Niedlichere Wörter suchen.
+5. **Straße im Zehnerweg:** Fahrbahnmarkierung hat merkwürdige Lücken, Pfeilspitzen sitzen nicht klar.
+6. **Belohnung, wenn der Zehnerweg über 20 geht** (höhere Stufe): Wie geht es dann weiter? Ideen: Fantasie-Kopfbedeckungen wie Einhornhorn und Feenflügel, Halloween-Kostüme (vielleicht nur im Oktober).
+
+
 
 Beide stammen von Leuchttisch-Materialien aus dem Unterricht. Prototypen, Übergaben und der Abgleich mit diesem Projekt stehen jetzt in `leuchttisch.md` (neue Richtung: Amulette statt Numi). Die folgenden Notizen sind der alte Stand.
 
