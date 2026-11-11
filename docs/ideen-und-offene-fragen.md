@@ -16,7 +16,7 @@
 3. **Zweimal Bommelmütze im Probe-Modus:** Prüfen, ob Fehler oder Zufall (doppelte Kopfbedeckungen sind bisher erlaubt).
 4. **Wachstumsstufen Baby, Klein, Groß:** Niedlichere Wörter suchen.
 5. **Straße im Zehnerweg:** Fahrbahnmarkierung hat merkwürdige Lücken, Pfeilspitzen sitzen nicht klar.
-6. **Belohnung, wenn der Zehnerweg über 20 geht** (höhere Stufe): Wie geht es dann weiter? Ideen: Fantasie-Kopfbedeckungen wie Einhornhorn und Feenflügel, Halloween-Kostüme (vielleicht nur im Oktober).
+6. **Belohnung, wenn der Zehnerweg über 20 geht** (höhere Stufe): Wie geht es dann weiter? Ideen: Fantasie-Kopfbedeckungen wie Einhornhorn und Feenflügel, Halloween-Kostüme (vielleicht nur im Oktober). Weitere lustige Kopfbedeckungen: Blaulicht mit Polizeisirene, Satellitenantenne, Bauarbeiterhelm. Oder besondere Schnecken-Arten als Belohnung (z. B. Tigerschnecke, Rennschnecke mit Streifen).
 
 
 
