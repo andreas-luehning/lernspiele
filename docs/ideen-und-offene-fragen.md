@@ -17,6 +17,7 @@
 4. **Wachstumsstufen Baby, Klein, Groß:** Niedlichere Wörter suchen.
 5. **Straße im Zehnerweg:** Fahrbahnmarkierung hat merkwürdige Lücken, Pfeilspitzen sitzen nicht klar.
 6. **Belohnung, wenn der Zehnerweg über 20 geht** (höhere Stufe): Wie geht es dann weiter? Ideen: Fantasie-Kopfbedeckungen wie Einhornhorn und Feenflügel, Halloween-Kostüme (vielleicht nur im Oktober). Weitere lustige Kopfbedeckungen: Blaulicht mit Polizeisirene, Satellitenantenne, Bauarbeiterhelm. Oder besondere Schnecken-Arten als Belohnung (z. B. Tigerschnecke, Rennschnecke mit Streifen).
+7. **Freischalten:** Neue Spiele, Stufen oder Kopfbedeckungen erst freischalten, wenn das Kind etwas erreicht hat. Einordnung: Freischalten über Durchhalten (Übungstage, fertige Runden) statt über Fehlerfreiheit, damit schwächere Kinder nicht hängen bleiben (Grundsatz 3). Erwachsene können jederzeit alles freigeben.
 
 
 
