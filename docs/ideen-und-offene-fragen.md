@@ -1,5 +1,7 @@
 # Ideen und offene Fragen
 
+> **Die geordnete Aufgabenliste steht in `backlog.md`** (Priorität, Checkboxen, Hinweis Opus/Sonnet). Diese Datei sammelt die Ideen und Hintergründe dazu.
+
 ## Fahrplan (Stand 08.11.2026, von der Lehrkraft)
 
 1. **Aktuelle Fassung testen** (Zehnerweg mit Schneckenparade, Leuchttisch, Schatzkammer; Branch `leuchttisch-mit-belohnung`) und als Pull Request nach `main` übernehmen. Danach nur noch kleine Fehler.
