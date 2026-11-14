@@ -6,9 +6,10 @@ import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgabe
 import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
 import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
 import { richtig, falsch, parade, HATS, BLAETTER_PRO_HUT, MIN_RICHTIG } from '../gemeinsam/parade-logik.js';
+import { snailSVG, svgElement } from '../gemeinsam/parade-bilder.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
-const STANDARD = { gespiegelt: false, modus: 'plus' };
+const STANDARD = { gespiegelt: false, modus: 'plus', schnecke: true };
 const MODI = ['plus', 'minus', 'mix'];
 let zustand;
 if (vorhanden('zehnerweg')) {
@@ -126,6 +127,7 @@ let task = null;
 
 function nachErkennung(f) {
   updateTarget();
+  wandererZeigen();
   // Die Runde beginnt erst mit einer erkannten Zahl: Gekritzel und Bemalen starten nichts und halten die Uhr nicht an
   if (f.value != null && !f.kritzel) paradeStarten();
   if (task && f.id === herzFeld(task) && f.value === task.ans[f.id]) {
@@ -143,7 +145,7 @@ for (const id of Object.keys(SHAPES)) {
     id, kind: SHAPES[id].kind,
     onErkannt: nachErkennung,
     onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); },
-    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); knoepfe('rechnen'); },
+    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); knoepfe('rechnen'); wandererZeigen(); },
   });
 }
 
@@ -173,6 +175,7 @@ function layout() {
     Object.assign(f.tag.style, { left: cx / W * 100 + '%', top: (cy + h / 2) / H * 100 + '%' });
   }
   requestAnimationFrame(() => { for (const id in FIELDS) FIELDS[id].groesseAnpassen(); });
+  wandererZeigen();
 }
 
 /* ---------- Aufgaben ---------- */
@@ -191,6 +194,7 @@ function newTask() {
   setHint(START_TIPP);
   knoepfe('rechnen');
   updateTarget();
+  wandererZeigen();
   runde?.aufgabeFertig(); // war die Zeit schon um, endet die Runde jetzt
 }
 function updateTarget() {
@@ -235,12 +239,69 @@ function check() {
     const z = zeichen(task.op);
     zeigeGleichung(task.ans.goal);
     setHint(`Super! ${task.a} ${z} ${task.ans.part1} ${z} ${task.ans.part2} = ${task.ans.goal}`, 'good');
+    wandererZeigen(true);
     if (!stage.classList.contains('done')) {
       stage.classList.add('done');
       knoepfe('weiter');
       paradeRichtig();
     }
   }
+}
+
+/* ---------- Schnecke geht mit ---------- */
+// Die erste Begleitschnecke sitzt neben dem Startkästchen und kriecht mit jedem richtig erkannten Feld
+// (der Reihe nach) eine Station weiter bis ins Ziel. Sie sucht sich einen freien Platz neben dem Feld:
+// nie auf einem Schreibfeld und nie auf der „erkannt“-Anzeige mit dem Löschknopf (auch hoch, quer und gespiegelt).
+// Abschaltbar (zustand.schnecke). Bei „Bewegung reduzieren“ springt sie ohne Animation (theme.css).
+const wanderer = document.createElement('div');
+wanderer.className = 'wanderer'; wanderer.setAttribute('aria-hidden', 'true'); wanderer.hidden = true;
+stage.append(wanderer);
+let wandererId = null;
+/**
+ * Freier Platz neben einem Feld (in Pixeln relativ zur Bühne): oben, seitlich oder unten,
+ * ohne ein Feld oder den Bereich der „erkannt“-Anzeige darunter zu berühren. Ergebnis { x, y, b } (Mitte, Breite) oder null.
+ */
+function freierPlatz(feldEl) {
+  const st = stage.getBoundingClientRect();
+  const rel = r => ({ l: r.left - st.left, t: r.top - st.top, r: r.right - st.left, b: r.bottom - st.top });
+  const b = Math.max(44, st.width * 0.075), h = b * 112 / 130;         // Schnecke: Breite b, Höhe h (viewBox 130 × 112)
+  const hindernisse = [];
+  for (const id in FIELDS) {
+    const f = rel(FIELDS[id].el.getBoundingClientRect());
+    hindernisse.push({ l: f.l - 2, t: f.t - 2, r: f.r + 2, b: f.b + 2 });
+    if (!ORDER.includes(id)) continue;                                 // Start und großer Kreis haben keine Anzeige
+    const mx = (f.l + f.r) / 2;                                        // Platz für „erkannt: … ×“ unter dem Feld
+    hindernisse.push({ l: mx - 70, t: f.b, r: mx + 70, b: f.b + 38 });
+  }
+  const f = rel(feldEl.getBoundingClientRect()), fw = f.r - f.l, fh = f.b - f.t;
+  const kandidaten = [];
+  // Ringsum: oben (links, Mitte, rechts), seitlich (oben, Mitte, unten), Ecken; zuerst oben, das wirkt wie „draufgekrochen“
+  const dx = b / 2 + 5, dy = h / 2 + 5;                                 // halbe Schnecke plus etwas Luft zum Feld
+  for (const fx of [0.25, 0.5, 0.75]) kandidaten.push([f.l + fw * fx, f.t - dy]);
+  for (const fy of [0.25, 0.5, 0.75]) kandidaten.push([f.l - dx, f.t + fh * fy], [f.r + dx, f.t + fh * fy]);
+  kandidaten.push([f.l - dx, f.t - dy], [f.r + dx, f.t - dy], [f.l - dx, f.b + dy], [f.r + dx, f.b + dy]);
+  for (const [x, y] of kandidaten) {
+    const k = { l: x - b / 2, t: y - h / 2, r: x + b / 2, b: y + h / 2 };
+    if (k.l < 2 || k.t < 2 || k.r > st.width - 2 || k.b > st.height - 2) continue;
+    if (hindernisse.some(o => k.l < o.r && o.l < k.r && k.t < o.b && o.t < k.b)) continue;
+    return { x, y, b };
+  }
+  return null;
+}
+function wandererZeigen(feiern = false) {
+  const tier = runde && parade(runde.z).find(t => t.special !== 'kaefer');
+  if (!zustand.schnecke || !tier || !task) { wanderer.hidden = true; return; }
+  if (wandererId !== tier.id) { wanderer.replaceChildren(svgElement(snailSVG(tier))); wandererId = tier.id; }
+  // So weit, wie die Felder der Reihe nach stimmen
+  let k = 0;
+  for (const id of ORDER) { if (FIELDS[id].value === task.ans[id]) k++; else break; }
+  const station = ['start', ...ORDER][k];
+  const platz = freierPlatz(FIELDS[station].el);
+  if (!platz) { wanderer.hidden = true; return; }
+  const st = stage.getBoundingClientRect();
+  wanderer.hidden = false;
+  Object.assign(wanderer.style, { left: platz.x / st.width * 100 + '%', top: platz.y / st.height * 100 + '%', width: platz.b / st.width * 100 + '%' });
+  wanderer.classList.toggle('feiert', feiern && station === 'goal');
 }
 
 /* ---------- Schneckenparade ---------- */
@@ -317,6 +378,9 @@ $('b-clear').addEventListener('click', () => {
   for (const id of ORDER) FIELDS[id].loeschen();
   stage.classList.remove('done'); setHint(START_TIPP); updateTarget(); knoepfe('rechnen');
 });
+const schneckeBtn = $('b-schnecke');
+function schneckeKnopf() { schneckeBtn.setAttribute('aria-pressed', String(zustand.schnecke)); schneckeBtn.textContent = 'Schnecke geht mit: ' + (zustand.schnecke ? 'an' : 'aus'); }
+schneckeBtn.addEventListener('click', () => { zustand.schnecke = !zustand.schnecke; speichern(); schneckeKnopf(); wandererZeigen(); });
 flipBtn.addEventListener('click', () => {
   zustand.gespiegelt = !zustand.gespiegelt; speichern();
   flipBtn.setAttribute('aria-pressed', String(zustand.gespiegelt));
@@ -337,6 +401,7 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 
 /* ---------- Start ---------- */
 flipBtn.setAttribute('aria-pressed', String(zustand.gespiegelt));
+schneckeKnopf();
 zeigeModus();
 layout(); newTask();
 zeigeParade(false); sagStart(); runde.tick();

@@ -46,6 +46,18 @@ const { schreibe } = require('./hilfen.js');
     const done = await page.evaluate(() => document.getElementById('stage').classList.contains('done'));
     console.log(`${name}: ${eq.trim()} soll ${JSON.stringify(ans)} gelesen ${JSON.stringify(gelesen)}\n   Tipp: ${hint}`);
     if (done) { await page.waitForTimeout(900); chk(await blaetter() === 1 && await page.locator('#leaves .slot.on').count() === 1, `${name}: gelöst, ein Salatblatt für die Parade`); }
+    // Schnecke geht mit: nach dem Lösen am Ziel, nie auf einem Feld oder einer „erkannt“-Anzeige
+    if (done) {
+      await page.waitForTimeout(1300);
+      const sw = await page.evaluate(() => {
+        const w = document.querySelector('.wanderer'); if (!w || w.hidden) return { sichtbar: false };
+        const r = w.getBoundingClientRect(), z = document.getElementById('f-goal').getBoundingClientRect();
+        const deckt = [...document.querySelectorAll('.field, .tag')].filter(e => !e.hidden).some(e => { const o = e.getBoundingClientRect(); return r.left < o.right && o.left < r.right && r.top < o.bottom && o.top < r.bottom; });
+        const abstand = Math.hypot((r.left + r.right) / 2 - (z.left + z.right) / 2, (r.top + r.bottom) / 2 - (z.top + z.bottom) / 2);
+        return { sichtbar: true, deckt, nahZiel: abstand < Math.max(z.width, z.height) * 1.2 };
+      });
+      chk(sw.sichtbar && !sw.deckt && sw.nahZiel, `${name}: Schnecke geht mit, am Ziel, verdeckt nichts ${JSON.stringify(sw)}`);
+    }
     else console.log(`hinweis ${name}: nicht alles richtig erkannt (synthetische Ziffern), Tipp erscheint`);
     await page.screenshot({ path: `${SHOTS}/geschrieben-${name}.png` });
     chk(!probleme.length, `${name}: keine Fehler/CSP-Verstöße ${probleme.join(' | ')}`);
