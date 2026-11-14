@@ -1,5 +1,5 @@
 // Schneckengarten: alle Tiere, Deko, Begleiter wählen, Sammelalbum.
-import { ladeParade, speichereParade, begleiterUmschalten, album, describe, SCALE, STAGES, MAX_BEGLEITER, HATS, hutAufsetzen, hutAbnehmen, BLAETTER_PRO_HUT } from '../gemeinsam/parade-logik.js';
+import { ladeParade, speichereParade, begleiterUmschalten, album, describe, SCALE, STAGES, STAGES_KURZ, MAX_BEGLEITER, HATS, hutAufsetzen, hutAbnehmen, BLAETTER_PRO_HUT } from '../gemeinsam/parade-logik.js';
 import { lernzeitNeu } from '../gemeinsam/lernzeit.js';
 import { hutBild } from '../gemeinsam/parade.js';
 import { snailSVG, decoSVG, hatSVG, bugSVG, svgElement } from '../gemeinsam/parade-bilder.js';
@@ -53,12 +53,14 @@ function zeigeGarten() {
     const laeuft = z.walkers.includes(s.id);
     const b = el('button', 'g-snail' + (laeuft ? ' walks' : '')); b.type = 'button';
     b.style.setProperty('--k', s.special === 'kaefer' ? 0.7 : SCALE[s.stage]);
-    const info = s.special === 'kaefer' ? 'Gast' : `${STAGES[s.stage]} · ${s.runs} ${s.runs === 1 ? 'Ausflug' : 'Ausflüge'}`;
+    const ausfluege = `${s.runs} ${s.runs === 1 ? 'Ausflug' : 'Ausflüge'}`;
+    const info = s.special === 'kaefer' ? 'Gast' : `${STAGES_KURZ[s.stage]} · ${ausfluege}`;   // kurz: wenig Platz unter dem Tier
+    const infoLang = s.special === 'kaefer' ? 'Gast' : `${STAGES[s.stage]}, ${ausfluege}`;       // lang: Vorlesetext
     b.append(svgElement(snailSVG(s)), el('span', null, s.name), el('small', null, info));
     if (neu.has(s.id)) b.append(el('span', 'marke neu', 'neu'));
     else if (laeuft) b.append(el('span', 'marke', 'läuft mit'));
     b.setAttribute('aria-pressed', String(laeuft));
-    b.setAttribute('aria-label', `${describe(s)}, ${info}`);
+    b.setAttribute('aria-label', `${describe(s)}, ${infoLang}`);
     b.addEventListener('click', () => waehle(s, b));
     g.append(b);
   });

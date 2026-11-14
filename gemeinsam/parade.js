@@ -101,7 +101,7 @@ export function rueckblick({ neu, gewachsen, deko, huete = [], lernzeitUm = fals
     d.append(el('p', null, huete.length === 1 ? 'Für deinen Salat gibt es eine Kopfbedeckung. Sie liegt in der Hutschachtel im Garten.' : `Für deinen Salat gibt es ${huete.length} Kopfbedeckungen. Sie liegen in der Hutschachtel im Garten.`));
   }
   if (gewachsen.length) {
-    d.append(el('p', null, 'Gewachsen: ' + gewachsen.map(s => `${s.name} ist jetzt ${s.stage >= 3 ? 'eine Glitzerschnecke' : STAGES[s.stage]}`).join(', ') + '.'));
+    d.append(el('p', null, 'Gewachsen: ' + gewachsen.map(s => `${s.name} ist jetzt ${s.stage >= 3 ? 'eine Glitzerschnecke' : 'eine ' + STAGES[s.stage]}`).join(', ') + '.'));
   }
   if (deko) {
     const row = el('div', 'row'); row.append(svgElement(decoSVG(deko))); d.append(row);

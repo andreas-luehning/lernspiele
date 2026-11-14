@@ -29,7 +29,8 @@ const HAT_ART = {
 };
 export const SPECIALS = { glitzer: 'Glitzerhaus', regenbogen: 'Regenbogenhaus', kaefer: 'Marienkäfer' };
 export const DECO = { pilz: 'Pilz', blume: 'Blume', teich: 'Teich', bank: 'Bank', kanne: 'Gießkanne', hotel: 'Schneckenhotel' };
-export const STAGES = ['Baby', 'Klein', 'Groß', 'Glitzer'];
+export const STAGES = ['Babyschnecke', 'Entdeckerschnecke', 'Abenteuerschnecke', 'Glitzerhaus'];
+export const STAGES_KURZ = ['Baby', 'Entdecker', 'Abenteurer', 'Glitzer']; // für kleine Beschriftungen
 const GROW = [0, 2, 5, 10];              // Ausflüge, ab denen die Stufe gilt
 export const SCALE = [0.6, 0.78, 1, 1];  // Größe je Stufe
 // Namen in drei Gruppen. Rosa und Lila bekommen nur Schnecken mit Mädchennamen (Kinder fanden „Karl mit rosa Haus“ falsch);
