@@ -30,14 +30,22 @@ const SHAPES = {
   part2: { cx: 700, cy: 255, w: 220, h: 170, kind: 'oval' },
   goal:  { cx: 880, cy: 480, w: 200, h: 180, kind: 'box' },
 };
-// von/nach: die Felder an den Enden. Pfeile mit Spitze werden so gekürzt, dass die Spitze genau den Rahmen des Feldes berührt (keine Lücke, nicht im Feld).
+// von/nach: die Felder an den Enden. Bei Pfeilen mit Spitze berührt die Spitze genau den Rahmen des Feldes (keine Lücke, nicht im Feld).
 const ARROWS = [
   { pts: [[150, 386], [152, 284], [185, 259]], head: true, von: 'start', nach: 'part1' },
   { pts: [[345, 174], [362, 97], [392, 95]], head: false, von: 'part1', nach: 'ten' },
   { pts: [[608, 95], [645, 97], [664, 170]], head: true, von: 'ten', nach: 'part2' },
   { pts: [[814, 262], [868, 272], [872, 386]], head: false, von: 'part2', nach: 'goal' },
 ];
-const LUFT_PX = 0, STRICH = 9;   // Abstand Spitze–Rahmen in px (0 = berührt), Strichbreite des Pfeils (SVG-Einheiten)
+const LUFT_PX = 0;   // Abstand Spitze–Rahmen in px (0 = berührt)
+// Pfeilspitze: gefülltes Dreieck (Länge, halbe Breite, Randstrich in SVG-Einheiten). Der Strich endet in der Mitte des Dreiecks, damit er nicht durch die Spitze schaut.
+const SPITZE = { L: 34, B: 17, RAND: 3 };
+const qPunkt = ([P0, P1, P2], t) => [0, 1].map(i => (1 - t) ** 2 * P0[i] + 2 * t * (1 - t) * P1[i] + t * t * P2[i]);
+// Teilkurve [a, b] einer quadratischen Kurve (de Casteljau): Form und Richtung bleiben gleich
+function teilkurve(P, a, b) {
+  const k = [0, 1].map(i => (1 - a) * (1 - b) * P[0][i] + (a * (1 - b) + b * (1 - a)) * P[1][i] + a * b * P[2][i]);
+  return [qPunkt(P, a), k, qPunkt(P, b)];
+}
 // Abstand eines Punkts zum Feldrand (positiv = außerhalb), in SVG-Einheiten
 function randAbstand(sh, x, y) {
   const dx = x - sh.cx, dy = y - sh.cy, a = sh.w / 2, b = sh.h / 2;
@@ -45,16 +53,19 @@ function randAbstand(sh, x, y) {
   const r = Math.hypot(dx / a, dy / b); if (r === 0) return -Math.min(a, b);
   return (r - 1) / (Math.hypot(dx / (a * a), dy / (b * b)) / r);
 }
-// Kürzt die Kurve am Ende (Teilkurve nach de Casteljau, Richtung bleibt die der Kurve an der Schnittstelle)
-function kuerzen(ar, frei) {
-  const [P0, P1, P2] = ar.pts;
-  const B = t => [0, 1].map(i => (1 - t) ** 2 * P0[i] + 2 * t * (1 - t) * P1[i] + t * t * P2[i]);
-  const D = t => { const d = [0, 1].map(i => 2 * (1 - t) * (P1[i] - P0[i]) + 2 * t * (P2[i] - P1[i])); const l = Math.hypot(d[0], d[1]) || 1; return [d[0] / l, d[1] / l]; };
-  const spitze = t => { const p = B(t), d = D(t); return [p[0] + d[0] * STRICH / 2, p[1] + d[1] * STRICH / 2]; };
-  const a = 0; let b = 1;   // Anfang bleibt am Feld, nur die Spitze bekommt Abstand
-  while (b > a + 0.2 && randAbstand(SHAPES[ar.nach], ...spitze(b)) < frei) b -= 0.002;
-  const k = [0, 1].map(i => (1 - a) * (1 - b) * P0[i] + (a * (1 - b) + b * (1 - a)) * P1[i] + a * b * P2[i]);
-  return [B(a), k, B(b)];
+// Pfeil mit Spitze: Kurve so kürzen, dass die Dreiecksspitze den Rahmen berührt; dann Strich und Dreieck getrennt berechnen
+function pfeilMitSpitze(ar, frei) {
+  const P = ar.pts;
+  const richtung = t => { const d = [0, 1].map(i => 2 * (1 - t) * (P[1][i] - P[0][i]) + 2 * t * (P[2][i] - P[1][i])); const l = Math.hypot(d[0], d[1]) || 1; return [d[0] / l, d[1] / l]; };
+  let b = 1;
+  const aussen = t => { const p = qPunkt(P, t), u = richtung(t); return [p[0] + u[0] * SPITZE.RAND / 2, p[1] + u[1] * SPITZE.RAND / 2]; };
+  while (b > 0.2 && randAbstand(SHAPES[ar.nach], ...aussen(b)) < frei) b -= 0.002;
+  const E = qPunkt(P, b), u = richtung(b), n = [-u[1], u[0]];
+  const basis = [E[0] - u[0] * SPITZE.L, E[1] - u[1] * SPITZE.L];
+  const dreieck = [E, [basis[0] + n[0] * SPITZE.B, basis[1] + n[1] * SPITZE.B], [basis[0] - n[0] * SPITZE.B, basis[1] - n[1] * SPITZE.B]];
+  // Strich endet etwa in der Mitte des Dreiecks
+  let c = b; while (c > 0.05 && Math.hypot(...[0, 1].map(i => qPunkt(P, c)[i] - E[i])) < SPITZE.L * 0.6) c -= 0.002;
+  return { strich: teilkurve(P, 0, c), dreieck };
 }
 let vertical = false;
 const T = (x, y0) => { const y = zustand.gespiegelt ? GH.H - y0 : y0; return vertical ? [GH.H - y, GH.W - x] : [x, y]; };
@@ -86,14 +97,11 @@ function drawBg() {
   let route = '';
   const frei = LUFT_PX * W / Math.max(1, parseFloat(stage.style.width) || W);   // px → SVG-Einheiten
   for (const ar of ARROWS) {
-    const P = (ar.head ? kuerzen(ar, frei) : ar.pts).map(p => T(p[0], p[1]));   // Pfeile ohne Spitze enden direkt an der Box
+    const teil = ar.head ? pfeilMitSpitze(ar, frei) : { strich: ar.pts };   // Pfeile ohne Spitze enden direkt an der Box
+    const P = teil.strich.map(p => T(p[0], p[1]));
     const d = `M${P[0]} Q${P[1]} ${P[2]}`; s += `<path class="arr" d="${d}"/>`;
     route += (route ? ' ' : '') + d;
-    if (ar.head) {
-      const [ex, ey] = P[2], [cx, cy] = P[1]; const ang = Math.atan2(ey - cy, ex - cx), L = 30, sp = 0.55;
-      const l = [ex - L * Math.cos(ang - sp), ey - L * Math.sin(ang - sp)], r = [ex - L * Math.cos(ang + sp), ey - L * Math.sin(ang + sp)];
-      s += `<path class="arr head" d="M${l} L${ex},${ey} L${r}"/>`;
-    }
+    if (teil.dreieck) s += `<path class="head" d="M${teil.dreieck.map(p => T(p[0], p[1])).join(' L')} Z"/>`;
   }
   s += `<path class="route" id="route" d="${route}"/>`;
   // Plus: Herz beim ersten kleinen Kreis. Minus: Hand beim Start, Herz beim zweiten kleinen Kreis.
