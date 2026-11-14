@@ -50,8 +50,12 @@ function drawBg() {
   let s = '';
   const [ax, ay] = T(120, 450), [bx, by] = T(880, 510);
   s += `<rect class="road" x="${Math.min(ax, bx)}" y="${Math.min(ay, by)}" width="${Math.abs(bx - ax)}" height="${Math.abs(by - ay)}"/>`;
-  for (let x = 236; x <= 740; x += 56) {
-    if (x > 340 && x < 630) continue;
+  // Gleichmäßige Mittelstreifen über die ganze Straße, symmetrisch zur Mitte (x = 500).
+  // Weggelassen wird nur, was ein Feld auf der Fahrbahn berührt (Start, großer Kreis, Ziel), mit etwas Luft.
+  const DECKT = ['start', 'big', 'goal'].map(k => SHAPES[k]);
+  for (let x = 486 - 56 * 7; x <= 486 + 56 * 7; x += 56) {
+    if (x < 120 || x + 28 > 880) continue;
+    if (DECKT.some(f => x + 28 > f.cx - f.w / 2 - 8 && x < f.cx + f.w / 2 + 8)) continue;
     const [p, q] = T(x, 474), [p2, q2] = T(x + 28, 486);
     s += `<rect class="dash" x="${Math.min(p, p2)}" y="${Math.min(q, q2)}" width="${Math.abs(p2 - p)}" height="${Math.abs(q2 - q)}"/>`;
   }
