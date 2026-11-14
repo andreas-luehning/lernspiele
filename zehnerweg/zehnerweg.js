@@ -30,14 +30,14 @@ const SHAPES = {
   part2: { cx: 700, cy: 255, w: 220, h: 170, kind: 'oval' },
   goal:  { cx: 880, cy: 480, w: 200, h: 180, kind: 'box' },
 };
-// von/nach: die Felder an den Enden. Pfeile mit Spitze werden so gekürzt, dass zwischen Spitze und Leuchtring (.field.target) LUFT_PX px frei bleiben.
+// von/nach: die Felder an den Enden. Pfeile mit Spitze werden so gekürzt, dass die Spitze genau den Rahmen des Feldes berührt (keine Lücke, nicht im Feld).
 const ARROWS = [
   { pts: [[150, 386], [152, 284], [185, 259]], head: true, von: 'start', nach: 'part1' },
   { pts: [[345, 174], [362, 97], [392, 95]], head: false, von: 'part1', nach: 'ten' },
   { pts: [[608, 95], [645, 97], [664, 170]], head: true, von: 'ten', nach: 'part2' },
   { pts: [[814, 262], [868, 272], [872, 386]], head: false, von: 'part2', nach: 'goal' },
 ];
-const RING_PX = 4, LUFT_PX = 8, STRICH = 9;   // Leuchtring (CSS), sichtbarer Abstand, Strichbreite des Pfeils (SVG-Einheiten)
+const LUFT_PX = 0, STRICH = 9;   // Abstand Spitze–Rahmen in px (0 = berührt), Strichbreite des Pfeils (SVG-Einheiten)
 // Abstand eines Punkts zum Feldrand (positiv = außerhalb), in SVG-Einheiten
 function randAbstand(sh, x, y) {
   const dx = x - sh.cx, dy = y - sh.cy, a = sh.w / 2, b = sh.h / 2;
@@ -84,7 +84,7 @@ function drawBg() {
     const [a, b] = T(x1, y1), [c, d] = T(x2, y2); s += `<line class="conn" x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`;
   }
   let route = '';
-  const frei = (RING_PX + LUFT_PX) * W / Math.max(1, parseFloat(stage.style.width) || W);   // px → SVG-Einheiten
+  const frei = LUFT_PX * W / Math.max(1, parseFloat(stage.style.width) || W);   // px → SVG-Einheiten
   for (const ar of ARROWS) {
     const P = (ar.head ? kuerzen(ar, frei) : ar.pts).map(p => T(p[0], p[1]));   // Pfeile ohne Spitze enden direkt an der Box
     const d = `M${P[0]} Q${P[1]} ${P[2]}`; s += `<path class="arr" d="${d}"/>`;
