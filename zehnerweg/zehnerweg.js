@@ -30,7 +30,7 @@ const SHAPES = {
   part2: { cx: 700, cy: 255, w: 220, h: 170, kind: 'oval' },
   goal:  { cx: 880, cy: 480, w: 200, h: 180, kind: 'box' },
 };
-// von/nach: die Felder an den Enden. Der Pfeil wird so gekürzt, dass zwischen Spitze und Leuchtring (.field.target) LUFT_PX px frei bleiben.
+// von/nach: die Felder an den Enden. Pfeile mit Spitze werden so gekürzt, dass zwischen Spitze und Leuchtring (.field.target) LUFT_PX px frei bleiben.
 const ARROWS = [
   { pts: [[150, 386], [152, 284], [185, 259]], head: true, von: 'start', nach: 'part1' },
   { pts: [[345, 174], [362, 97], [392, 95]], head: false, von: 'part1', nach: 'ten' },
@@ -86,7 +86,7 @@ function drawBg() {
   let route = '';
   const frei = (RING_PX + LUFT_PX) * W / Math.max(1, parseFloat(stage.style.width) || W);   // px → SVG-Einheiten
   for (const ar of ARROWS) {
-    const P = kuerzen(ar, frei).map(p => T(p[0], p[1]));
+    const P = (ar.head ? kuerzen(ar, frei) : ar.pts).map(p => T(p[0], p[1]));   // Pfeile ohne Spitze enden direkt an der Box
     const d = `M${P[0]} Q${P[1]} ${P[2]}`; s += `<path class="arr" d="${d}"/>`;
     route += (route ? ' ' : '') + d;
     if (ar.head) {
