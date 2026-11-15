@@ -21,8 +21,8 @@ Regel aus `CLAUDE.md`: Vor Änderungen an Regeln erst die passende Datei in `doc
 - [ ] Variante „Schnecke läuft den Rechenweg ab“ am Ende der Aufgabe (kurz, überspringbar), nur falls „geht mit“ nicht reicht. — **Opus**
 
 - [ ] Aktuelle Fassung testen und als Pull Request nach `main` übernehmen; danach nur noch kleine Fehler. — **Sonnet**
-- [ ] Numi als eigene Welt einbauen (eigene Sammlung, gemeinsame Lernzeit; vorher klären: gleiche Adresse oder nur verlinkt). — **Opus**
-- [ ] Burgen als Variante im Leuchttisch (Vorlage `prototypen/burgen.html`). — **Opus**
+- [ ] Numi als eigene Welt einbauen (Repo `andreas-luehning/numi`; eigene Sammlung, gemeinsame Lernzeit; vorher klären: gleiche Adresse oder nur verlinkt, Vorschlag im Sprint). — **Opus**
+- [ ] Burgen als Stufe im Leuchttisch, parallel zu den Steinen, mit eigener Belohnung (Vorlage `prototypen/burgen.html`). Im Sprint. — **Opus**
 - [ ] Zehnerweg, höhere Stufe: Zehnerübergang mit größeren Zahlen, z. B. 70 + 8, 55 + 7. — **Opus**
 - [ ] Zahlenmauern auf dem Leuchttisch: Mauer auf dem Tisch, Schreibfelder in den Mauersteinen. — **Opus**
 - [ ] Hauptbelohnung für eine fertige Runde am Leuchttisch (bisher nur „Geschafft!“). — **Opus**

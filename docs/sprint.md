@@ -12,10 +12,12 @@ Gesamtliste: `backlog.md`. Regeln: `CLAUDE.md` (zuerst `docs/` anpassen, dann Co
 | 0 | Testfassung nach `main` übernehmen | Sonnet | – (Pull Request) | klein |
 | 1 | Schalter „Deutsche Schreibschrift“ und deutsche 9 | Opus | `deutsche-schreibschrift` | mittel |
 | 2 | Neue lustige Kopfbedeckungen, fehlende stärker bevorzugen | Sonnet | `neue-kopfbedeckungen` | klein |
-| 3 | Entwurf „Zehner voll machen“ mit Steinen zum Verschieben | Opus | `entwurf-zehner-voll-machen` | mittel |
-| 4 | (nur wenn Zeit bleibt) Rundenbelohnung Leuchttisch klären | Opus | – (nur Doku) | klein |
+| 3 | Burgen als Stufe im Leuchttisch, mit eigener Belohnung | Opus | `leuchttisch-burgen` | mittel |
+| 4 | Numi anbinden: Repo prüfen, Vorschlag machen | Opus | – (zuerst nur Doku) | klein |
+| 5 | Entwurf „Zehner voll machen“ mit Steinen zum Verschieben | Opus | `entwurf-zehner-voll-machen` | mittel |
+| 6 | (nur wenn Zeit bleibt) Rundenbelohnung Leuchttisch klären | Opus | – (nur Doku) | klein |
 
-Bewusst nicht in diesem Sprint: Numi, Burgen, Zehnerweg über 20, Zahlenmauern, Smartphone-Fassung, Freischalten. Sie brauchen jeweils eigene Entscheidungen.
+Bewusst nicht in diesem Sprint: Zehnerweg über 20, Zahlenmauern, Smartphone-Fassung, Freischalten. Sie brauchen jeweils eigene Entscheidungen.
 
 ## 0 · Testfassung nach `main`
 
@@ -39,7 +41,21 @@ Auf dem Tablet testen: 9, 7 und 1 in deutscher Schrift schreiben, mit Schalter a
 
 Auf dem Tablet testen: Hutschachtel im Garten, Sammelalbum.
 
-## 3 · Entwurf „Zehner voll machen“ (Opus)
+## 3 · Burgen im Leuchttisch (Opus)
+
+Entscheidung Lehrkraft (15.11.): Burgen werden eine Stufe im Leuchttisch, **parallel zu den Steinen**, aber mit **eigener Belohnung** (nicht Amulette). Der Prototyp `prototypen/burgen.html` ist fertig und erprobt.
+
+> Lies `CLAUDE.md`, `docs/leuchttisch.md`, `docs/uebergaben/burgen-auftrag.md`, `prototypen/burgen.html` und `leuchttisch/`. Baue die Burgen als neue Stufe „Burg“ im Leuchttisch: Generator und Zeichnung (`makeCastle`, `renderCastle`, `drawPiece`, Bauteile) **aus dem Prototyp übernehmen, nicht neu erfinden**; Regeln wie im Auftrag (jedes Teil zählt 1, Turm · Mitte · Turm, 8–13 Teile). Gleiche Antworten (tippen/schreiben), Runde und Lernzeit wie bei den Steinen; „Zeig mir's“ zählt Turm, Mitte, Turm durch und zeigt „a + b + c = ?“, nie das Ergebnis. Keine Numi-Figuren, Schriften lokal, kein Inline-JS (CSP). **Belohnung:** zuerst 2–3 Vorschläge für eine eigene Burgen-Sammlung in `docs/leuchttisch.md` schreiben (z. B. Fahnen oder Wappen; Grundsatz 7: fertige Runde = Hauptbelohnung, richtige Burg = Extra) und die Lehrkraft entscheiden lassen, bevor die Belohnung gebaut wird. Branch `leuchttisch-burgen` von `main`. VERSION in `sw.js` erhöhen. Tests: `node tests/logik.mjs`, `node tests/browser.js`, `node tests/leuchttisch-browser.js`, dazu Logik-Tests für den Generator (immer 8–13 Teile, symmetrisch).
+
+Auf dem Tablet testen: Burgen zählen, „Zeig mir's“, hoch und quer.
+
+## 4 · Numi anbinden (Opus, zuerst nur Doku)
+
+Numi ist ein eigenes Repository: `andreas-luehning/numi` (in dieser Umgebung erreichbar). Laut `ideen-und-offene-fragen.md` bleibt Numi eine eigene Welt mit eigener Belohnung (Numis Freunde), gekoppelt nur über die gemeinsame Lernzeit.
+
+> Füge das Repository `andreas-luehning/numi` zur Sitzung hinzu und lies es (Aufbau, Speicher-Schlüssel, Service Worker, Schriften, externe Anfragen). Lies dazu `CLAUDE.md` und den Abschnitt „Numi“ in `docs/ideen-und-offene-fragen.md`. Schreibe in `docs/numi.md` einen kurzen Vorschlag mit zwei Wegen: (a) **nur verlinkt** (Kachel auf der Startseite, Numi bleibt eigene Adresse, eigener Speicher, keine gemeinsame Lernzeit) und (b) **eingebaut** (Numi als Ordner `numi/` hier, gemeinsamer Speicher und Lernzeit, ein Service Worker). Für beide: Aufwand, Risiken (Datenschutz-Regeln: keine Google Fonts, keine fremden Anfragen, CSP), was am Numi-Code geändert werden müsste. Empfehlung geben. **Keinen Code ändern**, weder hier noch im Numi-Repository.
+
+## 5 · Entwurf „Zehner voll machen“ (Opus)
 
 Richtung aus dem Backlog: Steine zum Verschieben statt nur Zahl tippen. Laut `CLAUDE.md` neue Konzepte erst als Entwurf zeigen.
 
@@ -49,7 +65,7 @@ Auf dem Tablet testen: Ziehen mit Finger und Stift, auch schnell und über den R
 
 **Richtung danach (Entscheidung Lehrkraft, 15.11.):** „Zehner voll machen“ wird ein **eigenes Spiel** mit eigener Belohnung, in Richtung Burgen: Jeder volle Zehner wird ein leuchtender Zehnerstein, mit dem eine **Burg Stein für Stein wächst** (Mauer, Turm, Tor, Fahnen). Eine fertige 5-Minuten-Runde bringt ein besonderes Teil (Dach, Fahne). Eigene Sammlung, getrennt von Amuletten und Schnecken (Grundsatz 7). Im Sprint nur der Entwurf zum Ziehen.
 
-## 4 · Rundenbelohnung Leuchttisch (Opus, nur wenn Zeit bleibt)
+## 6 · Rundenbelohnung Leuchttisch (Opus, nur wenn Zeit bleibt)
 
 Offen seit dem Leuchttisch-Entwurf: Was bringt eine fertige 5-Minuten-Runde am Leuchttisch (Grundsatz 7: Durchhalten = Hauptbelohnung)? Nur Vorschläge in `docs/leuchttisch.md` schreiben, keinen Code.
 
