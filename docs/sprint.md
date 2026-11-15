@@ -13,7 +13,7 @@ Gesamtliste: `backlog.md`. Regeln: `CLAUDE.md` (zuerst `docs/` anpassen, dann Co
 | 1 | Schalter „Deutsche Schreibschrift“ und deutsche 9 | Opus | `deutsche-schreibschrift` | mittel |
 | 2 | Neue lustige Kopfbedeckungen, fehlende stärker bevorzugen | Sonnet | `neue-kopfbedeckungen` | klein |
 | 3 | Burgen als Stufe im Leuchttisch, mit eigener Belohnung | Opus | `leuchttisch-burgen` | mittel |
-| 4 | Numi anbinden: Repo prüfen, Vorschlag machen | Opus | – (zuerst nur Doku) | klein |
+| 4 | Numi einbauen: A zum Testen im Erwachsenenbereich, B für Kinder bis Samstag | Opus | `numi-einbauen` | mittel |
 | 5 | Entwurf „Zehner voll machen“ mit Steinen zum Verschieben | Opus | `entwurf-zehner-voll-machen` | mittel |
 | 6 | (nur wenn Zeit bleibt) Rundenbelohnung Leuchttisch klären | Opus | – (nur Doku) | klein |
 
@@ -49,11 +49,14 @@ Entscheidung Lehrkraft (15.11.): Burgen werden eine Stufe im Leuchttisch, **para
 
 Auf dem Tablet testen: Burgen zählen, „Zeig mir's“, hoch und quer.
 
-## 4 · Numi anbinden (Opus, zuerst nur Doku)
+## 4 · Numi einbauen (Opus)
 
-Numi ist ein eigenes Repository: `andreas-luehning/numi` (in dieser Umgebung erreichbar). Laut `ideen-und-offene-fragen.md` bleibt Numi eine eigene Welt mit eigener Belohnung (Numis Freunde), gekoppelt nur über die gemeinsame Lernzeit.
+Entscheidung Lehrkraft (15.11.): Numi kommt **ganz hier hinein** (Ordner `numi/`), nicht nur verlinkt. Gründe: eine App, eine Installation, gemeinsame Lernzeit (Grundsatz 1). Numi-Repository `andreas-luehning/numi`: reines JavaScript ohne Build (React liegt lokal in `vendor/`, Code in `app.js`, ~1400 Zeilen), Speicher `numi-save-v1`, eigener Service Worker, lädt einmal Google Fonts, Inline-Skript in `index.html`. Gleiche Adresse (`andreas-luehning.github.io`), daher kann der alte Spielstand übernommen werden.
 
-> Füge das Repository `andreas-luehning/numi` zur Sitzung hinzu und lies es (Aufbau, Speicher-Schlüssel, Service Worker, Schriften, externe Anfragen). Lies dazu `CLAUDE.md` und den Abschnitt „Numi“ in `docs/ideen-und-offene-fragen.md`. Schreibe in `docs/numi.md` einen kurzen Vorschlag mit zwei Wegen: (a) **nur verlinkt** (Kachel auf der Startseite, Numi bleibt eigene Adresse, eigener Speicher, keine gemeinsame Lernzeit) und (b) **eingebaut** (Numi als Ordner `numi/` hier, gemeinsamer Speicher und Lernzeit, ein Service Worker). Für beide: Aufwand, Risiken (Datenschutz-Regeln: keine Google Fonts, keine fremden Anfragen, CSP), was am Numi-Code geändert werden müsste. Empfehlung geben. **Keinen Code ändern**, weder hier noch im Numi-Repository.
+**Schritt A (zum Testen):** Numi als `numi/` einbauen und **nur über einen Link „Numi (Test)“ im Bereich „Für Erwachsene“** der Startseite erreichbar machen.
+> Füge das Repository `andreas-luehning/numi` zur Sitzung hinzu. Lege `docs/numi.md` an (was übernommen wird, was angepasst wird). Kopiere Numi nach `numi/` (`index.html`, `app.js`, `vendor/`, Icons nur falls nötig). Anpassen: keine Google Fonts (lokale Schriften aus `gemeinsam/schriften/`), Inline-Skript und Inline-`<style>` in eigene Dateien, CSP/Referrer/Robots-Meta wie `zehnerweg/index.html`, Numis eigenen Service Worker weglassen (die Seite nutzt `gemeinsam/app.js` und `sw.js`; Numi-Dateien in `DATEIEN` eintragen), Zurück-Knopf zur Startseite. Speicher vorerst unverändert lassen (`numi-save-v1`), damit der bestehende Spielstand gilt. Prüfen, ob Numi Vorlesen nutzt und ob dabei Online-Stimmen verwendet würden (nicht erlaubt). Link „Numi (Test)“ im Erwachsenenbereich der Startseite, **keine** Kachel für Kinder. Branch `numi-einbauen` von `main`. VERSION in `sw.js` erhöhen. Tests: `node tests/app-browser.js` (Dateiliste), dazu ein Playwright-Test: `numi/` lädt ohne Fehler, ohne fremde Anfragen, ohne CSP-Verstöße.
+
+**Schritt B (bis Samstag):** Kachel auf der Startseite, gemeinsame Runde und Lernzeit statt Numis eigener Minuten-Uhr, eigene Sammlung „Numis Freunde“ (Grundsatz 7), Speicher unter `lernspiele:numi` über `gemeinsam/speicher.js` mit einmaliger Übernahme aus `numi-save-v1`. Erst `docs/numi.md` ergänzen, dann bauen.
 
 ## 5 · Entwurf „Zehner voll machen“ (Opus)
 
