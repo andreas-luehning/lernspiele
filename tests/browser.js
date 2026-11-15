@@ -184,6 +184,7 @@ const { schreibe } = require('./hilfen.js');
       const z = JSON.parse(localStorage.getItem('lernspiele:leuchttisch')); z.runde = null; z.fassung = []; localStorage.setItem('lernspiele:leuchttisch', JSON.stringify(z)); });
     await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);
     chk(/Lernzeit/.test(await p.textContent('#hinweis')), 'leuchttisch: Lernzeit um wird angezeigt');
+    chk(/Morgen sammelst du weiter/.test(await p.textContent('#amulett')) && await p.$eval('#amulett', e => e.classList.contains('heute-fertig')), 'leuchttisch: Lernzeit um, Amulett blass mit „Morgen sammelst du weiter“');
     n0 = await p.$$eval('.tisch .stein', s => s.length); await p.click(`.opt[data-wert="${n0}"]`); await p.waitForTimeout(400);
     chk(await p.$eval('#amulett svg', s => +s.dataset.fuellung) === 0 && /Super/.test(await p.textContent('#hinweis')), 'leuchttisch: freies Üben lobt, gibt aber keinen Stein');
     await p.goto(BASE); await p.evaluate(() => localStorage.removeItem('lernspiele:lernzeit')); await p.goto(BASE + 'leuchttisch/'); await p.waitForTimeout(300);

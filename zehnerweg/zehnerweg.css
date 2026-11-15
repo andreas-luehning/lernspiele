@@ -133,3 +133,6 @@ header { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
 .wanderer svg { display: block; width: 100%; height: auto; }
 .wanderer.feiert svg { animation: freuen .45s ease-in-out 3; transform-origin: 50% 90%; }
 @keyframes freuen { 25% { transform: rotate(-8deg) translateY(-6%); } 75% { transform: rotate(8deg) translateY(-6%); } }
+/* Freie Zeit (Lernzeit um): die Schnecke schläft */
+.wanderer.schlaeft svg { opacity: .7; }
+.wanderer.schlaeft::after { content: "Zzz"; position: absolute; right: -10%; top: -30%; font: 800 1rem var(--display); color: var(--muted); }

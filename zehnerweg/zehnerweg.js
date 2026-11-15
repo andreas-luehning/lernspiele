@@ -304,15 +304,18 @@ function wandererZeigen(feiern = false) {
   if (!zustand.schnecke || !tier || !task) { wanderer.hidden = true; return; }
   if (wandererId !== tier.id) { wanderer.replaceChildren(svgElement(snailSVG(tier))); wandererId = tier.id; }
   // So weit, wie die Felder der Reihe nach stimmen
+  // Lernzeit für heute um (freies Üben): Die Schnecke schläft am Start und geht nicht mit
+  const schlaeft = !runde.laeuft && !runde.heuteMoeglich;
+  wanderer.classList.toggle('schlaeft', schlaeft);
   let k = 0;
-  for (const id of ORDER) { if (FIELDS[id].value === task.ans[id]) k++; else break; }
+  if (!schlaeft) for (const id of ORDER) { if (FIELDS[id].value === task.ans[id]) k++; else break; }
   const station = ['start', ...ORDER][k];
   const platz = freierPlatz(FIELDS[station].el);
   if (!platz) { wanderer.hidden = true; return; }
   const st = stage.getBoundingClientRect();
   wanderer.hidden = false;
   Object.assign(wanderer.style, { left: platz.x / st.width * 100 + '%', top: platz.y / st.height * 100 + '%', width: platz.b / st.width * 100 + '%' });
-  wanderer.classList.toggle('feiert', feiern && station === 'goal');
+  wanderer.classList.toggle('feiert', feiern && !schlaeft && station === 'goal');
 }
 
 /* ---------- Schneckenparade ---------- */

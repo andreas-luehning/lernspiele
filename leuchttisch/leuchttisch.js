@@ -188,6 +188,10 @@ function schatzZeigen(neu = -1, voll = false) {
   }
 }
 function fassungText() {
+  // Lernzeit für heute um (freies Üben): es kommen keine Steine dazu, das soll man sehen
+  const fertig = !runde.laeuft && !runde.heuteMoeglich;
+  $('amulett').classList.toggle('heute-fertig', fertig);
+  if (fertig) return 'Morgen sammelst du weiter!';
   const fehlt = FASSUNGEN - zustand.fassung.length;
   return fehlt === 1 ? 'Noch 1 Stein!' : `Noch ${fehlt} Steine`;
 }
@@ -226,6 +230,7 @@ const runde = new Runde({
     else runde.beenden();
   },
   onEnde: erg => {
+    schatzZeigen();                             // ist die Lernzeit jetzt um, wird das Amulett blass mit „Morgen sammelst du weiter!“
     const n = erg.steine;
     rundenNachricht = `Geschafft! 5 Minuten geübt. ${n === 1 ? 'Ein Stein' : n + ' Steine'} für dein Amulett.` + (erg.lernzeitUm ? ' ' + LERNZEIT_UM : '');
     if (!geloest) { zeigeHinweis(rundenNachricht, 'good'); rundenNachricht = ''; }
