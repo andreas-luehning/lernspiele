@@ -47,6 +47,8 @@ Richtung aus dem Backlog: Steine zum Verschieben statt nur Zahl tippen. Laut `CL
 
 Auf dem Tablet testen: Ziehen mit Finger und Stift, auch schnell und über den Rand hinaus.
 
+**Richtung danach (Entscheidung Lehrkraft, 15.11.):** „Zehner voll machen“ wird ein **eigenes Spiel** mit eigener Belohnung, in Richtung Burgen: Jeder volle Zehner wird ein leuchtender Zehnerstein, mit dem eine **Burg Stein für Stein wächst** (Mauer, Turm, Tor, Fahnen). Eine fertige 5-Minuten-Runde bringt ein besonderes Teil (Dach, Fahne). Eigene Sammlung, getrennt von Amuletten und Schnecken (Grundsatz 7). Im Sprint nur der Entwurf zum Ziehen.
+
 ## 4 · Rundenbelohnung Leuchttisch (Opus, nur wenn Zeit bleibt)
 
 Offen seit dem Leuchttisch-Entwurf: Was bringt eine fertige 5-Minuten-Runde am Leuchttisch (Grundsatz 7: Durchhalten = Hauptbelohnung)? Nur Vorschläge in `docs/leuchttisch.md` schreiben, keinen Code.

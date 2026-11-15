@@ -32,7 +32,7 @@ Regel aus `CLAUDE.md`: Vor Änderungen an Regeln erst die passende Datei in `doc
 Richtung für alle: **Steine zum Verschieben** (Kind bewegt die Steine mit Finger oder Stift, nicht nur zählen und schreiben). Zuerst die Verschiebe-Grundlage bauen, dann die Spiele darauf.
 
 - [ ] Steine zum Verschieben: Grundlage (Ziehen mit Finger/Stift, Ablegen in Bereiche, robust wie das Schreibfeld). — **Opus**
-- [ ] Zehner voll machen: Steine so ergänzen, dass der Zehner voll wird (Zehnerübergang). — **Opus**
+- [ ] Zehner voll machen: Steine so ergänzen, dass der Zehner voll wird (Zehnerübergang). Eigenes Spiel; Belohnung: jeder volle Zehner ist ein Baustein, eine Burg wächst (Verbindung zu den Burgen). Entwurf im Sprint. — **Opus**
 - [ ] Balkenwaage: Steine auf beide Seiten legen, bis die Waage im Gleichgewicht ist. — **Opus**
 - [ ] Spiegel-Amulett: Halbes Amulett, die andere Hälfte gespiegelt ergänzen (Verdoppeln). — **Sonnet**
 - [ ] Gerecht teilen: Steine gleichmäßig auf zwei Gruppen verteilen. — **Sonnet**
