@@ -3,6 +3,7 @@
 Eine einzige Liste, sortiert nach Priorität. Von oben nach unten abarbeiten.
 **Opus** = größere oder knifflige Aufgabe (Regeln, neue Spielmechanik, Zahlenerkennung, Entwurf). **Sonnet** = klar umrissen, kleine Änderung oder Text.
 Quellen und Details: `ideen-und-offene-fragen.md`, `leuchttisch.md`, `schneckenparade.md`.
+Aktueller Sprint (16.–21.11.): `sprint.md`.
 Regel aus `CLAUDE.md`: Vor Änderungen an Regeln erst die passende Datei in `docs/` anpassen, dann den Code.
 
 ## 1. Kleine Fehler (Rückmeldungen vom Tablet-Test, 11.11.2026)
