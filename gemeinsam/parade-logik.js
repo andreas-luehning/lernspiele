@@ -74,7 +74,7 @@ export function describe(s) {
 /* ---------- Speichern und Prüfen ---------- */
 
 const STANDARD = {
-  garden: [], walkers: [], leaves: 0, hutschachtel: [], hueteGefunden: [], practiceDays: 0, lastPracticeDay: '',
+  garden: [], walkers: [], helfer: null, leaves: 0, hutschachtel: [], hueteGefunden: [], practiceDays: 0, lastPracticeDay: '',
   deco: [], newCount: 0, nextId: 1, runde: null,
 };
 // Felder älterer Spielstände, die beim Laden noch gelesen werden, um sie zu übernehmen
@@ -112,6 +112,7 @@ export function bereinigeZustand(roh, rnd = Math.random) {
   z.garden = (Array.isArray(z.garden) ? z.garden : []).slice(0, MAX_TIERE).map(pruefeSchnecke)
     .filter(s => s && !ids.has(s.id) && ids.add(s.id));
   z.walkers = [...new Set((Array.isArray(z.walkers) ? z.walkers : []).filter(id => ids.has(id)))].slice(0, MAX_BEGLEITER);
+  z.helfer = z.garden.some(t => t.id === z.helfer && t.special !== 'kaefer') ? z.helfer : null;
   z.leaves = istZahl(z.leaves, BLAETTER_PRO_HUT - 1) ? z.leaves : 0;
   z.hutschachtel = (Array.isArray(z.hutschachtel) ? z.hutschachtel : []).filter(istHut).slice(0, MAX_SCHACHTEL);
   z.hueteGefunden = Object.keys(HATS).filter(k => (Array.isArray(z.hueteGefunden) && z.hueteGefunden.includes(k)) || z.hutschachtel.includes(k) || z.garden.some(s => s.hat === k));
@@ -152,7 +153,7 @@ export const speichereParade = z => schreiben('parade', z);
 
 /** Neuer Garten: eine Babyschnecke ohne Kopfbedeckung, die gleich mitläuft. Jede fertige Runde bringt die nächste. */
 export function startGarten(z, rnd = Math.random, tag = heute()) {
-  const n = { ...structuredClone(STANDARD), ...z, garden: [], walkers: [] };
+  const n = { ...structuredClone(STANDARD), ...z, garden: [], walkers: [], helfer: null };
   const s = neueSchnecke(n, rnd, tag, 'start'); s.special = null; n.garden.push(s); n.walkers.push(s.id);
   return n;
 }
@@ -286,11 +287,31 @@ export function hutAbnehmen(z, id) {
   return true;
 }
 
-/** Wer läuft gerade auf der Straße: Begleiter, dann die Neuen dieser Runde. */
-export function parade(z) {
+/** Alle, die in dieser Runde (oder davor) mitlaufen: Begleiter, dann die Neuen dieser Runde. */
+function mitlaeufer(z) {
   const ids = z.runde ? [...z.runde.begleiter, ...z.runde.neu] : [...z.walkers];
   const byId = new Map(z.garden.map(s => [s.id, s]));
   return ids.map(id => byId.get(id)).filter(Boolean);
+}
+
+/** Rechenhelfer: die gewählte Schnecke, sonst die erste Begleitschnecke (kein Marienkäfer). */
+export function rechenhelfer(z) {
+  return z.garden.find(s => s.id === z.helfer) || mitlaeufer(z).find(s => s.special !== 'kaefer') || null;
+}
+
+/** Rechenhelfer wählen (nur einer); dieselbe Schnecke nochmal nimmt die Wahl zurück. */
+export function helferUmschalten(z, id) {
+  const s = z.garden.find(x => x.id === id);
+  if (!s || s.special === 'kaefer') return false;
+  z.helfer = z.helfer === id ? null : id;
+  return true;
+}
+
+/** Wer läuft gerade auf der Straße. Der Rechenhelfer fehlt dort, solange noch eine andere Schnecke läuft (sonst doppelt zu sehen). */
+export function parade(z) {
+  const alle = mitlaeufer(z);
+  const h = rechenhelfer(z);
+  return alle.length > 1 && h && alle.includes(h) ? alle.filter(s => s !== h) : alle;
 }
 
 /** Sammelalbum: was ist schon entdeckt? */

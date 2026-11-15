@@ -1,6 +1,6 @@
 // Prüft die Regeln der Schneckenparade ohne Browser. Aufruf: node tests/parade-logik.mjs
 import {
-  startGarten, rundeStarten, richtig, falsch, rundeBeenden, begleiterUmschalten, bereinigeZustand, parade, album,
+  startGarten, rundeStarten, richtig, falsch, rundeBeenden, begleiterUmschalten, helferUmschalten, rechenhelfer, bereinigeZustand, parade, album,
   stageOf, neueSchnecke, pausieren, fortsetzen, restzeit, hutAufsetzen, hutAbnehmen, setzeBevorzugt, FEHLT_BEVORZUGT,
   BLAETTER_PRO_HUT, HATS, MIN_RICHTIG, COLORS, namePasst, MAEDCHEN_NAMEN, JUNGEN_NAMEN, NEUTRALE_NAMEN,
 } from '../gemeinsam/parade-logik.js';
@@ -153,6 +153,22 @@ chk(farben.garden.map(s => s.color).join() === 'rosa,gruen,lila,gelb,rot,kobalt,
 const voll = { garden: [], nextId: 1 };
 for (let i = 0; i < 40; i++) voll.garden.push(neueSchnecke(voll, zufall(i + 1)));
 chk(new Set(voll.garden.map(s => s.name)).size === 40, 'Auch bei mehr als 30 Schnecken keine doppelten Namen');
+
+// Rechenhelfer
+{ const h = startGarten({}, zufall(5), T1);
+  chk(rechenhelfer(h).id === h.garden[0].id && parade(h).length === 1, 'Rechenhelfer ohne Wahl: erste Begleitschnecke, allein bleibt sie auf der Straße');
+  for (let i = 0; i < 2; i++) { const n = neueSchnecke(h, zufall(20 + i)); n.special = null; h.garden.push(n); h.walkers.push(n.id); }
+  chk(!parade(h).includes(rechenhelfer(h)) && parade(h).length === 2, 'Ohne Wahl: erste Begleitschnecke fehlt auf der Straße, solange andere laufen');
+  const fremd = h.garden[2]; chk(helferUmschalten(h, fremd.id) && h.helfer === fremd.id && rechenhelfer(h).id === fremd.id, 'Helfer gewählt');
+  chk(!parade(h).some(s => s.id === fremd.id) && parade(h).length === 2, 'Gewählter Helfer läuft nicht in der Parade');
+  chk(helferUmschalten(h, fremd.id) && h.helfer === null, 'Nochmal tippen nimmt die Wahl zurück');
+  h.walkers = [h.garden[0].id]; helferUmschalten(h, h.garden[2].id);
+  chk(parade(h).length === 1 && rechenhelfer(h).id === h.garden[2].id, 'Helfer ohne Begleiter: Parade unverändert');
+  const k = { ...h.garden[1], id: 99, special: 'kaefer' }; h.garden.push(k);
+  chk(!helferUmschalten(h, 99) && !helferUmschalten(h, 12345), 'Marienkäfer und fremde Ids können nicht Helfer sein');
+  const b = bereinigeZustand({ ...structuredClone(h), helfer: 99 }); chk(b.helfer === null, 'Helfer Marienkäfer beim Lesen verworfen');
+  const b2 = bereinigeZustand({ ...structuredClone(h), helfer: '<b>' }); chk(b2.helfer === null, 'Helfer mit falschem Typ verworfen');
+  const b3 = bereinigeZustand({ ...structuredClone(h) }); chk(b3.helfer === h.garden[2].id, 'Gültiger Helfer bleibt'); }
 
 console.log(fehler ? `${fehler} FEHLER` : 'ALLES OK');
 process.exit(fehler ? 1 : 0);

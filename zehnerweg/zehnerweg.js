@@ -5,7 +5,7 @@ import { lesen, schreiben, vorhanden, altLesen } from '../gemeinsam/speicher.js'
 import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgaben.js';
 import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
 import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
-import { richtig, falsch, parade, HATS, BLAETTER_PRO_HUT, MIN_RICHTIG } from '../gemeinsam/parade-logik.js';
+import { richtig, falsch, parade, rechenhelfer, HATS, BLAETTER_PRO_HUT, MIN_RICHTIG } from '../gemeinsam/parade-logik.js';
 import { snailSVG, svgElement } from '../gemeinsam/parade-bilder.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
@@ -300,7 +300,7 @@ function freierPlatz(feldEl) {
   return null;
 }
 function wandererZeigen(feiern = false) {
-  const tier = runde && parade(runde.z).find(t => t.special !== 'kaefer');
+  const tier = runde && rechenhelfer(runde.z);
   if (!zustand.schnecke || !tier || !task) { wanderer.hidden = true; return; }
   if (wandererId !== tier.id) { wanderer.replaceChildren(svgElement(snailSVG(tier))); wandererId = tier.id; }
   // So weit, wie die Felder der Reihe nach stimmen

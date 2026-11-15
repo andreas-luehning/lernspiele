@@ -67,3 +67,5 @@
 .hs-ab { background: var(--paper); }
 .hs-zahl { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; border-radius: 999px; background: var(--btn); color: var(--btn-fg); font: 800 .8rem/22px var(--display); text-align: center; padding: 0 4px; }
 .hut-modus .g-snail:not(:disabled) { border-style: dashed; border-color: var(--btn); }
+
+.g-snail .marke.helfer { left: 4px; right: auto; background: var(--sun, #f6c945); color: #1d2747; font-size: .95rem; padding: 0 6px; }

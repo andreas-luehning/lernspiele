@@ -89,8 +89,8 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
 
   // Garten: Hutschachtel und Sammelalbum
   await page.click('#b-garten'); await page.waitForURL(/garten/); await page.waitForTimeout(400);
-  chk(await page.locator('.hs-hut:not(.hs-ab)').count() === 1, 'Hutschachtel zeigt die Kopfbedeckung');
-  await page.locator('.hs-hut:not(.hs-ab)').first().click();
+  chk(await page.locator('.hs-hut:not(.hs-ab):not(.hs-helfer)').count() === 1, 'Hutschachtel zeigt die Kopfbedeckung');
+  await page.locator('.hs-hut:not(.hs-ab):not(.hs-helfer)').first().click();
   chk(/Tippe eine Schnecke an/.test(await page.textContent('#hinweis')), 'Kopfbedeckung gewählt: „Tippe eine Schnecke an“');
   const name = await page.locator('.g-snail span').first().textContent();
   await page.locator('.g-snail').first().click(); await page.waitForTimeout(200);
@@ -99,6 +99,10 @@ const heute = () => { const d = new Date(); return `${d.getFullYear()}-${String(
   await page.screenshot({ path: path.join(SHOTS, 'garten-hutschachtel.png') });
   await page.click('.hs-ab'); await page.locator('.g-snail').first().click(); await page.waitForTimeout(200);
   chk((await parade()).hutschachtel.length === 1, 'Abnehmen: Kopfbedeckung wieder in der Schachtel');
+  await page.click('.hs-helfer'); await page.locator('.g-snail').first().click(); await page.waitForTimeout(200);
+  { const g = await parade(); const id = g.helfer;
+    chk(id != null && g.garden.some(s => s.id === id) && await page.locator('.g-snail .marke.helfer').count() === 1, 'Rechenhelfer gewählt: Marke im Garten, gespeichert');
+    await page.screenshot({ path: path.join(SHOTS, 'garten-rechenhelfer.png') }); }
   await page.click('#r-album'); await page.waitForTimeout(200);
   chk(await page.locator('.sticker').count() === 71 && /von 71 entdeckt/.test(await page.textContent('#album-zahl')), 'Sammelalbum: 71 Felder (48 Häuser)');
   chk(await page.locator('.haeuser-teil ~ .seite-teil .sticker:not(.miss)').first().locator('svg').count() === 1, 'Gefundene Kopfbedeckung im Album als Bild');

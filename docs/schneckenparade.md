@@ -24,6 +24,7 @@ Die Lernspiele sind Medienzeit. Erwachsene stellen unter „Für Erwachsene“ d
 | Wann | Was passiert |
 |---|---|
 | Vor der Runde | Das Kind tippt im Garten bis zu 3 Begleiter an. Ohne Wahl laufen die vom letzten Mal mit. |
+| Rechenhelfer | Im Garten gibt es einen Bleistift-Knopf (ohne Text): erst Bleistift tippen, dann eine Schnecke; nur **einer**, nochmal tippen nimmt die Wahl zurück. Der Rechenhelfer geht im Zehnerweg mit (Spiel „Schnecke geht mit“). Er muss kein Begleiter sein und bekommt dann auch keinen Ausflug. **Auf der Straße läuft er nicht mit**, solange dort noch eine andere Schnecke läuft; ist er allein, bleibt er sichtbar. Ohne Wahl (`helfer` leer) ist es die erste Begleitschnecke der Runde, die dann ebenso ausgeblendet wird. Marienkäfer können nicht Helfer sein. Wählbar auch während einer Runde. |
 | Erste erkannte Zahl | Die Runde beginnt (5 Minuten), wenn heute noch Lernzeit da ist. **Gekritzel und Bemalen starten nichts** und zählen nicht zur Lernzeit. Die Begleiter stehen am Anfang der Straße. |
 | Richtige Aufgabe | Ein Salatblatt fliegt zur Parade. Anzeige: 5 Blatt-Plätze. |
 | 5 Salatblätter | Eine **Kopfbedeckung** kommt in die **Hutschachtel** im Garten. Welche, ist zufällig; in 20 % der Fälle bewusst eine, die im Sammelalbum noch fehlt. Blätter zählen neu. |
@@ -91,6 +92,7 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
       "special": null, "runs": 0, "stage": 0, "born": "2026-11-06", "spiel": "zehnerweg", "ausflug": "2026-11-06" }
   ],
   "walkers": [1, 2, 3],
+  "helfer": 2,
   "leaves": 3,
   "hutschachtel": ["krone", "bommel"],
   "hueteGefunden": ["blumen", "krone", "bommel"],
@@ -105,6 +107,7 @@ Gespeichert unter `lernspiele:parade` in `localStorage`:
 
 Lernzeit, gemeinsam für alle Spiele, unter `lernspiele:lernzeit`: `{ "version": 1, "tag": "2026-11-06", "minuten": 12.5 }` (geübte Minuten heute). Die Einstellung steht in `lernspiele:spiel` als `lernzeitMinuten` (15, 20, 25, 30).
 
+- `helfer`: Id des Rechenhelfers oder `null`; beim Lesen geprüft (Tier muss existieren und darf kein Marienkäfer sein, sonst `null`).
 - `special`: `null`, `"regenbogen"`, `"kaefer"`. Glitzer ergibt sich aus `stage` 3.
 - `spiel`: in welchem Spiel die Schnecke verdient wurde (für die Elternansicht).
 - `hutschachtel`: Kopfbedeckungen, die noch keine Schnecke trägt. `hueteGefunden`: alle Arten, die das Kind schon einmal bekommen hat (fürs Album, auch wenn sie gerade aufgesetzt sind).
