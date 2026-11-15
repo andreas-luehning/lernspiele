@@ -52,7 +52,7 @@ const { schreibe } = require('./hilfen.js');
       const sw = await page.evaluate(() => {
         const w = document.querySelector('.wanderer'); if (!w || w.hidden) return { sichtbar: false };
         const r = w.getBoundingClientRect(), z = document.getElementById('f-goal').getBoundingClientRect();
-        const deckt = [...document.querySelectorAll('.field, .tag')].filter(e => !e.hidden).some(e => { const o = e.getBoundingClientRect(); return r.left < o.right && o.left < r.right && r.top < o.bottom && o.top < r.bottom; });
+        const deckt = [...document.querySelectorAll('.field, .tag, #bg .for-plus, #bg .for-minus')].filter(e => !e.hidden).some(e => { const o = e.getBoundingClientRect(); return o.width && r.left < o.right && o.left < r.right && r.top < o.bottom && o.top < r.bottom; });
         const abstand = Math.hypot((r.left + r.right) / 2 - (z.left + z.right) / 2, (r.top + r.bottom) / 2 - (z.top + z.bottom) / 2);
         return { sichtbar: true, deckt, nahZiel: abstand < Math.max(z.width, z.height) * 1.2 };
       });

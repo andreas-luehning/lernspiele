@@ -273,6 +273,17 @@ function freierPlatz(feldEl) {
     const mx = (f.l + f.r) / 2;                                        // Platz für „erkannt: … ×“ unter dem Feld
     hindernisse.push({ l: mx - 70, t: f.b, r: mx + 70, b: f.b + 38 });
   }
+  // Herz und Hand (nur die sichtbaren) und die Pfeilspitzen auch frei lassen
+  for (const g of stage.querySelectorAll('#bg .for-plus, #bg .for-minus')) {
+    const r = g.getBoundingClientRect(); if (!r.width) continue;               // ausgeblendet (Plus/Minus)
+    const o = rel(r); hindernisse.push({ l: o.l - 4, t: o.t - 4, r: o.r + 4, b: o.b + 4 });
+  }
+  const bg = $('bg'), m = bg.getScreenCTM && bg.getScreenCTM();
+  if (m) for (const pfad of bg.querySelectorAll('.arr')) {
+    const e = pfad.getPointAtLength(pfad.getTotalLength());                    // Ende des Pfeils = Spitze
+    const x = e.x * m.a + e.y * m.c + m.e - st.left, y = e.x * m.b + e.y * m.d + m.f - st.top;
+    hindernisse.push({ l: x - 22, t: y - 22, r: x + 22, b: y + 22 });
+  }
   const f = rel(feldEl.getBoundingClientRect()), fw = f.r - f.l, fh = f.b - f.t;
   const kandidaten = [];
   // Ringsum: oben (links, Mitte, rechts), seitlich (oben, Mitte, unten), Ecken; zuerst oben, das wirkt wie „draufgekrochen“

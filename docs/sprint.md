@@ -14,6 +14,7 @@ Gesamtliste: `backlog.md`. Regeln: `CLAUDE.md` (zuerst `docs/` anpassen, dann Co
 | 2 | Neue lustige Kopfbedeckungen, fehlende stärker bevorzugen | Sonnet | `neue-kopfbedeckungen` | klein |
 | 3 | Burgen als Stufe im Leuchttisch, mit eigener Belohnung | Opus | `leuchttisch-burgen` | mittel |
 | 4 | Numi einbauen: A zum Testen im Erwachsenenbereich, B für Kinder bis Samstag | Opus | `numi-einbauen` | mittel |
+| 4b | Rechenhelfer wählen (Zehnerweg/Garten) | Sonnet | `rechenhelfer` | klein |
 | 5 | Entwurf „Zehner voll machen“ mit Steinen zum Verschieben | Opus | `entwurf-zehner-voll-machen` | mittel |
 | 6 | (nur wenn Zeit bleibt) Rundenbelohnung Leuchttisch klären | Opus | – (nur Doku) | klein |
 
@@ -57,6 +58,12 @@ Entscheidung Lehrkraft (15.11.): Numi kommt **ganz hier hinein** (Ordner `numi/`
 > Füge das Repository `andreas-luehning/numi` zur Sitzung hinzu. Lege `docs/numi.md` an (was übernommen wird, was angepasst wird). Kopiere Numi nach `numi/` (`index.html`, `app.js`, `vendor/`, Icons nur falls nötig). Anpassen: keine Google Fonts (lokale Schriften aus `gemeinsam/schriften/`), Inline-Skript und Inline-`<style>` in eigene Dateien, CSP/Referrer/Robots-Meta wie `zehnerweg/index.html`, Numis eigenen Service Worker weglassen (die Seite nutzt `gemeinsam/app.js` und `sw.js`; Numi-Dateien in `DATEIEN` eintragen), Zurück-Knopf zur Startseite. Speicher vorerst unverändert lassen (`numi-save-v1`), damit der bestehende Spielstand gilt. Entscheidung Lehrkraft: **Sprachansagen/Vorlesen entfallen** in Numi (ausbauen bzw. abschalten), Schriften lokal statt Google ist in Ordnung. Link „Numi (Test)“ im Erwachsenenbereich der Startseite, **keine** Kachel für Kinder. Branch `numi-einbauen` von `main`. VERSION in `sw.js` erhöhen. Tests: `node tests/app-browser.js` (Dateiliste), dazu ein Playwright-Test: `numi/` lädt ohne Fehler, ohne fremde Anfragen, ohne CSP-Verstöße.
 
 **Schritt B (bis Samstag):** Kachel auf der Startseite, gemeinsame Runde und Lernzeit statt Numis eigener Minuten-Uhr, eigene Sammlung „Numis Freunde“ (Grundsatz 7), Speicher unter `lernspiele:numi` über `gemeinsam/speicher.js` mit einmaliger Übernahme aus `numi-save-v1`. Erst `docs/numi.md` ergänzen, dann bauen.
+
+## 4b · Rechenhelfer wählen (Sonnet)
+
+Rückmeldung 15.11.: Die mitgehende Schnecke im Zehnerweg ist dieselbe wie die erste in der Parade, also doppelt zu sehen. Das Kind soll bestimmen, wer beim Rechnen hilft.
+
+> Lies `CLAUDE.md`, `docs/zehnerweg.md` (Schnecke geht mit), `docs/schneckenparade.md`, `garten/garten.js`, `zehnerweg/zehnerweg.js` (`wandererZeigen`). Im Garten kann das Kind eine Schnecke als **Rechenhelfer** antippen (eigener Knopf oder Modus, ohne Lesen bedienbar, z. B. Bleistift-Symbol; nur einer). Gespeichert in `lernspiele:parade` als `helfer` (id oder null, beim Lesen prüfen). Der Rechenhelfer geht im Zehnerweg mit und läuft **nicht** in der Parade auf der Straße (sonst doppelt); ohne Wahl wie bisher die erste Begleitschnecke, die dann in der Parade ausgeblendet wird, solange noch eine andere Schnecke dort läuft. Erst `docs/schneckenparade.md` und `docs/zehnerweg.md` anpassen. Branch `rechenhelfer` von `main`. VERSION in `sw.js` erhöhen. Tests: `node tests/parade-logik.mjs`, `node tests/parade-browser.js`, `node tests/browser.js`.
 
 ## 5 · Entwurf „Zehner voll machen“ (Opus)
 
