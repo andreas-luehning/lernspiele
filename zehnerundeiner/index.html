@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f3f9ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lernspiele">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../gemeinsam/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../gemeinsam/icons/apple-touch-icon.png">
+<title>Zehner und Einer</title>
+<link rel="stylesheet" href="../gemeinsam/theme.css">
+<link rel="stylesheet" href="../gemeinsam/parade.css">
+<link rel="stylesheet" href="../zehnerweg/zehnerweg.css">
+<link rel="stylesheet" href="zehnerundeiner.css">
+<script src="../gemeinsam/thema.js"></script>
+<script type="module" src="../gemeinsam/app.js"></script>
+<script type="module" src="zehnerundeiner.js"></script>
+</head>
+<body>
+<div class="app">
+  <header>
+    <a class="info-btn zurueck" id="b-zurueck" href="../" aria-label="Zurück zur Startseite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div class="brand">
+      <h1>Zehner und Einer</h1>
+      <small>Rechnen bis 100</small>
+    </div>
+    <div class="seg" role="group" aria-label="Aufgabenart">
+      <button type="button" data-mode="zehner" aria-pressed="true">Zehner</button>
+      <button type="button" data-mode="einer" aria-pressed="false">Einer</button>
+      <button type="button" data-mode="ergaenzen" aria-pressed="false">Ergänzen</button>
+      <button type="button" data-mode="mix" aria-pressed="false">Gemischt</button>
+    </div>
+    <div class="meta">
+      <div class="uhr" id="uhr" role="timer" aria-label="Restzeit"><span id="uhrzeit">5:00</span><div class="sand" aria-hidden="true"><i id="sand"></i></div></div>
+      <div class="leaves" id="leaves"></div>
+      <a class="info-btn" id="b-garten" href="../garten/" aria-label="Zum Schneckengarten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19h13a4 4 0 0 0 4-4V9.5"/><circle cx="10" cy="13" r="5"/><path d="M10 13a1.6 1.6 0 1 1 2 1.4"/><path d="M19 9.5 18 5M21 9.5 22 6"/></svg></a>
+      <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
+      <button type="button" class="info-btn" id="b-info" aria-expanded="false" aria-controls="grown" aria-label="Infos für Erwachsene">?</button>
+    </div>
+  </header>
+
+  <div class="grown" id="grown" hidden>
+    <h2>Für Erwachsene</h2>
+    <p>Dieses Spiel übt Aufgabe 7 vom Arbeitsblatt: Rechnen mit Zehnern und Einern ohne Zehnerübergang. Zehner sind blau (Zehnerstange), Einer orange (Einerwürfel). Das Kind schreibt zuerst die Zehner, dann die Einer und zuletzt die ganze Zahl. Der Merksatz dahinter: Die Einer bleiben sitzen, nur die Zehner ändern sich. Bei „Ergänzen“ (64 − ▢ = 24) schreibt das Kind, wie viele Zehner es sind, und dann die gesuchte Zahl.</p>
+    <p>Unter „Aufgabenart“ stehen: Zehner (zum Beispiel 74 − 20 oder 50 + 37), Einer (zum Beispiel 42 + 5), Ergänzen und Gemischt. Das Bild der Zehnerstangen und Einerwürfel hilft beim Anfang. Mit „Bild: aus“ geht es ohne Hilfe; nach einem Fehler erscheint das Bild dann als Tipp.</p>
+    <p>Belohnung ist die Schneckenparade, genau wie im Zehnerweg: Eine Runde dauert 5 Minuten und beginnt mit der ersten erkannten Zahl. Wer mindestens 2 Aufgaben richtig löst, bekommt eine neue Schnecke. Die Lernzeit pro Tag gilt für alle Spiele zusammen. Zum Ausprobieren: <code>?probe</code> an die Adresse hängen.</p>
+    <p><button type="button" class="btn" data-vollbild-knopf hidden>Vollbild</button></p>
+    <p>Die Zahlenerkennung läuft vollständig auf dem Gerät, es wird nichts übertragen. Am besten klappt es, wenn die Ziffern einer Zahl nebeneinander stehen und sich nicht berühren. Mit × lässt sich ein Feld neu beschreiben.</p>
+  </div>
+
+  <div class="blatt" id="blatt">
+    <div class="aufgabe" id="aufgabe" aria-live="polite"></div>
+    <svg class="bild" id="bild" aria-hidden="true"></svg>
+    <div class="felder" id="felder"></div>
+  </div>
+
+  <div class="track-zeile">
+    <div class="track" id="track" aria-label="Schneckenparade"></div>
+  </div>
+
+  <div class="bottom">
+    <div class="hint" id="hint" aria-live="polite">Einen Moment …</div>
+    <div class="actions">
+      <button type="button" class="btn" id="b-bild" aria-pressed="true">Bild: an</button>
+      <button type="button" class="btn" id="b-clear">Alles löschen</button>
+      <button type="button" class="btn" id="b-check">Prüfen</button>
+      <button type="button" class="btn" id="b-next">Neue Aufgabe</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
