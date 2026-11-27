@@ -17,13 +17,16 @@ const PARADE_SPEICHER = { laden: ladeParade, speichern: speichereParade, beenden
 
 export class Runde {
   /**
-   * @param {{onTick?:(rest:number, dauer:number, pause:boolean)=>void, onZeitUm?:()=>void, onEnde?:(ergebnis:object)=>void, onPause?:()=>void,
+   * @param {{onTick?:(rest:number, dauer:number, pause:boolean)=>void, onZeitUm?:()=>void, onEnde?:(ergebnis:object)=>void, onPause?:()=>void, darfEnden?:()=>boolean,
    *   speicher?:{laden:()=>object, speichern:(z:object)=>void, beenden:(z:object, tag:string)=>object}}} opt
    * speicher: Wo der Rundenstand liegt und was am Ende passiert. Standard ist die Schneckenparade (eine Schnecke pro Runde).
    * Andere Spielwelten (z. B. der Leuchttisch) geben ihren eigenen Speicher mit; die Lernzeit ist für alle dieselbe.
+   * darfEnden: Ist die Zeit um, endet die Runde erst, wenn das stimmt (z. B. genug richtige Aufgaben für die Schnecke);
+   * spätestens nach dem Nachspiel endet sie trotzdem, dann ohne Belohnung.
    */
-  constructor({ onTick, onZeitUm, onEnde, onPause, speicher = PARADE_SPEICHER } = {}) {
+  constructor({ onTick, onZeitUm, onEnde, onPause, darfEnden, speicher = PARADE_SPEICHER } = {}) {
     this.sp = speicher;
+    this.darfEnden = darfEnden || (() => true);
     this.dauer = PROBE ? 60 * 1000 : RUNDE_MS;
     this.nachspiel = PROBE ? 30 * 1000 : NACHSPIEL_MS;
     this.onTick = onTick || (() => {}); this.onZeitUm = onZeitUm || (() => {}); this.onEnde = onEnde || (() => {}); this.onPause = onPause || (() => {});
@@ -88,7 +91,7 @@ export class Runde {
   }
 
   /** Eine Aufgabe ist abgeschlossen. War die Zeit schon um, endet jetzt die Runde. */
-  aufgabeFertig() { if (this.z.runde && this.z.runde.zeitUm) this.beenden(); }
+  aufgabeFertig() { if (this.z.runde && this.z.runde.zeitUm && this.darfEnden()) this.beenden(); }
 
   beenden() {
     if (!this.z.runde) return;

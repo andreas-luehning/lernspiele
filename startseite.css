@@ -34,7 +34,7 @@
 .k-line { stroke: var(--line); stroke-width: 2.4; stroke-linecap: round; fill: none; }
 .k-auge { fill: #fff; stroke: var(--line); stroke-width: 2; }
 .k-haus1 { fill: #ffd447; stroke: var(--line); stroke-width: 2.6; }
-.k-haus2 { fill: #b79bff; stroke: var(--line); stroke-width: 2.6; }
+.k-haus2 { fill: #5b7cf0; stroke: var(--line); stroke-width: 2.6; }
 .k-blatt { fill: var(--leaf); stroke: var(--line); stroke-width: 1.4; }
 .k-rahmen { fill: #232848; }
 .k-tisch { fill: #cbd8ec; }

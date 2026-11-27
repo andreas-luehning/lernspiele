@@ -5,10 +5,11 @@ import { lesen, schreiben, vorhanden, altLesen } from '../gemeinsam/speicher.js'
 import { ORDER, neueAufgabe, tipp, zeichen, herzFeld, bewerten } from './aufgaben.js';
 import { Runde, PROBE, uhrText } from '../gemeinsam/runde.js';
 import { ParadeStreifen, zeigeBlaetter, rueckblick } from '../gemeinsam/parade.js';
-import { richtig, falsch, parade, HATS, BLAETTER_PRO_HUT } from '../gemeinsam/parade-logik.js';
+import { richtig, falsch, parade, rechenhelfer, HATS, BLAETTER_PRO_HUT, MIN_RICHTIG } from '../gemeinsam/parade-logik.js';
+import { snailSVG, svgElement } from '../gemeinsam/parade-bilder.js';
 
 /* ---------- Gespeicherter Zustand ---------- */
-const STANDARD = { gespiegelt: false, modus: 'plus' };
+const STANDARD = { gespiegelt: false, modus: 'plus', schnecke: true };
 const MODI = ['plus', 'minus', 'mix'];
 let zustand;
 if (vorhanden('zehnerweg')) {
@@ -30,12 +31,43 @@ const SHAPES = {
   part2: { cx: 700, cy: 255, w: 220, h: 170, kind: 'oval' },
   goal:  { cx: 880, cy: 480, w: 200, h: 180, kind: 'box' },
 };
+// von/nach: die Felder an den Enden. Bei Pfeilen mit Spitze berührt die Spitze genau den Rahmen des Feldes (keine Lücke, nicht im Feld).
 const ARROWS = [
-  { pts: [[150, 386], [150, 268], [186, 258]], head: true },
-  { pts: [[345, 174], [362, 97], [392, 95]], head: false },
-  { pts: [[608, 95], [645, 97], [664, 170]], head: true },
-  { pts: [[814, 262], [868, 272], [872, 386]], head: false },
+  { pts: [[150, 386], [152, 284], [185, 259]], head: true, ende: [1, -1], von: 'start', nach: 'part1' },   // ende: Richtung der Spitze (sonst die der Kurve)
+  { pts: [[345, 174], [362, 97], [392, 95]], head: false, von: 'part1', nach: 'ten' },
+  { pts: [[608, 95], [645, 97], [664, 170]], head: true, von: 'ten', nach: 'part2' },
+  { pts: [[814, 262], [868, 272], [872, 386]], head: false, von: 'part2', nach: 'goal' },
 ];
+const LUFT_PX = 6;   // sichtbarer Abstand zwischen Pfeilspitze und Kreislinie in px
+// Pfeilspitze: offener Winkel. Das letzte Stück des Strichs läuft gerade, damit die Spitze gerade auf dem Strich sitzt.
+const SPITZE = { GERADE: 20, ARM: 28, WINKEL: 0.6, STRICH: 9 };
+const qPunkt = ([P0, P1, P2], t) => [0, 1].map(i => (1 - t) ** 2 * P0[i] + 2 * t * (1 - t) * P1[i] + t * t * P2[i]);
+// Abstand eines Punkts zum Feldrand (positiv = außerhalb), in SVG-Einheiten
+function randAbstand(sh, x, y) {
+  const dx = x - sh.cx, dy = y - sh.cy, a = sh.w / 2, b = sh.h / 2;
+  if (sh.kind === 'box') { const qx = Math.abs(dx) - a, qy = Math.abs(dy) - b; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0); }
+  const r = Math.hypot(dx / a, dy / b); if (r === 0) return -Math.min(a, b);
+  return (r - 1) / (Math.hypot(dx / (a * a), dy / (b * b)) / r);
+}
+// Pfeil mit Spitze als ein Linienzug: Bogen → gerades Endstück → Spitze. Die Spitze hält LUFT_PX Abstand zur Kreislinie.
+function pfeilMitSpitze(ar, frei) {
+  const P = ar.pts;
+  const richtung = t => { const d = [0, 1].map(i => 2 * (1 - t) * (P[1][i] - P[0][i]) + 2 * t * (P[2][i] - P[1][i])); const l = Math.hypot(d[0], d[1]) || 1; return [d[0] / l, d[1] / l]; };
+  let t = 1;
+  const R = ar.ende ? (() => { const l = Math.hypot(...ar.ende); return [ar.ende[0] / l, ar.ende[1] / l]; })() : null;
+  const richtungSpitze = t => R || richtung(t);
+  const aussen = t => { const p = qPunkt(P, t), u = richtungSpitze(t); return [p[0] + u[0] * SPITZE.STRICH / 2, p[1] + u[1] * SPITZE.STRICH / 2]; };
+  while (t > 0.2 && randAbstand(SHAPES[ar.nach], ...aussen(t)) < frei) t -= 0.002;
+  const E = qPunkt(P, t), u = richtungSpitze(t);
+  const S = [E[0] - u[0] * SPITZE.GERADE, E[1] - u[1] * SPITZE.GERADE];   // Beginn des geraden Endstücks
+  // Bogen (quadratisch) ohne Knick und ohne Schlenker: Kontrollpunkt = Schnitt der Anfangsrichtung mit der Richtung der Spitze
+  const v = [P[1][0] - P[0][0], P[1][1] - P[0][1]], w = [S[0] - P[0][0], S[1] - P[0][1]];
+  const kreuz = (a, b) => a[0] * b[1] - a[1] * b[0], det = kreuz(v, u);
+  const s1 = det ? kreuz(w, u) / det : -1, s2 = det ? kreuz(v, w) / det : -1;   // P0 + s1·v = S − s2·u
+  const K = s1 > 0 && s2 > 0 ? [P[0][0] + s1 * v[0], P[0][1] + s1 * v[1]] : [(P[0][0] + S[0]) / 2, (P[0][1] + S[1]) / 2];
+  const arm = vz => { const c = Math.cos(SPITZE.WINKEL), s = Math.sin(SPITZE.WINKEL) * vz; return [E[0] - SPITZE.ARM * (u[0] * c - u[1] * s), E[1] - SPITZE.ARM * (u[1] * c + u[0] * s)]; };
+  return { P0: P[0], K, S, E, l: arm(1), r: arm(-1) };
+}
 let vertical = false;
 const T = (x, y0) => { const y = zustand.gespiegelt ? GH.H - y0 : y0; return vertical ? [GH.H - y, GH.W - x] : [x, y]; };
 const dims = () => (vertical ? { W: GH.H, H: GH.W } : GH);
@@ -50,8 +82,12 @@ function drawBg() {
   let s = '';
   const [ax, ay] = T(120, 450), [bx, by] = T(880, 510);
   s += `<rect class="road" x="${Math.min(ax, bx)}" y="${Math.min(ay, by)}" width="${Math.abs(bx - ax)}" height="${Math.abs(by - ay)}"/>`;
-  for (let x = 236; x <= 740; x += 56) {
-    if (x > 340 && x < 630) continue;
+  // Gleichmäßige Mittelstreifen über die ganze Straße, symmetrisch zur Mitte (x = 500).
+  // Weggelassen wird nur, was ein Feld auf der Fahrbahn berührt (Start, großer Kreis, Ziel), mit etwas Luft.
+  const DECKT = ['start', 'big', 'goal'].map(k => SHAPES[k]);
+  for (let x = 486 - 56 * 7; x <= 486 + 56 * 7; x += 56) {
+    if (x < 120 || x + 28 > 880) continue;
+    if (DECKT.some(f => x + 28 > f.cx - f.w / 2 - 8 && x < f.cx + f.w / 2 + 8)) continue;
     const [p, q] = T(x, 474), [p2, q2] = T(x + 28, 486);
     s += `<rect class="dash" x="${Math.min(p, p2)}" y="${Math.min(q, q2)}" width="${Math.abs(p2 - p)}" height="${Math.abs(q2 - q)}"/>`;
   }
@@ -60,15 +96,18 @@ function drawBg() {
     const [a, b] = T(x1, y1), [c, d] = T(x2, y2); s += `<line class="conn" x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`;
   }
   let route = '';
+  const frei = LUFT_PX * W / Math.max(1, parseFloat(stage.style.width) || W);   // px → SVG-Einheiten
   for (const ar of ARROWS) {
-    const P = ar.pts.map(p => T(p[0], p[1]));
-    const d = `M${P[0]} Q${P[1]} ${P[2]}`; s += `<path class="arr" d="${d}"/>`;
-    route += (route ? ' ' : '') + d;
+    let d;
     if (ar.head) {
-      const [ex, ey] = P[2], [cx, cy] = P[1]; const ang = Math.atan2(ey - cy, ex - cx), L = 30, sp = 0.55;
-      const l = [ex - L * Math.cos(ang - sp), ey - L * Math.sin(ang - sp)], r = [ex - L * Math.cos(ang + sp), ey - L * Math.sin(ang + sp)];
-      s += `<path class="arr head" d="M${l} L${ex},${ey} L${r}"/>`;
+      const p = pfeilMitSpitze(ar, frei), [P0, K, S, E, l, r] = [p.P0, p.K, p.S, p.E, p.l, p.r].map(q => T(q[0], q[1]));
+      d = `M${P0} Q${K} ${S} L${E} M${l} L${E} L${r}`;   // ein Linienzug: Bogen, gerades Ende, Spitze
+    } else {
+      const [P0, P1, P2] = ar.pts.map(q => T(q[0], q[1]));   // Pfeile ohne Spitze enden direkt an der Box
+      d = `M${P0} Q${P1} ${P2}`;
     }
+    s += `<path class="arr" d="${d}"/>`;
+    route += (route ? ' ' : '') + d;
   }
   s += `<path class="route" id="route" d="${route}"/>`;
   // Plus: Herz beim ersten kleinen Kreis. Minus: Hand beim Start, Herz beim zweiten kleinen Kreis.
@@ -88,6 +127,9 @@ let task = null;
 
 function nachErkennung(f) {
   updateTarget();
+  wandererZeigen();
+  // Die Runde beginnt erst mit einer erkannten Zahl: Gekritzel und Bemalen starten nichts und halten die Uhr nicht an
+  if (f.value != null && !f.kritzel) paradeStarten();
   if (task && f.id === herzFeld(task) && f.value === task.ans[f.id]) {
     stage.classList.remove('love'); void stage.offsetWidth; stage.classList.add('love');
   }
@@ -102,8 +144,8 @@ for (const id of Object.keys(SHAPES)) {
   FIELDS[id] = new Schreibfeld(stage, {
     id, kind: SHAPES[id].kind,
     onErkannt: nachErkennung,
-    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); paradeStarten(); },
-    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); knoepfe('rechnen'); },
+    onStart: () => { grown.hidden = true; infoBtn.setAttribute('aria-expanded', 'false'); },
+    onGeloescht: () => { stage.classList.remove('done'); updateTarget(); knoepfe('rechnen'); wandererZeigen(); },
   });
 }
 
@@ -133,6 +175,7 @@ function layout() {
     Object.assign(f.tag.style, { left: cx / W * 100 + '%', top: (cy + h / 2) / H * 100 + '%' });
   }
   requestAnimationFrame(() => { for (const id in FIELDS) FIELDS[id].groesseAnpassen(); });
+  wandererZeigen();
 }
 
 /* ---------- Aufgaben ---------- */
@@ -151,6 +194,7 @@ function newTask() {
   setHint(START_TIPP);
   knoepfe('rechnen');
   updateTarget();
+  wandererZeigen();
   runde?.aufgabeFertig(); // war die Zeit schon um, endet die Runde jetzt
 }
 function updateTarget() {
@@ -167,6 +211,8 @@ function knoepfe(zustand) {
   $('b-check').classList.toggle('leise', zustand === 'weiter');
   $('b-next').classList.toggle('primary', zustand === 'weiter');
   $('b-next').classList.toggle('puls', zustand === 'weiter');
+  $('b-weiter').classList.toggle('primary', zustand === 'weiter');
+  $('b-weiter').classList.toggle('puls', zustand === 'weiter');
 }
 function setHint(t, cls) { const h = $('hint'); h.textContent = t; h.className = 'hint' + (cls ? ' ' + cls : ''); }
 
@@ -193,6 +239,7 @@ function check() {
     const z = zeichen(task.op);
     zeigeGleichung(task.ans.goal);
     setHint(`Super! ${task.a} ${z} ${task.ans.part1} ${z} ${task.ans.part2} = ${task.ans.goal}`, 'good');
+    wandererZeigen(true);
     if (!stage.classList.contains('done')) {
       stage.classList.add('done');
       knoepfe('weiter');
@@ -201,16 +248,86 @@ function check() {
   }
 }
 
+/* ---------- Schnecke geht mit ---------- */
+// Die erste Begleitschnecke sitzt neben dem Startkästchen und kriecht mit jedem richtig erkannten Feld
+// (der Reihe nach) eine Station weiter bis ins Ziel. Sie sucht sich einen freien Platz neben dem Feld:
+// nie auf einem Schreibfeld und nie auf der „erkannt“-Anzeige mit dem Löschknopf (auch hoch, quer und gespiegelt).
+// Abschaltbar (zustand.schnecke). Bei „Bewegung reduzieren“ springt sie ohne Animation (theme.css).
+const wanderer = document.createElement('div');
+wanderer.className = 'wanderer'; wanderer.setAttribute('aria-hidden', 'true'); wanderer.hidden = true;
+stage.append(wanderer);
+let wandererId = null;
+/**
+ * Freier Platz neben einem Feld (in Pixeln relativ zur Bühne): oben, seitlich oder unten,
+ * ohne ein Feld oder den Bereich der „erkannt“-Anzeige darunter zu berühren. Ergebnis { x, y, b } (Mitte, Breite) oder null.
+ */
+function freierPlatz(feldEl) {
+  const st = stage.getBoundingClientRect();
+  const rel = r => ({ l: r.left - st.left, t: r.top - st.top, r: r.right - st.left, b: r.bottom - st.top });
+  const b = Math.max(44, st.width * 0.075), h = b * 112 / 130;         // Schnecke: Breite b, Höhe h (viewBox 130 × 112)
+  const hindernisse = [];
+  for (const id in FIELDS) {
+    const f = rel(FIELDS[id].el.getBoundingClientRect());
+    hindernisse.push({ l: f.l - 2, t: f.t - 2, r: f.r + 2, b: f.b + 2 });
+    if (!ORDER.includes(id)) continue;                                 // Start und großer Kreis haben keine Anzeige
+    const mx = (f.l + f.r) / 2;                                        // Platz für „erkannt: … ×“ unter dem Feld
+    hindernisse.push({ l: mx - 70, t: f.b, r: mx + 70, b: f.b + 38 });
+  }
+  // Herz und Hand (nur die sichtbaren) und die Pfeilspitzen auch frei lassen
+  for (const g of stage.querySelectorAll('#bg .for-plus, #bg .for-minus')) {
+    const r = g.getBoundingClientRect(); if (!r.width) continue;               // ausgeblendet (Plus/Minus)
+    const o = rel(r); hindernisse.push({ l: o.l - 4, t: o.t - 4, r: o.r + 4, b: o.b + 4 });
+  }
+  const bg = $('bg'), m = bg.getScreenCTM && bg.getScreenCTM();
+  if (m) for (const pfad of bg.querySelectorAll('.arr')) {
+    const e = pfad.getPointAtLength(pfad.getTotalLength());                    // Ende des Pfeils = Spitze
+    const x = e.x * m.a + e.y * m.c + m.e - st.left, y = e.x * m.b + e.y * m.d + m.f - st.top;
+    hindernisse.push({ l: x - 22, t: y - 22, r: x + 22, b: y + 22 });
+  }
+  const f = rel(feldEl.getBoundingClientRect()), fw = f.r - f.l, fh = f.b - f.t;
+  const kandidaten = [];
+  // Ringsum: oben (links, Mitte, rechts), seitlich (oben, Mitte, unten), Ecken; zuerst oben, das wirkt wie „draufgekrochen“
+  const dx = b / 2 + 5, dy = h / 2 + 5;                                 // halbe Schnecke plus etwas Luft zum Feld
+  for (const fx of [0.25, 0.5, 0.75]) kandidaten.push([f.l + fw * fx, f.t - dy]);
+  for (const fy of [0.25, 0.5, 0.75]) kandidaten.push([f.l - dx, f.t + fh * fy], [f.r + dx, f.t + fh * fy]);
+  kandidaten.push([f.l - dx, f.t - dy], [f.r + dx, f.t - dy], [f.l - dx, f.b + dy], [f.r + dx, f.b + dy]);
+  for (const [x, y] of kandidaten) {
+    const k = { l: x - b / 2, t: y - h / 2, r: x + b / 2, b: y + h / 2 };
+    if (k.l < 2 || k.t < 2 || k.r > st.width - 2 || k.b > st.height - 2) continue;
+    if (hindernisse.some(o => k.l < o.r && o.l < k.r && k.t < o.b && o.t < k.b)) continue;
+    return { x, y, b };
+  }
+  return null;
+}
+function wandererZeigen(feiern = false) {
+  const tier = runde && rechenhelfer(runde.z);
+  if (!zustand.schnecke || !tier || !task) { wanderer.hidden = true; return; }
+  if (wandererId !== tier.id) { wanderer.replaceChildren(svgElement(snailSVG(tier))); wandererId = tier.id; }
+  // So weit, wie die Felder der Reihe nach stimmen
+  // Lernzeit für heute um (freies Üben): Die Schnecke schläft am Start und geht nicht mit
+  const schlaeft = !runde.laeuft && !runde.heuteMoeglich;
+  wanderer.classList.toggle('schlaeft', schlaeft);
+  let k = 0;
+  if (!schlaeft) for (const id of ORDER) { if (FIELDS[id].value === task.ans[id]) k++; else break; }
+  const station = ['start', ...ORDER][k];
+  const platz = freierPlatz(FIELDS[station].el);
+  if (!platz) { wanderer.hidden = true; return; }
+  const st = stage.getBoundingClientRect();
+  wanderer.hidden = false;
+  Object.assign(wanderer.style, { left: platz.x / st.width * 100 + '%', top: platz.y / st.height * 100 + '%', width: platz.b / st.width * 100 + '%' });
+  wanderer.classList.toggle('feiert', feiern && !schlaeft && station === 'goal');
+}
+
 /* ---------- Schneckenparade ---------- */
 const streifen = new ParadeStreifen($('track'));
 const blaetter = $('leaves');
 let runde = null;
 const LERNZEIT_UM = 'Deine Lernzeit für heute ist um. Schau doch mal in deinen Garten! Du kannst auch frei weiter üben.';
-const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib los, dann startet die Parade!' : LERNZEIT_UM);
+const sagStart = () => streifen.sag(runde.pausiert ? 'Pause. Schreib weiter, dann läuft die Uhr wieder.' : runde.laeuft ? 'Weiter geht’s!' : runde.heuteMoeglich ? 'Schreib eine Zahl, dann startet die Parade!' : LERNZEIT_UM);
 function zeigeParade(animiert) { streifen.zeige(parade(runde.z), animiert); zeigeBlaetter(blaetter, runde.z); }
 function paradeStarten() {
   const was = runde.aktivitaet(); // startet eine Runde oder setzt nach einer Pause fort
-  if (was === 'neu') { zeigeParade(true); streifen.sag('Los geht’s! Halte 5 Minuten durch, dann kommt eine neue Schnecke.'); }
+  if (was === 'neu') { zeigeParade(true); streifen.sag(`Los geht’s! Halte 5 Minuten durch und löse ${MIN_RICHTIG} Aufgaben richtig, dann kommt eine neue Schnecke.`); }
   else if (was === 'weiter') streifen.sag('Weiter geht’s!');
 }
 function paradeRichtig() {
@@ -234,7 +351,10 @@ function paradeFalsch() {
 }
 const gartenUrl = '../garten/' + (PROBE ? '?probe' : '');
 $('b-garten').href = gartenUrl;
+// Die Schnecke gibt es nur mit genug richtigen Aufgaben; bis dahin läuft die Runde nach Ablauf der Zeit weiter (höchstens 3 Minuten)
+const nochNoetig = () => Math.max(0, MIN_RICHTIG - ((runde.z.runde && runde.z.runde.geloest) || 0));
 runde = new Runde({
+  darfEnden: () => nochNoetig() === 0,
   onTick: (rest, dauer, pause) => {
     $('uhrzeit').textContent = uhrText(rest);
     $('sand').style.width = (rest / dauer * 100) + '%';
@@ -243,6 +363,8 @@ runde = new Runde({
   },
   onPause: () => streifen.sag('Pause. Schreib weiter, dann läuft die Uhr wieder.'),
   onZeitUm: () => {
+    const noch = nochNoetig();
+    if (noch > 0) { streifen.sag(`Die Zeit ist um! Löse noch ${noch === 1 ? 'eine Aufgabe' : noch + ' Aufgaben'} richtig, dann kommt deine Schnecke.`); return; }
     // Nur eine angefangene Aufgabe darf fertig werden; ist noch nichts geschrieben (oder schon gelöst), endet die Runde gleich
     const angefangen = ORDER.some(id => FIELDS[id].strokes.length) && !stage.classList.contains('done');
     if (angefangen) streifen.sag('Die Zeit ist um! Mach diese Aufgabe noch fertig.');
@@ -265,10 +387,14 @@ modusKnoepfe.forEach(b => b.addEventListener('click', () => {
 }));
 $('b-check').addEventListener('click', check);
 $('b-next').addEventListener('click', newTask);
+$('b-weiter').addEventListener('click', newTask);
 $('b-clear').addEventListener('click', () => {
   for (const id of ORDER) FIELDS[id].loeschen();
   stage.classList.remove('done'); setHint(START_TIPP); updateTarget(); knoepfe('rechnen');
 });
+const schneckeBtn = $('b-schnecke');
+function schneckeKnopf() { schneckeBtn.setAttribute('aria-pressed', String(zustand.schnecke)); schneckeBtn.textContent = 'Schnecke geht mit: ' + (zustand.schnecke ? 'an' : 'aus'); }
+schneckeBtn.addEventListener('click', () => { zustand.schnecke = !zustand.schnecke; speichern(); schneckeKnopf(); wandererZeigen(); });
 flipBtn.addEventListener('click', () => {
   zustand.gespiegelt = !zustand.gespiegelt; speichern();
   flipBtn.setAttribute('aria-pressed', String(zustand.gespiegelt));
@@ -289,6 +415,7 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 
 /* ---------- Start ---------- */
 flipBtn.setAttribute('aria-pressed', String(zustand.gespiegelt));
+schneckeKnopf();
 zeigeModus();
 layout(); newTask();
 zeigeParade(false); sagStart(); runde.tick();

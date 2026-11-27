@@ -182,3 +182,6 @@ header { grid-area: kopf; position: relative; z-index: 6; display: flex; align-i
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* Lernzeit für heute um: Amulett blass, es kommt nichts dazu */
+.amulett-platz.heute-fertig .amulett { opacity: .45; filter: grayscale(.7); }

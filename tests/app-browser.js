@@ -114,7 +114,7 @@ const ROOT = path.join(__dirname, '..');
   chk(/erkannt: 10/.test(await page.locator('#f-ten + .tag').textContent()), 'Offline: Zahlenerkennung funktioniert (Modell aus dem Speicher)');
   chk(await page.evaluate(() => document.fonts.check('800 20px Grandstander')), 'Offline: Schriften geladen');
   await page.goto(BASE + 'garten/'); await page.waitForTimeout(500);
-  chk(await page.locator('.g-snail').count() >= 3, 'Offline: Garten öffnet');
+  chk(await page.locator('.g-snail').count() >= 1, 'Offline: Garten öffnet');
   await page.goto(BASE); await page.waitForTimeout(300);
   chk(await page.locator('.kachel').count() >= 2, 'Offline: Startseite öffnet');
   await ctx.setOffline(false);

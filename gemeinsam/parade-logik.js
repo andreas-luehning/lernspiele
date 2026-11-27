@@ -7,11 +7,16 @@
 
 import { lesen, schreiben } from './speicher.js';
 
+// Hausfarben für alle Kinder, zufällig verteilt: typische „Mädchen-“ und „Jungenfarben“ sind bewusst beide dabei
+// (Entscheidung der Lehrkraft, siehe docs/schneckenparade.md). Reihenfolge wie im Regenbogen.
 export const COLORS = {
-  rosa: { name: 'Rosa', adj: 'rosa', fill: '#ff9ec4' }, gelb: { name: 'Gelb', adj: 'gelbem', fill: '#ffd447' },
-  mint: { name: 'Mint', adj: 'mintgrünem', fill: '#7fe0b8' }, blau: { name: 'Himmelblau', adj: 'himmelblauem', fill: '#7cc8ff' },
-  lila: { name: 'Lila', adj: 'lila', fill: '#b79bff' }, orange: { name: 'Orange', adj: 'orangem', fill: '#ffad66' },
+  rot: { name: 'Rot', adj: 'rotem', fill: '#ff7a6b' }, orange: { name: 'Orange', adj: 'orangem', fill: '#ffad66' },
+  gelb: { name: 'Gelb', adj: 'gelbem', fill: '#ffd447' }, gruen: { name: 'Grün', adj: 'grünem', fill: '#8fd45c' },
+  blau: { name: 'Himmelblau', adj: 'himmelblauem', fill: '#7cc8ff' }, kobalt: { name: 'Dunkelblau', adj: 'dunkelblauem', fill: '#5b7cf0' },
+  lila: { name: 'Lila', adj: 'lila', fill: '#b79bff' }, rosa: { name: 'Rosa', adj: 'rosa', fill: '#ff9ec4' },
 };
+// Frühere Hausfarben werden in alten Gärten umgewandelt
+const FARB_UEBERNAHME = { mint: 'gruen' };
 export const PATTERNS = { uni: 'Einfarbig', punkte: 'Punkte', streifen: 'Streifen', sterne: 'Sterne', herzen: 'Herzen', wellen: 'Wellen' };
 export const HATS = {
   krone: 'Krone', zylinder: 'Zylinder', blumen: 'Blumenkranz', pirat: 'Piratenhut', zipfel: 'Zipfelmütze', party: 'Partyhut',
@@ -24,10 +29,19 @@ const HAT_ART = {
 };
 export const SPECIALS = { glitzer: 'Glitzerhaus', regenbogen: 'Regenbogenhaus', kaefer: 'Marienkäfer' };
 export const DECO = { pilz: 'Pilz', blume: 'Blume', teich: 'Teich', bank: 'Bank', kanne: 'Gießkanne', hotel: 'Schneckenhotel' };
-export const STAGES = ['Baby', 'Klein', 'Groß', 'Glitzer'];
+export const STAGES = ['Babyschnecke', 'Entdeckerschnecke', 'Abenteuerschnecke', 'Glitzerhaus'];
+export const STAGES_KURZ = ['Baby', 'Entdecker', 'Abenteurer', 'Glitzer']; // für kleine Beschriftungen
 const GROW = [0, 2, 5, 10];              // Ausflüge, ab denen die Stufe gilt
 export const SCALE = [0.6, 0.78, 1, 1];  // Größe je Stufe
-const NAMES = ['Lotti', 'Paul', 'Frieda', 'Kurt', 'Mia', 'Ole', 'Wilma', 'Theo', 'Ida', 'Fritz', 'Greta', 'Emil', 'Lina', 'Bruno', 'Pia', 'Jonte', 'Rosi', 'Anton', 'Mila', 'Hugo', 'Nele', 'Otto', 'Flora', 'Max', 'Tilda', 'Leo', 'Edda', 'Moritz', 'Ronja', 'Karl'];
+// Namen in drei Gruppen. Rosa und Lila bekommen nur Schnecken mit Mädchennamen (Kinder fanden „Karl mit rosa Haus“ falsch);
+// Mädchennamen bekommen alle Farben, Jungen- und neutrale Namen alle außer Rosa und Lila (Entscheidung der Lehrkraft, 09.11.).
+export const MAEDCHEN_NAMEN = ['Lotti', 'Frieda', 'Mia', 'Wilma', 'Ida', 'Greta', 'Lina', 'Pia', 'Rosi', 'Mila', 'Nele', 'Flora', 'Tilda', 'Edda', 'Ronja'];
+export const JUNGEN_NAMEN = ['Paul', 'Kurt', 'Ole', 'Theo', 'Fritz', 'Emil', 'Bruno', 'Jonte', 'Anton', 'Hugo', 'Otto', 'Max', 'Leo', 'Moritz', 'Karl'];
+export const NEUTRALE_NAMEN = ['Flitzi', 'Momo', 'Kiki', 'Toni'];
+export const MAEDCHEN_FARBEN = ['rosa', 'lila'];
+const NAMES = [...MAEDCHEN_NAMEN, ...JUNGEN_NAMEN, ...NEUTRALE_NAMEN];
+/** Passt der Name zur Hausfarbe? (Grundname ohne angehängte Nummer, z. B. „Lotti 31“) */
+export const namePasst = (name, color) => !MAEDCHEN_FARBEN.includes(color) || MAEDCHEN_NAMEN.includes(String(name).split(' ')[0]);
 const KAEFER_NAMEN = ['Punkti', 'Kiki', 'Lulu'];
 const SPIELE = ['zehnerweg', 'start'];
 
@@ -35,6 +49,7 @@ export const RUNDE_MS = 5 * 60 * 1000;
 export const NACHSPIEL_MS = 3 * 60 * 1000; // so lange darf die angefangene Aufgabe nach Ablauf noch dauern
 export const MAX_BEGLEITER = 3;
 export const BLAETTER_PRO_HUT = 5;
+export const MIN_RICHTIG = 2;      // so viele Aufgaben müssen in einer Runde richtig sein, damit es eine Schnecke gibt
 export let FEHLT_BEVORZUGT = 0.2;  // Wahrscheinlichkeit, dass bewusst ein fehlendes Haus bzw. eine fehlende Kopfbedeckung kommt
 export const setzeBevorzugt = w => { FEHLT_BEVORZUGT = w; }; // nur für Simulationen
 const MAX_NAME = 20, MAX_TIERE = 3000, MAX_SCHACHTEL = 500;
@@ -59,7 +74,7 @@ export function describe(s) {
 /* ---------- Speichern und Prüfen ---------- */
 
 const STANDARD = {
-  garden: [], walkers: [], leaves: 0, hutschachtel: [], hueteGefunden: [], practiceDays: 0, lastPracticeDay: '',
+  garden: [], walkers: [], helfer: null, leaves: 0, hutschachtel: [], hueteGefunden: [], practiceDays: 0, lastPracticeDay: '',
   deco: [], newCount: 0, nextId: 1, runde: null,
 };
 // Felder älterer Spielstände, die beim Laden noch gelesen werden, um sie zu übernehmen
@@ -75,6 +90,9 @@ const istHut = k => typeof k === 'string' && hat(HATS, k);
 export function pruefeSchnecke(s) {
   if (!s || typeof s !== 'object') return null;
   if (!istId(s.id) || typeof s.name !== 'string' || !s.name.trim()) return null;
+  if (typeof s.color === 'string' && hat(FARB_UEBERNAHME, s.color)) s = { ...s, color: FARB_UEBERNAHME[s.color] };
+  // Alte Gärten: Rosa oder Lila bei einem Jungen- oder neutralen Namen wird Rot bzw. Dunkelblau (Name bleibt)
+  if (typeof s.color === 'string' && MAEDCHEN_FARBEN.includes(s.color) && !namePasst(s.name, s.color)) s = { ...s, color: s.color === 'rosa' ? 'rot' : 'kobalt' };
   if (!hat(COLORS, s.color) || !hat(PATTERNS, s.pattern)) return null;
   if (!(s.hat === null || istHut(s.hat))) return null;
   if (!(s.special === null || s.special === 'regenbogen' || s.special === 'kaefer')) return null;
@@ -94,6 +112,7 @@ export function bereinigeZustand(roh, rnd = Math.random) {
   z.garden = (Array.isArray(z.garden) ? z.garden : []).slice(0, MAX_TIERE).map(pruefeSchnecke)
     .filter(s => s && !ids.has(s.id) && ids.add(s.id));
   z.walkers = [...new Set((Array.isArray(z.walkers) ? z.walkers : []).filter(id => ids.has(id)))].slice(0, MAX_BEGLEITER);
+  z.helfer = z.garden.some(t => t.id === z.helfer && t.special !== 'kaefer') ? z.helfer : null;
   z.leaves = istZahl(z.leaves, BLAETTER_PRO_HUT - 1) ? z.leaves : 0;
   z.hutschachtel = (Array.isArray(z.hutschachtel) ? z.hutschachtel : []).filter(istHut).slice(0, MAX_SCHACHTEL);
   z.hueteGefunden = Object.keys(HATS).filter(k => (Array.isArray(z.hueteGefunden) && z.hueteGefunden.includes(k)) || z.hutschachtel.includes(k) || z.garden.some(s => s.hat === k));
@@ -110,6 +129,7 @@ export function bereinigeZustand(roh, rnd = Math.random) {
     begleiter: (Array.isArray(r.begleiter) ? r.begleiter : []).filter(id => ids.has(id)).slice(0, MAX_BEGLEITER),
     neu: (Array.isArray(r.neu) ? r.neu : []).filter(id => ids.has(id)).slice(0, 200),
     huete: (Array.isArray(r.huete) ? r.huete : []).filter(istHut).slice(0, 200),
+    geloest: istZahl(r.geloest, 10000) ? r.geloest : 0,
     zeitUm: r.zeitUm === true,
   } : null;
   // Übernahme aus der vorigen Fassung: Schnecken aus dem Salatkorb schlüpfen jetzt
@@ -124,15 +144,17 @@ export function bereinigeZustand(roh, rnd = Math.random) {
 export function ladeParade(rnd = Math.random, tag = heute()) {
   // runde ist null oder ein Objekt; speicher.js prüft nur den Typ, darum hier {} als Muster und genaue Prüfung in bereinigeZustand
   let z = bereinigeZustand(lesen('parade', { ...STANDARD, ...ALT, runde: {} }), rnd);
-  if (!z.garden.length) z = startGarten(z, rnd, tag);
+  // Der Startgarten wird sofort gespeichert. Sonst würden die Schnecken (und ihre Namen) bei jedem Öffnen neu ausgelost,
+  // bis zum ersten Spielzug etwas gespeichert wird.
+  if (!z.garden.length) { z = startGarten(z, rnd, tag); speichereParade(z); }
   return z;
 }
 export const speichereParade = z => schreiben('parade', z);
 
-/** Neuer Garten: 3 Babyschnecken ohne Kopfbedeckung, die gleich mitlaufen. */
+/** Neuer Garten: eine Babyschnecke ohne Kopfbedeckung, die gleich mitläuft. Jede fertige Runde bringt die nächste. */
 export function startGarten(z, rnd = Math.random, tag = heute()) {
-  const n = { ...structuredClone(STANDARD), ...z, garden: [], walkers: [] };
-  for (let i = 0; i < 3; i++) { const s = neueSchnecke(n, rnd, tag, 'start'); s.special = null; n.garden.push(s); n.walkers.push(s.id); }
+  const n = { ...structuredClone(STANDARD), ...z, garden: [], walkers: [], helfer: null };
+  const s = neueSchnecke(n, rnd, tag, 'start'); s.special = null; n.garden.push(s); n.walkers.push(s.id);
   return n;
 }
 
@@ -147,8 +169,10 @@ export function neueSchnecke(z, rnd = Math.random, tag = heute(), spiel = 'zehne
   for (const c in COLORS) for (const p in PATTERNS) if (!vorhanden.has(c + '|' + p)) frei.push([c, p]);
   const [color, pattern] = frei.length && rnd() < FEHLT_BEVORZUGT ? wahl(rnd, frei) : [wahl(rnd, Object.keys(COLORS)), wahl(rnd, Object.keys(PATTERNS))];
   const special = rnd() < 1 / 15 ? 'regenbogen' : null;
-  const benutzt = new Set(z.garden.map(s => s.name)); const freieNamen = NAMES.filter(n => !benutzt.has(n));
-  const name = freieNamen.length ? wahl(rnd, freieNamen) : wahl(rnd, NAMES) + ' ' + (z.garden.length + 1);
+  // Der Name richtet sich nach der Hausfarbe: Rosa und Lila nur mit Mädchennamen
+  const passend = MAEDCHEN_FARBEN.includes(color) ? MAEDCHEN_NAMEN : NAMES;
+  const benutzt = new Set(z.garden.map(s => s.name)); const freieNamen = passend.filter(n => !benutzt.has(n));
+  const name = freieNamen.length ? wahl(rnd, freieNamen) : wahl(rnd, passend) + ' ' + (z.garden.length + 1);
   return { id: z.nextId++, name, color, pattern, hat: null, special, runs: 0, stage: 0, born: tag, spiel, ausflug: '' };
 }
 
@@ -163,7 +187,7 @@ export const laeuft = z => !!z.runde;
 /** Runde beginnen (ob heute noch Lernzeit da ist, prüft runde.js). Gibt true zurück, wenn eine Runde läuft. */
 export function rundeStarten(z, jetzt = Date.now(), dauer = RUNDE_MS, tag = heute()) {
   if (z.runde) return true;
-  z.runde = { ende: jetzt + dauer, pause: null, tag, begleiter: [...z.walkers], neu: [], huete: [], zeitUm: false };
+  z.runde = { ende: jetzt + dauer, pause: null, tag, begleiter: [...z.walkers], neu: [], huete: [], geloest: 0, zeitUm: false };
   return true;
 }
 
@@ -187,6 +211,7 @@ export function fortsetzen(z, jetzt = Date.now(), tag = heute()) {
  */
 export function richtig(z, rnd = Math.random) {
   if (!z.runde) return null;
+  z.runde.geloest = (z.runde.geloest || 0) + 1;
   z.leaves++;
   let hut = null;
   if (z.leaves >= BLAETTER_PRO_HUT) {
@@ -210,10 +235,13 @@ export function falsch(z) { return !!z.runde; }
 export function rundeBeenden(z, tag = heute(), rnd = Math.random) {
   const r = z.runde; if (!r) return { neu: [], gewachsen: [], deko: null, huete: [] };
   const rundenTag = r.tag || tag;
+  // Zu wenig richtige Aufgaben (z. B. nur gemalt): keine Schnecke, kein Ausflug, kein Übungstag, keine Strafe.
+  // Die Lernzeit ist schon gezählt, Kopfbedeckungen für Salatblätter bleiben.
+  if ((r.geloest || 0) < MIN_RICHTIG) { z.runde = null; return { neu: [], gewachsen: [], deko: null, huete: [...r.huete], keineSchnecke: true }; }
   const neu = neueSchnecke(z, rnd, rundenTag, 'zehnerweg');
   z.garden.push(neu); r.neu.push(neu.id); z.newCount++;
   if (z.newCount % 10 === 0) {
-    const kaefer = { id: z.nextId++, name: wahl(rnd, KAEFER_NAMEN), color: 'rosa', pattern: 'uni', hat: null, special: 'kaefer', runs: 0, stage: 0, born: rundenTag, spiel: 'zehnerweg', ausflug: '' };
+    const kaefer = { id: z.nextId++, name: wahl(rnd, KAEFER_NAMEN), color: 'rot', pattern: 'uni', hat: null, special: 'kaefer', runs: 0, stage: 0, born: rundenTag, spiel: 'zehnerweg', ausflug: '' };
     z.garden.push(kaefer); r.neu.push(kaefer.id);
   }
   // Übungstage zählen jeden Tag nur einmal (nicht am Stück; Tage ohne Üben zählen einfach nicht)
@@ -259,11 +287,31 @@ export function hutAbnehmen(z, id) {
   return true;
 }
 
-/** Wer läuft gerade auf der Straße: Begleiter, dann die Neuen dieser Runde. */
-export function parade(z) {
+/** Alle, die in dieser Runde (oder davor) mitlaufen: Begleiter, dann die Neuen dieser Runde. */
+function mitlaeufer(z) {
   const ids = z.runde ? [...z.runde.begleiter, ...z.runde.neu] : [...z.walkers];
   const byId = new Map(z.garden.map(s => [s.id, s]));
   return ids.map(id => byId.get(id)).filter(Boolean);
+}
+
+/** Rechenhelfer: die gewählte Schnecke, sonst die erste Begleitschnecke (kein Marienkäfer). */
+export function rechenhelfer(z) {
+  return z.garden.find(s => s.id === z.helfer) || mitlaeufer(z).find(s => s.special !== 'kaefer') || null;
+}
+
+/** Rechenhelfer wählen (nur einer); dieselbe Schnecke nochmal nimmt die Wahl zurück. */
+export function helferUmschalten(z, id) {
+  const s = z.garden.find(x => x.id === id);
+  if (!s || s.special === 'kaefer') return false;
+  z.helfer = z.helfer === id ? null : id;
+  return true;
+}
+
+/** Wer läuft gerade auf der Straße. Der Rechenhelfer fehlt dort, solange noch eine andere Schnecke läuft (sonst doppelt zu sehen). */
+export function parade(z) {
+  const alle = mitlaeufer(z);
+  const h = rechenhelfer(z);
+  return alle.length > 1 && h && alle.includes(h) ? alle.filter(s => s !== h) : alle;
 }
 
 /** Sammelalbum: was ist schon entdeckt? */

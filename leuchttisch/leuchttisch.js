@@ -63,8 +63,9 @@ function schreibfeldBereit() {
   if (feld) return;
   feld = new Schreibfeld($('schreiben'), {
     id: 'antwort', kind: 'box',
-    onErkannt: f => { if (f.value != null && !f.wartet) pruefen(f.value, null); },
-    onStart: () => { $('grown').hidden = true; $('b-info').setAttribute('aria-expanded', 'false'); aktiv(); },
+    // Die Runde beginnt erst mit einer erkannten Zahl: Gekritzel und Bemalen starten nichts
+    onErkannt: f => { if (f.value != null && !f.wartet) { aktiv(); pruefen(f.value, null); } },
+    onStart: () => { $('grown').hidden = true; $('b-info').setAttribute('aria-expanded', 'false'); },
   });
   requestAnimationFrame(() => feld.groesseAnpassen());
 }
@@ -187,6 +188,10 @@ function schatzZeigen(neu = -1, voll = false) {
   }
 }
 function fassungText() {
+  // Lernzeit für heute um (freies Üben): es kommen keine Steine dazu, das soll man sehen
+  const fertig = !runde.laeuft && !runde.heuteMoeglich;
+  $('amulett').classList.toggle('heute-fertig', fertig);
+  if (fertig) return 'Morgen sammelst du weiter!';
   const fehlt = FASSUNGEN - zustand.fassung.length;
   return fehlt === 1 ? 'Noch 1 Stein!' : `Noch ${fehlt} Steine`;
 }
@@ -225,6 +230,7 @@ const runde = new Runde({
     else runde.beenden();
   },
   onEnde: erg => {
+    schatzZeigen();                             // ist die Lernzeit jetzt um, wird das Amulett blass mit „Morgen sammelst du weiter!“
     const n = erg.steine;
     rundenNachricht = `Geschafft! 5 Minuten geübt. ${n === 1 ? 'Ein Stein' : n + ' Steine'} für dein Amulett.` + (erg.lernzeitUm ? ' ' + LERNZEIT_UM : '');
     if (!geloest) { zeigeHinweis(rundenNachricht, 'good'); rundenNachricht = ''; }
@@ -278,7 +284,8 @@ document.querySelectorAll('#licht button').forEach(b => b.addEventListener('clic
 document.querySelectorAll('#seite button').forEach(b => b.addEventListener('click', () => {
   zustand.seite = b.dataset.seite === 'links' ? 'links' : 'rechts'; speichern(); seiteZeigen();
 }));
-$('b-hilfe').addEventListener('click', () => { aktiv(); zeigMirs(); });
+// „Zeig mir's“ startet keine Runde (das tut nur eine Antwort), setzt aber eine laufende Runde nach einer Pause fort
+$('b-hilfe').addEventListener('click', () => { if (runde.laeuft) aktiv(); zeigMirs(); });
 $('kiste').href = '../schatzkammer/' + (PROBE ? '?probe' : ''); // Probe-Modus bleibt erhalten
 $('b-neu').addEventListener('click', () => { if (zustand.runde?.zeitUm) runde.beenden(); neueSteine(); });
 $('b-info').addEventListener('click', () => {

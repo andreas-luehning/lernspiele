@@ -1,5 +1,7 @@
 # Ideen und offene Fragen
 
+> **Die geordnete Aufgabenliste steht in `backlog.md`** (Priorität, Checkboxen, Hinweis Opus/Sonnet). Diese Datei sammelt die Ideen und Hintergründe dazu.
+
 ## Fahrplan (Stand 08.11.2026, von der Lehrkraft)
 
 1. **Aktuelle Fassung testen** (Zehnerweg mit Schneckenparade, Leuchttisch, Schatzkammer; Branch `leuchttisch-mit-belohnung`) und als Pull Request nach `main` übernehmen. Danach nur noch kleine Fehler.
@@ -9,7 +11,18 @@
 5. **Zahlenmauern auf dem Leuchttisch:** Die Steine liegen als Zahlenmauer auf dem Tisch, das Kind beschriftet die Mauer direkt auf dem Leuchttisch (Schreibfelder in den Mauersteinen).
 
 
-## Weitere Spiele (noch zu beschreiben)
+## Rückmeldungen vom Tablet-Test (11.11.2026, noch nicht umgesetzt)
+
+1. **Ziffer 9:** Wird nur in amerikanischer Schreibweise erkannt, die deutsche 9 klappt noch nicht zuverlässig.
+2. **Einstellung „7 mit Querstrich“** soll zu einem Schalter **„Deutsche Schreibschrift“** werden, der alles auf deutsch umstellt (7 mit Querstrich, deutsche 1 und 9). Persönlicher Eindruck der Lehrkraft: Die 1 als einfacher Strich ist angenehm, eine 7 ohne Querstrich fühlt sich komisch an.
+3. **Zweimal Bommelmütze im Probe-Modus:** Prüfen, ob Fehler oder Zufall (doppelte Kopfbedeckungen sind bisher erlaubt).
+4. **Wachstumsstufen Baby, Klein, Groß:** Niedlichere Wörter suchen.
+5. **Straße im Zehnerweg:** Fahrbahnmarkierung hat merkwürdige Lücken, Pfeilspitzen sitzen nicht klar.
+6. **Belohnung, wenn der Zehnerweg über 20 geht** (höhere Stufe): Wie geht es dann weiter? Ideen: Fantasie-Kopfbedeckungen wie Einhornhorn und Feenflügel, Halloween-Kostüme (vielleicht nur im Oktober). Weitere lustige Kopfbedeckungen: Blaulicht mit Polizeisirene, Satellitenantenne, Bauarbeiterhelm. Oder besondere Schnecken-Arten als Belohnung (z. B. Tigerschnecke, Rennschnecke mit Streifen).
+7. **Freischalten:** Neue Spiele, Stufen oder Kopfbedeckungen erst freischalten, wenn das Kind etwas erreicht hat. Einordnung: Freischalten über Durchhalten (Übungstage, fertige Runden) statt über Fehlerfreiheit, damit schwächere Kinder nicht hängen bleiben (Grundsatz 3). Erwachsene können jederzeit alles freigeben.
+8. **Zehnerweg auf dem Smartphone:** Eignet sich bisher nicht (zu kleine Schreibfelder). Idee: eigene Smartphone-Ansicht, z. B. ein Feld nach dem anderen groß statt des ganzen Rechenwegs auf einmal.
+
+
 
 Beide stammen von Leuchttisch-Materialien aus dem Unterricht. Prototypen, Übergaben und der Abgleich mit diesem Projekt stehen jetzt in `leuchttisch.md` (neue Richtung: Amulette statt Numi). Die folgenden Notizen sind der alte Stand.
 
