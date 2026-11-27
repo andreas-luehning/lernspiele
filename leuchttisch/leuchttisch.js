@@ -4,7 +4,7 @@ import { Schreibfeld, alleNeuZeichnen } from '../gemeinsam/schreibfeld.js';
 import { lesen, schreiben } from '../gemeinsam/speicher.js';
 import { Runde, uhrText, PROBE } from '../gemeinsam/runde.js';
 import { STANDARD, STUFEN, FASSUNGEN, materialDerStufe, steinGroesse, neueAufgabe, verteilen, antworten, tipp, zustandPruefen, steinEinsetzen, rundeBeendenLT } from './aufgaben.js';
-import { svg, stein, defsEinbauen, amulett, STEIN_ART } from './steine.js';
+import { svg, stein, lichtfleck, platte, defsEinbauen, amulett, STEIN_ART } from './steine.js';
 
 const $ = id => document.getElementById(id);
 
@@ -25,8 +25,12 @@ function tischMasse() {
 
 function tischZeichnen() {
   tischSvg = svg('svg', { viewBox: `0 0 ${B} ${H}`, class: 'tisch-svg', role: 'img', 'aria-label': `Edelsteine auf dem Leuchttisch` });
+  // Erst alle Lichtflecken, dann alle Steine: ein Fleck liegt nie über einem Nachbarstein
+  const flecken = svg('g', { class: 'lichtflecken', 'aria-hidden': 'true' });
+  for (const s of aufgabe.steine) flecken.append(lichtfleck(s.sorte, s.x, s.y, G, s.dreh));
+  tischSvg.append(flecken);
   for (const s of aufgabe.steine) tischSvg.append(stein(s.sorte, s.x, s.y, G, s.dreh, { licht: true }));
-  tisch.querySelector('.tisch-svg')?.remove();   // das Lichtspiel darunter bleibt
+  tisch.querySelector('.tisch-svg')?.remove();   // Lichtspiel und Milchglas-Platte darunter bleiben
   tisch.append(tischSvg);
 }
 
@@ -310,6 +314,7 @@ new MutationObserver(alleNeuZeichnen).observe(document.documentElement, { attrib
 
 /* ---------- Start ---------- */
 defsEinbauen();
+tisch.querySelector('.lichtspiel').after(platte());   // Milchglas-Körnung über dem bewegten Licht
 stufenZeigen(); sortenZeigen(); lichtZeigen(); seiteZeigen(); schatzZeigen(); kisteZeigen();
 runde.tick();
 requestAnimationFrame(() => { neueSteine(); eingabeZeigen(); });

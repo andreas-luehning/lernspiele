@@ -1,6 +1,6 @@
 # Leuchttisch-Spiele: Unterlagen und Abgleich
 
-Stand: 08.11.2026. **Noch nichts gebaut.** Diese Datei sammelt die Unterlagen, gleicht sie mit den Grundsätzen in `CLAUDE.md` ab und hält die neue Richtung fest.
+Stand: 08.11.2026, ergänzt 27.11.2026 (realistischer Leuchttisch). **Noch nichts gebaut.** Diese Datei sammelt die Unterlagen, gleicht sie mit den Grundsätzen in `CLAUDE.md` ab und hält die neue Richtung fest.
 
 ## Unterlagen
 
@@ -38,6 +38,20 @@ Die Prototypen und Übergaben bleiben unverändert, so wie sie geliefert wurden.
 | Topas | Gelb | Dreieck |
 
 Gezeichnet mit Facetten (Licht von links oben), Tafel, Funkeln und einem farbigen Lichtschein auf dem Tisch. Die erste Fassung (durchscheinendes Acryl, Rubin als Tropfen) wirkte nicht edel genug.
+
+### Realistischer Leuchttisch (Stand 27.11.2026)
+
+Ziel: Steine und Tisch sollen wie echt wirken, **ohne das Zählen zu stören**. Die Steine bewegen sich nicht; nur das Licht darf leben (wie bisher). Alles nur mit SVG und CSS, keine Bilddateien.
+
+- **Plastische Steine** (im Entwurf wirkten sie noch flach und blass): kräftige Farbe statt weißlich verwaschen, zum Rand hin dunkler (wie bei echten Edelsteinen), deutlichere helle und dunkle Facetten, in der Mitte durchscheinend in einem hellen Ton der Steinfarbe (Licht kommt von unten), ein weiches Glanzlicht links oben und ein kleiner harter Lichtpunkt, eine feine helle Innenkante für die Dicke. Die dunkle Randlinie bleibt, damit jeder Stein klar abgegrenzt ist.
+- **Gleich groß, gleiche Grundform:** Größe, Umriss und Drehung (höchstens ±25°) bleiben wie bisher. Kleine Unterschiede im Glanz sind erlaubt, unterschiedliche Größen nicht.
+- **Farbiges Licht unter jedem Stein:** ein weicher Lichtfleck in der Steinfarbe, stark verwischt, ohne Kante, leicht nach rechts unten versetzt (Licht von links oben). Er liegt **unter allen Steinen** (nie über einem Nachbarn) und bleibt im Abstand zum nächsten Stein (Abstand mindestens 1,05 Steingrößen). Er darf nie wie ein zusätzlicher Stein aussehen: keine Randlinie, kein Glanz, deutlich blasser als der Stein. Im Code ein eigenes Element (`lichtfleck`), kein `.stein`, damit Zählen und Tests die Steine nicht doppelt zählen.
+- **Milchglas-Platte:** feine Körnung (SVG-Rauschen `feTurbulence`, sehr schwach, ohne Bewegung) und ein sanfter Lichtverlauf: in der Mitte etwas heller, zu den Rändern etwas dunkler, dazu ein schwacher schräger Schimmer und eine helle Glaskante. Die Körnung liegt über dem bewegten Licht, aber unter den Steinen.
+- Tag und Nacht: Der Tisch hat in beiden dieselben Farben (wie bisher).
+- „Bewegung reduzieren“: Nichts davon bewegt sich; die bestehenden Regeln für Funkeln und bewegtes Licht bleiben.
+- Kein Wurf: Die Steine liegen sofort da (Entscheidung 27.11.).
+
+**Vorgabe für die Burg** (noch nicht gebaut): Die Burg-Bausteine liegen auf derselben Platte (Rahmen, Milchglas, Aufleuchten bei richtiger Antwort, bewegtes Licht). Sie bekommen denselben Lichtschein von unten in ihrer Farbe und ab und zu ein **sehr subtiles** Funkeln, das nicht wie das Aufleuchten bei einer richtigen Antwort wirkt und nicht gleichzeitig damit kommt. Die Form der Bauteile aus `prototypen/burgen.html` bleibt unverändert, auch die Umrisse.
 
 ### Regeln für den ersten Entwurf (Steine zählen und zerlegen)
 

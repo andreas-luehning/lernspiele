@@ -31,6 +31,18 @@ const BASE = process.env.BASE || 'http://localhost:8123/';
   await schreibe(page, '#schreiben canvas', 9); await page.waitForTimeout(2500);
   chk(await page.textContent('#uhrzeit') !== '1:00', 'Erkannte Zahl startet die Runde: Uhr läuft (' + await page.textContent('#uhrzeit') + ')');
 
+  // Realistischer Tisch: Lichtflecken sind keine Steine und liegen unter allen Steinen; Milchglas-Platte da
+  const t = await page.evaluate(() => {
+    const svg = document.querySelector('#tisch .tisch-svg'), kinder = [...svg.children];
+    const steine = svg.querySelectorAll('.stein').length, flecken = svg.querySelectorAll('.lichtfleck').length;
+    const ersterStein = kinder.findIndex(k => k.classList.contains('stein')), fleckGruppe = kinder.findIndex(k => k.classList.contains('lichtflecken'));
+    return { steine, flecken, fleckInStein: svg.querySelectorAll('.stein .lichtfleck, .lichtfleck .stein').length, unten: fleckGruppe >= 0 && fleckGruppe < ersterStein,
+      platte: !!document.querySelector('#tisch .lichtspiel + .platte'), ausgeblendet: svg.querySelector('.lichtflecken')?.getAttribute('aria-hidden') === 'true' };
+  });
+  chk(t.steine > 0 && t.flecken === t.steine && !t.fleckInStein, `Ein Lichtfleck pro Stein, kein Fleck zählt als Stein (${t.steine} Steine, ${t.flecken} Flecken)`);
+  chk(t.unten && t.ausgeblendet, 'Lichtflecken liegen unter allen Steinen und sind für Vorleser ausgeblendet');
+  chk(t.platte, 'Milchglas-Platte liegt über dem bewegten Licht');
+
   chk(!probleme.length, 'Keine Fehler ' + probleme.join(' | '));
   chk(!fremd.length, 'Keine Anfragen an fremde Server ' + fremd.join(' '));
   await b.close();
