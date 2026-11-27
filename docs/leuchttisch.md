@@ -51,7 +51,7 @@ Ziel: Steine und Tisch sollen wie echt wirken, **ohne das Zählen zu stören**. 
 - „Bewegung reduzieren“: Nichts davon bewegt sich; die bestehenden Regeln für Funkeln und bewegtes Licht bleiben.
 - Kein Wurf: Die Steine liegen sofort da (Entscheidung 27.11.).
 
-**Vorgabe für die Burg** (noch nicht gebaut): Die Burg-Bausteine liegen auf derselben Platte (Rahmen, Milchglas, Aufleuchten bei richtiger Antwort, bewegtes Licht). Sie bekommen denselben Lichtschein von unten in ihrer Farbe und ab und zu ein **sehr subtiles** Funkeln, das nicht wie das Aufleuchten bei einer richtigen Antwort wirkt und nicht gleichzeitig damit kommt. Die Form der Bauteile aus `prototypen/burgen.html` bleibt unverändert, auch die Umrisse.
+**Vorgabe für die Burg** (umgesetzt als eigene Kachel, siehe `docs/burgen.md`): Die Burg-Bausteine liegen auf derselben Platte (Rahmen, Milchglas, Aufleuchten bei richtiger Antwort, bewegtes Licht). Sie bekommen denselben Lichtschein von unten in ihrer Farbe und ab und zu ein **sehr subtiles** Funkeln, das nicht wie das Aufleuchten bei einer richtigen Antwort wirkt und nicht gleichzeitig damit kommt. Die Form der Bauteile aus `prototypen/burgen.html` bleibt unverändert, auch die Umrisse.
 
 ### Regeln für den ersten Entwurf (Steine zählen und zerlegen)
 

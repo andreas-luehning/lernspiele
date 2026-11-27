@@ -177,6 +177,7 @@ function probeAnzeige() {
   alle('[data-probe-knopf]').forEach(k => { k.textContent = PROBE ? 'Probe beenden' : 'Probe-Modus starten'; });
   alle('[data-probe-zuruecksetzen]').forEach(k => { k.hidden = !PROBE; });
   alle('[data-nur-echt]').forEach(k => { k.hidden = PROBE; });
+  alle('[data-nur-probe]').forEach(k => { k.hidden = !PROBE; });   // z. B. Kacheln, die noch erprobt werden (Burgen)
 }
 
 /* ---------- Start ---------- */

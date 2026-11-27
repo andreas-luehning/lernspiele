@@ -1,6 +1,7 @@
 // Prüft die Aufgabenlogik von Zehnerweg und Leuchttisch ohne Browser. Aufruf: node tests/logik.mjs
 import { neueAufgabe, bewerten, tipp, ORDER } from '../zehnerweg/aufgaben.js';
 import * as LT from '../leuchttisch/aufgaben.js';
+import * as BU from '../burgen/burg-logik.js';
 let fehler = 0; const chk = (c, m) => { if (!c) { fehler++; console.log('FEHLER', m); } };
 for (const modus of ['plus', 'minus', 'mix']) {
   let vor = null; const ops = new Set();
@@ -70,5 +71,30 @@ chk(za.modell.form === 'schild' && za.modell.material === 'kristall', 'lt angefa
   for (let i = 0; i < LT.FASSUNGEN; i++) LT.steinEinsetzen(z4, LT.STEINE.find(s => s !== sorte));
   chk(z4.amulette[0].steine.every(s => s === sorte) && z4.amulette[0].stein === sorte && z4.modell.stein !== sorte, 'lt alle steine eines amuletts gleich, nächstes andere sorte'); }
 console.log('Leuchttisch geprüft');
+
+// Burgen: 8–13 Teile, Turm · Mitte · Turm symmetrisch, Dach oben, nichts schwebt, Antworten, Statistik
+{ const anzahlen = new Set(); let vorher = null;
+  for (let i = 0; i < 3000; i++) {
+    const c = BU.neueBurg(Math.random, vorher); anzahlen.add(c.total);
+    chk(c.total >= 8 && c.total <= 13 && c.total === c.parts[0] + c.parts[1] + c.parts[2] && c.parts[0] === c.parts[2], 'burg anzahl ' + c.total);
+    chk(c.cT !== c.cM, 'burg zwei farben');
+    chk(BU.istDach(c.tower.at(-1).t) && c.tower.slice(0, -1).every(p => !BU.istDach(p.t)), 'burg turm: dach nur oben');
+    chk(c.mid.list.slice(0, -1).every(p => !BU.istDach(p.t)), 'burg mitte: dach nur oben');
+    const l = BU.anordnen(c);
+    chk(l.teile.length === c.total, 'burg: ein Teil pro Baustein');
+    for (const b of [0, 1, 2]) {             // nichts schwebt: jedes Teil steht auf dem Boden oder auf dem darunter
+      const st = l.teile.filter(t => t.bereich === b);
+      st.forEach((t, k) => { const unten = k === 0 ? l.groundY + BU.G : st[k - 1].y; chk(Math.abs(t.y + t.h + BU.G - unten) < 1e-6, 'burg schwebt nicht'); });
+    }
+    const opts = BU.antworten(c.total);
+    chk(opts.length === 4 && new Set(opts).size === 4 && opts.includes(c.total) && opts.every(o => o > 0), 'burg antworten ' + opts);
+    vorher = c;
+  }
+  chk(anzahlen.size === 6, 'burg: alle Anzahlen 8–13 kommen vor ' + [...anzahlen]);
+  const st = BU.statistikPruefen({ geloest: 3, gleichRichtig: -1, mitHilfe: 1.5, fehlversuche: '<b>', x: 1 });
+  chk(JSON.stringify(st) === JSON.stringify({ geloest: 3, gleichRichtig: 0, mitHilfe: 0, fehlversuche: 0 }), 'burg statistik bereinigt ' + JSON.stringify(st));
+  BU.geloestZaehlen(st, { fehler: false, hilfe: false }); BU.geloestZaehlen(st, { fehler: true, hilfe: false }); BU.geloestZaehlen(st, { fehler: false, hilfe: true });
+  chk(st.geloest === 6 && st.gleichRichtig === 1 && st.mitHilfe === 1, 'burg statistik zählt ' + JSON.stringify(st)); }
+console.log('Burgen geprüft');
 console.log(fehler ? fehler + ' Fehler' : 'alles ok');
 process.exit(fehler ? 1 : 0);

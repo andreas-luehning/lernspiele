@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f3f9ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lernspiele">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../gemeinsam/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../gemeinsam/icons/apple-touch-icon.png">
+<title>Burgen</title>
+<link rel="stylesheet" href="../gemeinsam/theme.css">
+<link rel="stylesheet" href="../leuchttisch/leuchttisch.css">
+<link rel="stylesheet" href="burgen.css">
+<script src="../gemeinsam/thema.js"></script>
+<script type="module" src="../gemeinsam/app.js"></script>
+<script type="module" src="burgen.js"></script>
+</head>
+<body>
+<div class="app leiste-rechts" id="app">
+  <header>
+    <div class="kopf-links">
+      <a class="info-btn zurueck" href="../" aria-label="Zurück zur Startseite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+      <a class="brand" href="../" aria-label="Zur Startseite">
+        <h1>Burgen</h1>
+        <small>Bausteine zählen</small>
+      </a>
+    </div>
+    <div class="meta">
+      <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
+      <button type="button" class="info-btn" id="b-info" aria-expanded="false" aria-controls="grown" aria-label="Infos für Erwachsene">?</button>
+    </div>
+  </header>
+
+  <div class="grown" id="grown" hidden>
+    <h2>Für Erwachsene</h2>
+    <p>Probe-Version. Eine Burg aus Acryl-Bausteinen liegt auf dem Leuchttisch: Turm, Mitte, Turm. Das Kind zählt alle Bausteine; jedes Teil zählt als 1. Die Türme sind gleich, so kann es geschickt zählen (verdoppeln, dann die Mitte dazu).</p>
+    <p>„Zeig mir's“ zählt die Teile einzeln durch und zeigt die Rechnung mit „?“. Das Ergebnis wird nie verraten. Fehler kosten nichts. Es gibt keine Uhr.</p>
+    <p>Noch keine Belohnung und keine Lernzeit. Statt dessen steht unten eine kleine Statistik zum Ausprobieren. Sie bleibt auf dem Gerät; „Probe zurücksetzen“ auf der Startseite löscht sie.</p>
+  </div>
+
+  <div class="frage" id="frage" aria-live="polite">Wie viele Bausteine hat die Burg?</div>
+
+  <div class="tisch-rahmen">
+    <div class="tisch" id="tisch"></div>
+  </div>
+
+  <div class="antwort">
+    <div class="optionen" id="optionen"></div>
+  </div>
+
+  <div class="schatz">
+    <dl class="statistik" id="statistik" aria-label="Statistik">
+      <div><dt>gelöst</dt><dd id="s-geloest">0</dd></div>
+      <div><dt>gleich richtig</dt><dd id="s-gleich">0</dd></div>
+      <div><dt>mit Hilfe</dt><dd id="s-hilfe">0</dd></div>
+      <div><dt>Fehlversuche</dt><dd id="s-fehler">0</dd></div>
+    </dl>
+    <div class="hinweis" id="hinweis" aria-live="polite"></div>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn" id="b-hilfe">Zeig mir's</button>
+    <button type="button" class="btn primary" id="b-neu">Neue Burg</button>
+  </div>
+</div>
+</body>
+</html>

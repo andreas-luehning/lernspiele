@@ -45,6 +45,8 @@
 .k-oese { fill: none; stroke: #c98a12; stroke-width: 3.5; }
 .k-gold { fill: #ffd56b; stroke: #c98a12; stroke-width: 3; } .k-gold-innen { fill: #fff3cf; stroke: #e7b53c; stroke-width: 2; }
 .k-silber { fill: #dfe5ee; stroke: #7f8ba0; stroke-width: 3; } .k-kristall { fill: #cfeaff; stroke: #3f7fbf; stroke-width: 3; }
+.k-b { stroke-width: 2.4; stroke-linejoin: round; fill-opacity: .4; }
+.k-b-turm { fill: #2E9BFF; stroke: #2E9BFF; } .k-b-mitte { fill: #FFC400; stroke: #e0a800; } .k-b-dach { fill: #FF3D5A; stroke: #FF3D5A; }
 .kachel text { font: 800 17px var(--display); fill: var(--fg); }
 
 .erwachsene { margin-top: auto; background: var(--sheet); border: 2px solid var(--rule); border-radius: 18px; padding: 4px 16px; }

@@ -1,0 +1,27 @@
+/* Burgen: Layout, Tisch und Knöpfe kommen aus ../leuchttisch/leuchttisch.css. Hier nur das Eigene. */
+
+/* Die Burg steht mittig auf dem Tisch, so groß wie möglich */
+.burg-svg { overflow: visible; }
+
+/* Zählplaketten bei „Zeig mir's“ */
+.zaehl { animation: auf .18s ease both; }
+.zaehl circle { fill: #fff; stroke-width: 2.5; }
+.zaehl text { font: 800 12.5px var(--display); }
+
+/* Sehr subtiles Funkeln: kurz auf, wieder weg (bei „Bewegung reduzieren“ gar nicht) */
+.burg-funkeln { opacity: 0; transform-box: fill-box; transform-origin: center; animation: burg-funkeln 1.2s ease-in-out; }
+@keyframes burg-funkeln { 0% { opacity: 0; transform: scale(.3); } 45% { opacity: .75; transform: scale(1) rotate(45deg); } 100% { opacity: 0; transform: scale(.3) rotate(90deg); } }
+
+/* Statistik (vorläufig statt Belohnung) */
+.statistik { flex: none; display: grid; grid-template-columns: repeat(2, auto); gap: 4px 14px; margin: 0; padding: 10px 12px;
+  border: 2px solid var(--rule); border-radius: 16px; background: var(--sheet); }
+.statistik div { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+.statistik dt { font: 700 .78rem var(--body); color: var(--muted); text-align: center; }
+.statistik dd { margin: 0; font: 800 1.3rem var(--display); font-variant-numeric: tabular-nums; }
+
+/* Statistik als schmale Zeile über dem Hinweis, damit die Rechnung Platz hat */
+.app .schatz { flex-direction: column; align-items: stretch; gap: 10px; }
+.statistik { grid-template-columns: repeat(4, 1fr); gap: 4px 8px; padding: 6px 8px; }
+.statistik div { min-width: 0; }
+.statistik dt { font-size: .72rem; line-height: 1.15; }
+.statistik dd { font-size: 1.15rem; }
