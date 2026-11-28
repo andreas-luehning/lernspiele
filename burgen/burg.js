@@ -60,10 +60,9 @@ function bauteil({ t, x, y, w, h, flip, farbe }) {
     case 'quaderH': return acryl(farbe, e('rect', { x, y, width: w, height: h, rx: 4 }), [linie(x + 6, y + 5, x + w - 10, y + 5, 0.5, 1.6)]);
     case 'platteH': return acryl(farbe, e('rect', { x, y, width: w, height: h, rx: 3.5 }));
     case 'bogen': { const r = w / 2 - 9, cx = x + w / 2;
-      const d = !flip
-        ? `M${x} ${y + h} v-${h - 5} q0 -5 5 -5 h${w - 10} q5 0 5 5 v${h - 5} h-9 a${r} ${r} 0 0 0 ${-2 * r} 0 Z`
-        : `M${x + 5} ${y} q-5 0 -5 5 v${h - 10} q0 5 5 5 h${w - 10} q5 0 5 -5 v-${h - 10} q0 -5 -5 -5 Z M${cx - r} ${y} a${r} ${r} 0 0 0 ${2 * r} 0 Z`;
-      return acryl(farbe, e('path', { 'fill-rule': 'evenodd', d })); }
+      // Tor: Öffnung unten. Fenster: dasselbe Bauteil, nur umgedreht (Öffnung oben, Rückmeldung 28.11.)
+      const d = `M${x} ${y + h} v-${h - 5} q0 -5 5 -5 h${w - 10} q5 0 5 5 v${h - 5} h-9 a${r} ${r} 0 0 0 ${-2 * r} 0 Z`;
+      return acryl(farbe, e('path', flip ? { d, transform: `rotate(180 ${cx} ${y + h / 2})` } : { d })); }
     case 'dachW': return acryl(farbe, e('polygon', { points: `${x + w / 2},${y - 4} ${x + w + 3},${y + h} ${x - 3},${y + h}` }));
     case 'keilW': return acryl(farbe, e('polygon', { points: flip
       ? `${x - 3},${y + h} ${x + w + 3},${y + h} ${x - 3},${y - 3}` : `${x - 3},${y + h} ${x + w + 3},${y + h} ${x + w + 3},${y - 3}` }));
