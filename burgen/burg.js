@@ -82,8 +82,8 @@ function grundform(t) {
  * der Lichtschein liegt darunter in .lichtschein (keine .teil darin).
  */
 export function burgSvg(lage) {
-  const rand = 34;                                  // Platz um die Burg herum, damit sie nicht am Tischrand klebt
-  const s = svg('svg', { viewBox: `${-rand} ${-rand} ${lage.W + 2 * rand} ${lage.H + 2 * rand}`, class: 'tisch-svg burg-svg',
+  const rx = 10, ry = 18;                           // etwas Platz um die Burg, damit sie nicht am Tischrand klebt
+  const s = svg('svg', { viewBox: `${-rx} ${-ry} ${lage.W + 2 * rx} ${lage.H + 2 * ry}`, class: 'tisch-svg burg-svg',
     preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': 'Burg aus Bausteinen' });
   const defs = svg('defs');
   const glanz = svg('linearGradient', { id: 'acryl-glanz', x1: '0', y1: '0', x2: '0.35', y2: '1' });

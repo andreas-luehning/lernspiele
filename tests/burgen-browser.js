@@ -31,7 +31,7 @@ const SHOTS = process.env.SHOTS || '/tmp';
         [...document.querySelector('.burg-svg').children].findIndex(k => k.classList.contains('teil')),
       platte: !!document.querySelector('#tisch .platte + .burg-svg'),
     }));
-    chk(n >= 8 && n <= 13, `${name}: Burg mit 8–13 Teilen (${n})`);
+    chk(n >= 8 && n <= 20, `${name}: Burg mit 8–20 Teilen (${n})`);
     chk(!info.schein && info.scheinDa === n && info.scheinUnten, `${name}: Lichtschein pro Teil, unter der Burg, zählt nicht als Teil`);
     chk(info.platte, `${name}: Burg liegt auf der Milchglas-Platte`);
     const opts = await p.$$eval('.opt', o => o.map(x => +x.textContent));
@@ -51,7 +51,7 @@ const SHOTS = process.env.SHOTS || '/tmp';
     chk(/\?/.test(h) && !new RegExp('=\\s*' + n + '\\b').test(h) && await p.textContent('#s-fehler') === '1', `${name}: falsch zeigt Turm + Mitte + Turm = ?, Fehlversuch gezählt`);
 
     // Zeig mir's: alle Teile durchgezählt, Ergebnis bleibt offen
-    await p.click('#b-hilfe'); await p.waitForTimeout(400 * 13 + 420 * 3 + 800);
+    await p.click('#b-hilfe'); await p.waitForTimeout(400 * n + 420 * 3 + 800);
     h = await p.textContent('#hinweis');
     chk(await p.$$eval('.zaehl', z => z.length) === n && /\?/.test(h) && !(await p.isDisabled('#b-hilfe')), `${name}: Zeig mir's zählt alle ${n} Teile, Ergebnis bleibt offen`);
 

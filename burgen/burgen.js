@@ -11,13 +11,14 @@ tisch.append(platte());                         // Milchglas-Körnung wie beim E
 let stat = statistikPruefen(lesen('burgen', STANDARD));
 const speichern = () => schreiben('burgen', stat);
 
+const verlauf = [];                              // letzte Burgen, damit sich Muster nicht wiederholen
 let burg = null, lage = null, bild = null, nr = 0, geloest = false, zeigt = false, fehler = false, hilfe = false;
 
 /* ---------- Neue Burg ---------- */
 function neu() {
   if (zeigt) return;
   nr++; geloest = false; fehler = false; hilfe = false;
-  burg = neueBurg(Math.random, burg);
+  burg = neueBurg(Math.random, verlauf); verlauf.push(burg); if (verlauf.length > 10) verlauf.shift();
   lage = anordnen(burg);
   tisch.classList.remove('jubel');
   zeichnen();

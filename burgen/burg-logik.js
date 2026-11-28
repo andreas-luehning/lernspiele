@@ -1,67 +1,69 @@
 // Burgen: Generator, Anordnung und Antworten, ohne DOM (direkt in Node testbar).
-// Aus prototypen/burgen.html übernommen (makeTower, makeMiddle, makeCastle, renderCastle, makeOptions),
-// nur ohne HTML-Strings und mit austauschbarem Zufall r. Regeln: docs/burgen.md.
+// Anordnung und Antworten aus prototypen/burgen.html (renderCastle, makeOptions). Der Generator ist seit 28.11.
+// erweitert (mehr Abwechslung, 8–20 Teile, kein Muster aus den letzten 5 Burgen). Regeln: docs/burgen.md.
 
 export const PAL = ['#FF3D9A', '#22C973', '#2E9BFF', '#FFC400', '#FF6B1A', '#00C8C8'];
 export const ROOF = '#FF3D5A';
 export const B = 27, G = 1.5, CELL = B + G;
-export const MIN = 8, MAX = 13;
+export const MIN = 8, MAX = 20;
+export const TURM = [2, 6], MITTE = [1, 8];   // Teile pro Turm bzw. Mitte
+export const MERKEN = 5;                       // so viele letzte Muster kommen nicht wieder
 
 const rand = (a, b, r) => Math.floor(r() * (b - a + 1)) + a;
-const pick = (a, r) => a[Math.floor(r() * a.length)];
 const shuffle = (a, r) => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 export const istDach = t => ['dach', 'keil', 'keilV', 'dachW', 'keilW', 'kugel'].includes(t);
 
-function turm(r) {
-  const list = [{ t: 'wuerfel', rows: 1 }];
-  const x = r();
-  list.push({ t: x < 0.45 ? 'zylinder' : x < 0.75 ? 'quaderV' : 'platteV', rows: 2 });
-  if (r() < 0.30) list.push({ t: 'wuerfel', rows: 1 });
-  const k = r();
-  if (k < 0.35) list.push({ t: 'dach', rows: 1 });
-  else if (k < 0.55) list.push({ t: 'keil', rows: 1, flip: r() < 0.5 });
-  else if (k < 0.75) list.push({ t: 'keilV', rows: 2, flip: r() < 0.5 });
+/** Turm aus k Teilen: unten beliebige Körper (höchstens zwei hohe), oben Dach, Keil oder Kugel. */
+function turm(k, r) {
+  const list = [];
+  let hohe = 0;
+  for (let i = 0; i < k - 1; i++) {
+    const x = r();
+    if (hohe < 2 && x < 0.5) { hohe++; list.push({ t: x < 0.22 ? 'zylinder' : x < 0.38 ? 'quaderV' : 'platteV', rows: 2 }); }
+    else list.push({ t: 'wuerfel', rows: 1 });
+  }
+  const d = r();
+  if (d < 0.35) list.push({ t: 'dach', rows: 1 });
+  else if (d < 0.55) list.push({ t: 'keil', rows: 1, flip: r() < 0.5 });
+  else if (d < 0.75) list.push({ t: 'keilV', rows: 2, flip: r() < 0.5 });
   else list.push({ t: 'kugel', rows: 1 });
   return list;
 }
-function mitte(r) {
-  const style = pick(['tor', 'fenster', 'mauer', 'keep'], r);
-  const list = [];
-  if (style === 'tor') {
-    if (r() < 0.4) list.push({ t: 'platteH', rows: 0.5 });
-    list.push({ t: 'bogen', rows: 1, flip: false });
-    if (r() < 0.5) list.push({ t: 'quaderH', rows: 1 });
-    list.push({ t: r() < 0.6 ? 'dachW' : 'keilW', rows: 1, flip: r() < 0.5 });
-  } else if (style === 'fenster') {
-    list.push({ t: 'quaderH', rows: 1 });
-    list.push({ t: 'bogen', rows: 1, flip: true });          // Fenster: Öffnung oben
-    list.push({ t: 'quaderH', rows: 1 });
-    if (r() < 0.6) list.push({ t: 'dachW', rows: 1 });
-  } else if (style === 'mauer') {
-    const k = rand(2, 3, r);
-    for (let i = 0; i < k; i++) list.push({ t: 'quaderH', rows: 1 });
-    if (r() < 0.4) list.push({ t: 'platteH', rows: 0.5 });
-    if (r() < 0.5) list.push({ t: 'dachW', rows: 1 });
-  } else {                                                    // keep: Mitte darf höher sein
-    const k = rand(3, 4, r);
-    for (let i = 0; i < k; i++) list.push({ t: 'quaderH', rows: 1 });
-    list.push({ t: r() < 0.7 ? 'dachW' : 'keilW', rows: 1, flip: r() < 0.5 });
+/** Mitte aus k Teilen: unten Tor oder Quader, darüber Quader, Platten, Fenster; oft ein breites Dach oder ein Keil. */
+function mitte(k, r) {
+  const dach = k >= 2 && r() < 0.65, n = k - (dach ? 1 : 0), tor = r() < 0.4;
+  const list = [tor ? { t: 'bogen', rows: 1, flip: false } : { t: 'quaderH', rows: 1 }];
+  while (list.length < n) {
+    const vor = list.at(-1).t, x = r();
+    if (x < 0.2 && vor === 'quaderH') list.push({ t: 'bogen', rows: 1, flip: true });          // Fenster: Öffnung oben
+    else if (x < 0.38 && vor !== 'platteH') list.push({ t: 'platteH', rows: 0.5 });
+    else list.push({ t: 'quaderH', rows: 1 });
   }
+  if (dach) list.push(r() < 0.7 ? { t: 'dachW', rows: 1 } : { t: 'keilW', rows: 1, flip: r() < 0.5 });
+  const style = tor ? 'tor' : list.some(p => p.t === 'bogen') ? 'fenster' : 'mauer';
   return { style, list };
 }
+export const muster = c => c.parts.join('-');
 
-/** Neue Burg: Turm · Mitte · Turm, 8–13 Teile. vorher: dieselbe Anzahl nicht zweimal hintereinander (wenn möglich). */
-export function neueBurg(r = Math.random, vorher = null) {
-  for (let versuch = 0; versuch < 500; versuch++) {
-    const tower = turm(r), mid = mitte(r);
-    const tc = tower.length, mc = mid.list.length, total = 2 * tc + mc;
-    if (total < MIN || total > MAX) continue;
-    if (vorher && vorher.total === total && versuch < 50) continue;
-    const [cT, cM] = shuffle(PAL, r).slice(0, 2);
-    const mirror = r() < 0.6;                                 // Keile rechts gespiegelt = Spiegelsymmetrie
-    return { tower, mid, cT, cM, total, mirror, parts: [tc, mc, tc] };
+/**
+ * Neue Burg: Turm · Mitte · Turm, 8–20 Teile, jede Anzahl gleich wahrscheinlich.
+ * verlauf: die bisherigen Burgen (neueste zuletzt). Kein Muster aus den letzten 5, nie zweimal dieselbe Anzahl hintereinander.
+ */
+export function neueBurg(r = Math.random, verlauf = []) {
+  const alt = new Set(verlauf.slice(-MERKEN).map(muster)), letzte = verlauf.at(-1)?.total;
+  const moeglich = [];
+  for (let t = TURM[0]; t <= TURM[1]; t++) for (let m = MITTE[0]; m <= MITTE[1]; m++) {
+    const total = 2 * t + m;
+    if (total >= MIN && total <= MAX && total !== letzte && !alt.has(`${t}-${m}-${t}`)) moeglich.push({ t, m, total });
   }
-  throw new Error('keine Burg gefunden');
+  const anzahlen = [...new Set(moeglich.map(x => x.total))];
+  const ziel = anzahlen[Math.floor(r() * anzahlen.length)];
+  const passend = moeglich.filter(x => x.total === ziel);
+  const { t, m, total } = passend[Math.floor(r() * passend.length)];
+  const tower = turm(t, r), mid = mitte(m, r);
+  const [cT, cM] = shuffle(PAL, r).slice(0, 2);
+  const mirror = r() < 0.6;                                 // Keile rechts gespiegelt = Spiegelsymmetrie
+  return { tower, mid, cT, cM, total, mirror, parts: [t, m, t] };
 }
 
 /**

@@ -9,13 +9,14 @@ Stand: 27.11.2026. **Probe-Version**, nur für Erwachsene sichtbar.
 - **Noch keine Belohnung**, stattdessen eine **kleine Statistik** für Erwachsene. Sie wird später durch die Belohnung ersetzt.
 - Noch nicht angeschlossen an Runde und Lernzeit (keine Uhr). Das kommt mit der Belohnung.
 
-## Regeln (aus `prototypen/burgen.html`, unverändert übernommen)
+## Regeln (aus `prototypen/burgen.html`, Generator erweitert am 28.11.)
 
 | Was | Regel |
 |---|---|
 | Aufbau | Turm · Mitte · Turm, symmetrisch. Dach, Keil oder Kugel ist immer der oberste Stein; nichts schwebt. |
-| Teile | 8–13 Bauteile. **Jedes Teil zählt als 1**, auch lange Quader, Platten und Zylinder. |
-| Bauteile | Generator und Formen genau wie im Prototyp (Würfel, Quader, Zylinder, Platte, Dach, Keil, steiler Keil, Kugel, Tor- und Fensterbogen, breites Dach und breiter Keil). Die Formen werden nicht verändert. |
+| Teile | **8–20 Bauteile** (vorher 8–13), jede Anzahl gleich oft. **Jedes Teil zählt als 1**, auch lange Quader, Platten und Zylinder. |
+| Abwechslung | Rückmeldung 28.11.: Mit dem Generator aus dem Prototyp hatte ein Turm fast immer 3 Teile, so kam oft 3 + 4 + 3 und man erkannte die Burg nur wieder. Jetzt: **Turm 2–6 Teile, Mitte 1–8 Teile**, Bauteile frei gemischt (Würfel, Quader, Zylinder, Platte; in der Mitte Quader, Platten, Tor unten, Fenster). **Kein Muster (Turm + Mitte + Turm) aus den letzten 5 Burgen kommt wieder**, und nie zweimal hintereinander dieselbe Anzahl. |
+| Bauteile | Formen genau wie im Prototyp (Würfel, Quader, Zylinder, Platte, Dach, Keil, steiler Keil, Kugel, Tor- und Fensterbogen, breites Dach und breiter Keil). Die Formen werden nicht verändert. |
 | Farben | Turm und Mitte je eine Farbe aus dem Prototyp, Dächer rot. |
 | Acryl-Look | **Klar und scharf wie echte Acryl-Bausteine** (Rückmeldung 28.11.: mit dem Glühen aus dem Prototyp wirkten die Teile verschwommen). Kräftige, durchsichtige Farbe; am Rand dichter als in der Mitte (dort ist das Acryl dicker); helle Lichtkante oben links, dunklere Kante unten rechts; ein schwacher Glanz von oben; dunklere, scharfe Umrisslinie. Kein Weichzeichner auf den Teilen. |
 | Frage | „Wie viele Bausteine hat die Burg?“ Vier Antworten zum Tippen, eine stimmt. |
@@ -43,9 +44,15 @@ Unter dem Tisch, klein, für Erwachsene beim Ausprobieren:
 
 Gespeichert unter `lernspiele:burgen` (im Probe-Modus `lernspiele:probe:burgen`): `{ version: 1, geloest, gleichRichtig, mitHilfe, fehlversuche }`, nur Zahlen. „Probe zurücksetzen“ auf der Startseite löscht sie.
 
+## Ideen für später (28.11.)
+
+- **Halb verdeckte Burg ergänzen:** Ein Turm (oder die halbe Burg) ist verdeckt, das Kind ergänzt die fehlende Zahl und nutzt die Symmetrie.
+- **Andere Fragen zur selben Burg:** „Wie viele Teile hat ein Turm?“, „Wie viele rote Teile?“
+- **Ungleiche Türme** als eigene Stufe, damit man nicht einfach verdoppeln kann.
+
 ## Offene Fragen (an die Lehrkraft)
 
-1. **Schwierigkeit:** Die Burg hat 8–13 Teile, also mehr als „bis 10“, aber mit Struktur (zwei gleiche Türme = verdoppeln). Ist sie eher zwischen „bis 10“ und „bis 20“ oder ein eigener Weg neben den Steinen? Braucht sie Stufen (z. B. kleinere Burgen 5–8 zum Einstieg)?
+1. **Schwierigkeit:** Die Burg hat jetzt 8–20 Teile, mit Struktur (zwei gleiche Türme = verdoppeln). Braucht sie Stufen (z. B. „bis 12“ zum Einstieg, dann „bis 20“)?
 2. **Belohnung:** Eine eigene Sammlung, z. B. eine **Schatzburg**, die mit jeder Burg ein Stück wächst (Turm, Fahne, Tor), oder eigene Wappen/Fahnen?
 3. **Antwort:** Nur tippen wie im Prototyp, oder auch schreiben wie bei den Steinen?
 4. **Weiter:** Nach der richtigen Antwort selbst „Neue Burg“ tippen (wie im Prototyp) oder automatisch weiter (wie bei den Steinen)?

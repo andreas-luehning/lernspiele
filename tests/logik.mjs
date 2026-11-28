@@ -72,14 +72,21 @@ chk(za.modell.form === 'schild' && za.modell.material === 'kristall', 'lt angefa
   chk(z4.amulette[0].steine.every(s => s === sorte) && z4.amulette[0].stein === sorte && z4.modell.stein !== sorte, 'lt alle steine eines amuletts gleich, nächstes andere sorte'); }
 console.log('Leuchttisch geprüft');
 
-// Burgen: 8–13 Teile, Turm · Mitte · Turm symmetrisch, Dach oben, nichts schwebt, Antworten, Statistik
-{ const anzahlen = new Set(); let vorher = null;
-  for (let i = 0; i < 3000; i++) {
-    const c = BU.neueBurg(Math.random, vorher); anzahlen.add(c.total);
-    chk(c.total >= 8 && c.total <= 13 && c.total === c.parts[0] + c.parts[1] + c.parts[2] && c.parts[0] === c.parts[2], 'burg anzahl ' + c.total);
+// Burgen: 8–20 Teile, Turm 2–6, Mitte 1–8, Turm · Mitte · Turm symmetrisch, Dach oben, nichts schwebt,
+// kein Muster aus den letzten 5, nie zweimal dieselbe Anzahl, Antworten, Statistik
+{ const anzahlen = new Map(), muster = new Set(), verlauf = [];
+  for (let i = 0; i < 6000; i++) {
+    const c = BU.neueBurg(Math.random, verlauf);
+    anzahlen.set(c.total, (anzahlen.get(c.total) || 0) + 1); muster.add(BU.muster(c));
+    chk(c.total >= 8 && c.total <= 20 && c.total === c.parts[0] + c.parts[1] + c.parts[2] && c.parts[0] === c.parts[2], 'burg anzahl ' + c.total);
+    chk(c.tower.length === c.parts[0] && c.mid.list.length === c.parts[1] && c.parts[0] >= 2 && c.parts[0] <= 6 && c.parts[1] >= 1 && c.parts[1] <= 8, 'burg teile ' + BU.muster(c));
+    chk(!verlauf.slice(-5).some(v => BU.muster(v) === BU.muster(c)), 'burg: Muster aus den letzten 5 wiederholt ' + BU.muster(c));
+    chk(!verlauf.length || verlauf.at(-1).total !== c.total, 'burg: zweimal dieselbe Anzahl');
     chk(c.cT !== c.cM, 'burg zwei farben');
     chk(BU.istDach(c.tower.at(-1).t) && c.tower.slice(0, -1).every(p => !BU.istDach(p.t)), 'burg turm: dach nur oben');
     chk(c.mid.list.slice(0, -1).every(p => !BU.istDach(p.t)), 'burg mitte: dach nur oben');
+    chk(c.mid.list.every((p, k) => !(p.t === 'bogen' && !p.flip) || k === 0), 'burg mitte: Tor nur unten');
+    chk(c.tower.reduce((s, p) => s + p.rows, 0) <= 9 && c.mid.list.reduce((s, p) => s + p.rows, 0) <= 8, 'burg nicht zu hoch');
     const l = BU.anordnen(c);
     chk(l.teile.length === c.total, 'burg: ein Teil pro Baustein');
     for (const b of [0, 1, 2]) {             // nichts schwebt: jedes Teil steht auf dem Boden oder auf dem darunter
@@ -88,9 +95,11 @@ console.log('Leuchttisch geprüft');
     }
     const opts = BU.antworten(c.total);
     chk(opts.length === 4 && new Set(opts).size === 4 && opts.includes(c.total) && opts.every(o => o > 0), 'burg antworten ' + opts);
-    vorher = c;
+    verlauf.push(c);
   }
-  chk(anzahlen.size === 6, 'burg: alle Anzahlen 8–13 kommen vor ' + [...anzahlen]);
+  chk(anzahlen.size === 13 && Math.min(...anzahlen.values()) > 6000 / 13 * 0.7, 'burg: alle Anzahlen 8–20 etwa gleich oft ' + JSON.stringify([...anzahlen].sort((a, b) => a[0] - b[0])));
+  chk(muster.size >= 25, 'burg: viele verschiedene Muster (' + muster.size + ')');
+  console.log('Burgen: ' + muster.size + ' Muster, Anzahlen', [...anzahlen].sort((a, b) => a[0] - b[0]).map(([k, v]) => k + ':' + v).join(' '));
   const st = BU.statistikPruefen({ geloest: 3, gleichRichtig: -1, mitHilfe: 1.5, fehlversuche: '<b>', x: 1 });
   chk(JSON.stringify(st) === JSON.stringify({ geloest: 3, gleichRichtig: 0, mitHilfe: 0, fehlversuche: 0 }), 'burg statistik bereinigt ' + JSON.stringify(st));
   BU.geloestZaehlen(st, { fehler: false, hilfe: false }); BU.geloestZaehlen(st, { fehler: true, hilfe: false }); BU.geloestZaehlen(st, { fehler: false, hilfe: true });
