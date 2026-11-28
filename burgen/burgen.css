@@ -25,3 +25,6 @@
 .statistik div { min-width: 0; }
 .statistik dt { font-size: .72rem; line-height: 1.15; }
 .statistik dd { font-size: 1.15rem; }
+
+/* Acryl wirkt wie ein Farbfilter über dem Licht des Tisches: Farbe multipliziert sich mit der Platte */
+.acryl-koerper { mix-blend-mode: multiply; }

@@ -16,7 +16,8 @@ Stand: 27.11.2026. **Probe-Version**, nur für Erwachsene sichtbar.
 | Aufbau | Turm · Mitte · Turm, symmetrisch. Dach, Keil oder Kugel ist immer der oberste Stein; nichts schwebt. |
 | Teile | 8–13 Bauteile. **Jedes Teil zählt als 1**, auch lange Quader, Platten und Zylinder. |
 | Bauteile | Generator und Formen genau wie im Prototyp (Würfel, Quader, Zylinder, Platte, Dach, Keil, steiler Keil, Kugel, Tor- und Fensterbogen, breites Dach und breiter Keil). Die Formen werden nicht verändert. |
-| Farben | Turm und Mitte je eine Farbe aus dem Prototyp, Dächer rot. Acryl-Look (durchscheinend, farbige Kante, leichtes Glühen). |
+| Farben | Turm und Mitte je eine Farbe aus dem Prototyp, Dächer rot. |
+| Acryl-Look | **Klar und scharf wie echte Acryl-Bausteine** (Rückmeldung 28.11.: mit dem Glühen aus dem Prototyp wirkten die Teile verschwommen). Kräftige, durchsichtige Farbe; am Rand dichter als in der Mitte (dort ist das Acryl dicker); helle Lichtkante oben links, dunklere Kante unten rechts; ein schwacher Glanz von oben; dunklere, scharfe Umrisslinie. Kein Weichzeichner auf den Teilen. |
 | Frage | „Wie viele Bausteine hat die Burg?“ Vier Antworten zum Tippen, eine stimmt. |
 | Richtig | Der Tisch leuchtet einmal auf. „Stimmt! Zusammen N.“ mit der Rechnung Turm + Mitte + Turm = N. Weiter mit „Neue Burg“. |
 | Falsch | Sanftes Wackeln, die Rechnung mit **?** als Denkhilfe, beliebig oft probieren. Kein Abzug. |
@@ -27,7 +28,7 @@ Stand: 27.11.2026. **Probe-Version**, nur für Erwachsene sichtbar.
 
 Dieselbe Platte wie bei den Edelsteinen (Rahmen, Milchglas, Aufleuchten bei richtiger Antwort), siehe `docs/leuchttisch.md`.
 
-- **Lichtschein von unten:** Unter jedem Bauteil ein weicher Schein in seiner Farbe, leicht nach rechts unten versetzt, stark verwischt. Er liegt unter der ganzen Burg und darf nie wie ein zusätzliches Teil aussehen.
+- **Lichtschein von unten:** Unter jedem Bauteil ein Schein in seiner Farbe, leicht nach rechts unten versetzt, blass und nur leicht verwischt (so bleiben die Teile scharf, 28.11.). Er liegt unter der ganzen Burg und darf nie wie ein zusätzliches Teil aussehen.
 - **Funkeln:** Ab und zu (alle 4–8 Sekunden) funkelt **sehr subtil** ein kleiner Stern auf einem Bauteil. Nicht bei „Zeig mir's“, nicht nach der richtigen Antwort (damit es nicht wie das Aufleuchten wirkt). Bei „Bewegung reduzieren“ am Gerät kein Funkeln.
 - Die Formen und Umrisse der Bauteile bleiben wie im Prototyp.
 
