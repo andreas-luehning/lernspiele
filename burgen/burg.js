@@ -100,7 +100,7 @@ export function burgSvg(lage) {
   }
   s.append(licht);
   lage.teile.forEach((t, i) => {
-    const g = bauteil(t); g.classList.add('teil'); g.dataset.bereich = String(t.bereich); g.dataset.nr = String(i);
+    const g = bauteil(t); g.classList.add('teil'); g.dataset.bereich = String(t.bereich); g.dataset.nr = String(i); g.dataset.farbe = t.farbe;
     s.append(g);
   });
   return s;
@@ -121,4 +121,35 @@ export function funkelStern(t) {
   const x = t.x + Math.min(8, t.w * 0.3), y = t.y + Math.min(7, t.h * 0.3), a = 4.5, b = 1.2;
   return svg('path', { class: 'burg-funkeln', 'aria-hidden': 'true', fill: '#ffffff',
     d: `M${x} ${y - a} L${x + b} ${y - b} L${x + a} ${y} L${x + b} ${y + b} L${x} ${y + a} L${x - b} ${y + b} L${x - a} ${y} L${x - b} ${y - b} Z` });
+}
+
+/** Ring um ein Teil (für „Zeig mir's“ ohne Zahlen: ein Turm oder eine Farbe). */
+export function zaehlRing(t) {
+  return svg('rect', { class: 'zaehl-ring', x: t.x - 3, y: t.y - 3, width: t.w + 6, height: t.h + 6, rx: 7 });
+}
+
+/**
+ * Tuch über dem rechten Turm (Stufe „Versteckt“): weicher Stoff mit Falten, deutlich anders als ein Bauteil,
+ * deckt den Turm und seinen Lichtschein ganz ab. In der Mitte ein „?“.
+ */
+export function tuch(lage) {
+  const turm = lage.teile.filter(t => t.bereich === 2);
+  const x0 = Math.min(...turm.map(t => t.x)) - 6, x1 = Math.max(...turm.map(t => t.x + t.w)) + 9;
+  const y0 = Math.min(...turm.map(t => t.y)) - 12, y1 = lage.groundY + 8;
+  const w = x1 - x0, mx = (x0 + x1) / 2;
+  const g = svg('g', { class: 'tuch', 'aria-label': 'Ein Turm ist unter dem Tuch versteckt', role: 'img' });
+  // Stoff: oben rund (über der Turmspitze), unten leicht gewellt
+  g.append(svg('path', { class: 'tuch-stoff', d:
+    `M${x0} ${y1} L${x0 + 2} ${y0 + 14} Q${x0 + 3} ${y0} ${mx} ${y0} Q${x1 - 3} ${y0} ${x1 - 2} ${y0 + 14} L${x1} ${y1} ` +
+    `Q${x1 - w * 0.25} ${y1 - 5} ${mx} ${y1} Q${x0 + w * 0.25} ${y1 + 5} ${x0} ${y1} Z` }));
+  // Falten
+  for (const f of [0.3, 0.55, 0.78]) {
+    const fx = x0 + w * f;
+    g.append(svg('path', { class: 'tuch-falte', d: `M${fx} ${y0 + 16} Q${fx - 3} ${(y0 + y1) / 2} ${fx + 1} ${y1 - 4}` }));
+  }
+  const cy = (y0 + y1) / 2;
+  g.append(svg('circle', { class: 'tuch-frage-kreis', cx: mx, cy, r: 11 }));
+  const t = svg('text', { class: 'tuch-frage', x: mx, y: cy + 5.5, 'text-anchor': 'middle' }); t.textContent = '?';
+  g.append(t);
+  return g;
 }

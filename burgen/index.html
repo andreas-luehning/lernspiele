@@ -32,6 +32,12 @@
         <small>Bausteine zählen</small>
       </a>
     </div>
+    <div class="seg" id="stufen" role="group" aria-label="Stufe">
+      <button type="button" data-stufe="0" aria-pressed="true">Klein</button>
+      <button type="button" data-stufe="1" aria-pressed="false">Groß</button>
+      <button type="button" data-stufe="2" aria-pressed="false">Ungleich</button>
+      <button type="button" data-stufe="3" aria-pressed="false">Versteckt</button>
+    </div>
     <div class="meta">
       <button type="button" class="info-btn" data-thema-knopf aria-label="Nachtmodus einschalten"></button>
       <button type="button" class="info-btn" id="b-info" aria-expanded="false" aria-controls="grown" aria-label="Infos für Erwachsene">?</button>
@@ -40,9 +46,10 @@
 
   <div class="grown" id="grown" hidden>
     <h2>Für Erwachsene</h2>
-    <p>Probe-Version. Eine Burg aus Acryl-Bausteinen liegt auf dem Leuchttisch: Turm, Mitte, Turm. Das Kind zählt alle Bausteine; jedes Teil zählt als 1. Die Türme sind gleich, so kann es geschickt zählen (verdoppeln, dann die Mitte dazu).</p>
-    <p>„Zeig mir's“ zählt die Teile einzeln durch und zeigt die Rechnung mit „?“. Das Ergebnis wird nie verraten. Fehler kosten nichts. Es gibt keine Uhr.</p>
-    <p>Noch keine Belohnung und keine Lernzeit. Statt dessen steht unten eine kleine Statistik zum Ausprobieren. Sie bleibt auf dem Gerät; „Probe zurücksetzen“ auf der Startseite löscht sie.</p>
+    <p>Probe-Version. Eine Burg aus Acryl-Bausteinen liegt auf dem Leuchttisch: Turm, Mitte, Turm. Jedes Teil zählt als 1.</p>
+    <p><b>Stufen:</b> Klein (6–10 Teile), Groß (10–20, die Türme sind gleich: verdoppeln), Ungleich (8–15, die Türme sind verschieden), Versteckt (8–16, ein Turm steht unter einem Tuch und wird mit Hilfe des anderen ergänzt). Bei Klein und Groß kommt ab und zu eine andere Frage: ein Turm oder eine Farbe.</p>
+    <p>„Zeig mir's“ zeigt den Weg, aber nie das Ergebnis. Fehler kosten nichts. Es gibt keine Uhr.</p>
+    <p>Noch keine Belohnung und keine Lernzeit. Statt dessen steht unten eine kleine Statistik für die gewählte Stufe. Sie bleibt auf dem Gerät; „Probe zurücksetzen“ auf der Startseite löscht sie.</p>
   </div>
 
   <div class="frage" id="frage" aria-live="polite">Wie viele Bausteine hat die Burg?</div>

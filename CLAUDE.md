@@ -56,10 +56,10 @@ leuchttisch/            Spiel 2 (Entwurf): Edelsteine zählen und zerlegen, Amul
   index.html, leuchttisch.css, leuchttisch.js (Seite)
   aufgaben.js           Aufgaben, Streuen, Amulett-Regeln (ohne DOM, direkt testbar)
   steine.js             Edelsteine und Amulett als SVG (Amulett: Rahmen in Materialfarbe, ein großer Stein, füllt sich in 10 Schritten)
-burgen/                 Spiel 3 (Probe, Kachel nur im Probe-Modus): Burg aus Acryl-Bausteinen zählen, Statistik statt Belohnung
+burgen/                 Spiel 3 (Probe, Kachel nur im Probe-Modus): Burg aus Acryl-Bausteinen zählen, 4 Stufen, Statistik statt Belohnung
   index.html, burgen.css, burgen.js (Seite; Layout und Tisch aus leuchttisch/leuchttisch.css)
-  burg-logik.js         Generator (8–20 Teile, kein Muster aus den letzten 5), Anordnung, Antworten, Statistik (ohne DOM, direkt testbar)
-  burg.js               Bauteile als SVG (Formen wie im Prototyp), Lichtschein, Zählplaketten, Funkeln
+  burg-logik.js         Stufen, Generator, Fragen (ganze Burg, ein Turm, eine Farbe), Anordnung, Antworten, Speicher (ohne DOM, direkt testbar)
+  burg.js               Bauteile als SVG (Formen wie im Prototyp), Lichtschein, Zählplaketten und Ringe, Tuch, Funkeln
 schatzkammer/           Amulette ansehen: angefangenes Amulett, fertige Amulette, Album aller Modelle (Form × Material)
 docs/                   Beschreibungen, Regeln, Fotos der Arbeitsblätter
   leuchttisch.md        Leuchttisch: Regeln, Abgleich mit den Prototypen, offene Fragen
@@ -76,7 +76,7 @@ tests/                  logik.mjs, parade-logik.mjs (Node); browser.js, parade-b
 - **Schritt 2 (Branch `schneckenparade`):** Die Schneckenparade ersetzt die Sterne: 5-Minuten-Runde, Salatblätter, neue Schnecken, Rückblick, Garten-Seite mit Begleiter-Wahl und Album. Entscheidungen siehe `docs/schneckenparade.md`.
 - **Belohnungsmodell (Branch `belohnung-neu`):** eine fertige 5-Minuten-Runde = eine Schnecke, 5 Salatblätter = eine Kopfbedeckung in der Hutschachtel (14 Arten, frei aufsetzen), Wachsen einmal pro Tag, Deko alle 5 Übungstage, gemeinsame Lernzeit pro Tag (Standard 20 Min). Tempo-Simulation in `docs/schneckenparade.md`.
 - **Leuchttisch (Entwurf, Branch `leuchttisch-mit-belohnung`):** Edelsteine zählen und zerlegen (Stufen 2–6, bis 7, bis 10, bis 20), Antwort tippen oder schreiben, Amulette als eigene Sammlung, Licht ruhig/bewegt. Angeschlossen an Runde und Lernzeit (`gemeinsam/runde.js` mit eigenem Speicher, keine Schnecke); Steine nur während einer Runde. Amulette werden automatisch gefüllt; Material nach Stufe (Bronze, Silber, Gold, Kristall), Form wechselt; Schatzkammer mit Album. Offen: Hauptbelohnung für eine fertige Runde, Steine umsetzen. Regeln: `docs/leuchttisch.md`. Vorlagen: `prototypen/burgen.html`, `prototypen/leuchttisch.html` (mit Numi-Thema und Google Fonts, nicht verändern).
-- **Burgen (Probe, Branch `burgen-probe`, baut auf `leuchttisch-effekte` auf):** eigene Kachel, vorerst nur im Probe-Modus sichtbar. Burg mit den Formen aus dem Prototyp in klarem Acryl-Look, Generator erweitert (Türme 2–6, Mitte 1–8, 8–20 Teile, kein Muster aus den letzten 5), auf dem Leuchttisch mit Milchglas, Lichtschein und subtilem Funkeln; vier Antworten, „Zeig mir's“; Statistik (`lernspiele:burgen`) statt Belohnung, noch ohne Runde und Lernzeit. Regeln: `docs/burgen.md`.
+- **Burgen (Probe, Branch `burgen-probe`, baut auf `leuchttisch-effekte` auf):** eigene Kachel, vorerst nur im Probe-Modus sichtbar. Burg mit den Formen aus dem Prototyp in klarem Acryl-Look auf dem Leuchttisch (Milchglas, Lichtschein, subtiles Funkeln). Vier Stufen: Klein (6–10), Groß (10–20), Ungleich (8–15, Türme verschieden), Versteckt (8–16, ein Turm unter einem Tuch). In Klein und Groß ab und zu andere Fragen (ein Turm, eine Farbe). Abwechslung: kein Muster aus den letzten Burgen, keine „Raketen“. Vier Antworten, „Zeig mir's“; Statistik je Stufe (`lernspiele:burgen`) statt Belohnung, noch ohne Runde und Lernzeit. Regeln: `docs/burgen.md`.
 - **Danach:** Rundenbelohnung am Leuchttisch, eigene Belohnung für die Burgen, später Profile für mehrere Kinder, Numi als eigene Welt.
 - `prototypen/zehnerweg.html` ist ein funktionierender Prototyp in einer Datei (Modell eingebettet). `prototypen/zehnerweg.quelle.html` ist dieselbe Datei mit dem Platzhalter `__MODEL__` statt der Gewichte; die Gewichte liegen in `werkzeuge/ziffern-modell/model.json`.
 - `prototypen/schneckenparade.html` ist eine Probe der Belohnung. Die Aufgaben werden dort per Knopf simuliert.
